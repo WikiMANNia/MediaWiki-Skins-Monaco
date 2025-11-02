@@ -623,7 +623,7 @@ class MonacoSidebar {
 					$filterWordsA[] = '(cl_to not like "%' . $word . '%")';
 				}
 
-				$dbr = wfGetDB( DB_REPLICA );
+				$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getMaintenanceConnectionRef( DB_REPLICA );
 				$tables = [ 'categorylinks' ];
 				$fields = [ 'cl_to, COUNT(*) AS cnt' ];
 				$where = count( $filterWordsA ) > 0 ? [ implode( ' AND ', $filterWordsA ) ] : [];
