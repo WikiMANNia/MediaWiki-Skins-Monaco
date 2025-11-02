@@ -54,7 +54,6 @@ class MonacoTemplate extends BaseTemplate {
 		$user = $skin->getUser();
 		$request = $skin->getContext()->getRequest();
 		$title = $skin->getContext()->getTitle();
-		$namespace = $title->getNamespace();
 		$stylepath = $this->data['stylepath'];
 
 		$this->set( 'blankimg', $stylepath . '/Monaco/style/images/blank.gif' );
@@ -175,7 +174,7 @@ class MonacoTemplate extends BaseTemplate {
 			} elseif ( $title->isTalkPage() ) {
 				// talk footer
 				$namespaceType = 'talk';
-			} elseif ( $namespace == NS_SPECIAL ) {
+			} elseif ( $title->inNamespace( NS_SPECIAL ) ) {
 				// disable footer on some namespaces
 				$namespaceType = 'none';
 			}
@@ -444,7 +443,7 @@ class MonacoTemplate extends BaseTemplate {
 			<noscript><link rel="stylesheet" property="stylesheet" type="text/css" href="'
 					. $this->get( 'stylepath' ) . '/Monaco/style/css/noscript.css?'
 					. $styleVersion . '" /></noscript>';
-		if ( !( $request->getVal( 'action' ) != '' || $namespace == NS_SPECIAL ) ) {
+		if ( !( $request->getVal( 'action' ) != '' || $title->inNamespace( NS_SPECIAL ) ) ) {
 			$html .= $this->get( 'JSloader' );
 			$html .= $this->get( 'headscripts' );
 		}
@@ -796,7 +795,7 @@ class MonacoTemplate extends BaseTemplate {
 		}
 
 		if ( $user->isRegistered() ) {
-			if ( empty( $user->mMonacoData ) || ( $skin->getTitle()->getNamespace() == NS_USER &&
+			if ( empty( $user->mMonacoData ) || ( $skin->getTitle()->inNamespace( NS_USER ) &&
 					$skin->getRequest()->getText( 'action' ) == 'delete' ) ) {
 				$user->mMonacoData = [];
 
@@ -865,7 +864,7 @@ class MonacoTemplate extends BaseTemplate {
 					if ( $kk == 'edit' ) {
 						$title = $skin->getRelevantTitle();
 						$msgKey = $title->exists() ||
-							( $title->getNamespace() == NS_MEDIAWIKI &&
+							( $title->inNamespace( NS_MEDIAWIKI ) &&
 								!wfMessage( $title->getText() )->inContentLanguage()->isBlank() )
 							? 'edit' : 'create';
 					}
@@ -903,7 +902,7 @@ class MonacoTemplate extends BaseTemplate {
 				$msgKey = $key;
 				if ( $key == 'edit' ) {
 					$msgKey = $skin->getTitle()->exists() ||
-						( $skin->getTitle()->getNamespace() == NS_MEDIAWIKI &&
+						( $skin->getTitle()->inNamespace( NS_MEDIAWIKI ) &&
 							wfMessage( $skin->getTitle()->getText() )->exists() )
 						? 'edit' : 'create';
 				}

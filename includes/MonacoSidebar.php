@@ -76,7 +76,7 @@ class MonacoSidebar {
 			} else {
 				$title = Title::newFromText( $link );
 				if ( $title ) {
-					if ( $title->getNamespace() == NS_SPECIAL ) {
+					if ( $title->inNamespace( NS_SPECIAL ) ) {
 						$specialPageFactory = MediaWikiServices::getInstance()->getSpecialPageFactory();
 						$dbkey = $title->getDBkey();
 
