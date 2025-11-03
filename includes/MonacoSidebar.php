@@ -6,14 +6,10 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Title\Title;
 
 class MonacoSidebar {
-	/** @var array */
-	public $biggestCategories;
 
-	/** @var string */
-	public $editUrl = '';
-
-	/** @var HookContainer */
-	private $hookContainer;
+	public array $biggestCategories = [];
+	public string $editUrl = '';
+	private HookContainer $hookContainer;
 
 	public function __construct( HookContainer $hookContainer ) {
 		$this->hookContainer = $hookContainer;
@@ -223,8 +219,8 @@ class MonacoSidebar {
 				if ( !empty( $nodes[$val]['children'] ) || !empty( $nodes[$val]['magic'] ) ) {
 					$menu .= ' with-sub-menu';
 				}
-
 				$menu .= '">';
+
 				$menu .= '<a id="a-menu-item_' . $val . '" href="' .
 					( !empty( $nodes[$val]['href'] ) ? htmlspecialchars( $nodes[$val]['href'] ) : '#' ) . '"';
 				if ( !isset( $nodes[$val]['internal'] ) || !$nodes[$val]['internal'] ) {

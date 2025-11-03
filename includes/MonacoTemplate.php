@@ -511,7 +511,6 @@ class MonacoTemplate extends BaseTemplate {
 				$createPage = Title::newFromText( $MonacoDynamicCreateOverride );
 			}
 			if ( !isset( $createPage ) ) {
-
 				$specialPageFactory = MediaWikiServices::getInstance()->getSpecialPageFactory();
 				$specialCreatePage = $specialPageFactory->getPage( 'CreatePage' );
 				if ( $specialCreatePage && $specialCreatePage->userCanExecute( $user ) ) {
@@ -520,27 +519,27 @@ class MonacoTemplate extends BaseTemplate {
 			}
 			if ( isset( $createPage ) && ( $user->isAllowed( 'edit' ) || $user->isAnon() ) ) {
 				/* Redirect to login page instead of showing error, see Login friction project */
-				$dynamicLinksInternal["write-article"] = [
-				'url' => $user->isAnon() ? SpecialPage::getTitleFor( 'Userlogin' )
-					->getLocalURL( [ "returnto" => $createPage->getPrefixedDBkey() ] ) : $createPage->getLocalURL(),
-				'icon' => 'edit',
+				$dynamicLinksInternal[ 'write-article' ] = [
+					'url' => $user->isAnon() ? SpecialPage::getTitleFor( 'Userlogin' )
+						->getLocalURL( [ 'returnto' => $createPage->getPrefixedDBkey() ] ) : $createPage->getLocalURL(),
+					'icon' => 'edit',
 				];
 			}
 			$EnableUploads = $this->mConfig->get( 'EnableUploads' );
 			$UploadNavigationUrl = $this->mConfig->get( 'UploadNavigationUrl' );
-			if ( ( $wgEnableUploads || $wgUploadNavigationUrl ) && ( $user->isAllowed( 'upload' ) ||
-					$user->isAnon() || $wgUploadNavigationUrl ) ) {
+			if ( ( $EnableUploads || !empty( $UploadNavigationUrl ) ) && ( $user->isAllowed( 'upload' ) ||
+					$user->isAnon() || !empty( $UploadNavigationUrl ) ) ) {
 				$uploadPage = SpecialPage::getTitleFor( 'Upload' );
 				/* Redirect to login page instead of showing error, see Login friction project */
-				if ( $wgUploadNavigationUrl ) {
-					$url = $wgUploadNavigationUrl;
+				if ( !empty( $UploadNavigationUrl ) ) {
+					$url = $UploadNavigationUrl;
 				} else {
 					$url = $user->isAnon() ? SpecialPage::getTitleFor( 'Userlogin' )
-						->getLocalURL( [ "returnto" => $uploadPage->getPrefixedDBkey() ] ) : $uploadPage->getLocalURL();
+						->getLocalURL( [ 'returnto' => $uploadPage->getPrefixedDBkey() ] ) : $uploadPage->getLocalURL();
 				}
-				$dynamicLinksInternal["add-image"] = [
-				'url' => $url,
-				'icon' => 'photo',
+				$dynamicLinksInternal['add-image'] = [
+					'url' => $url,
+					'icon' => 'photo',
 				];
 			}
 
@@ -560,7 +559,7 @@ class MonacoTemplate extends BaseTemplate {
 						$dynamicLinksUser[$line] = [
 							'url' => $url,
 							// @note Designers used messy css sprites so we can't really let this be customized easily
-							'icon' => 'edit',
+							'icon' => 'edit'
 						];
 					}
 				}
