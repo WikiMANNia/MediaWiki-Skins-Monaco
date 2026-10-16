@@ -1,8 +1,12 @@
 {
 	"name": "Monaco",
-	"version": "2.6.5",
+	"version": "2.8.6",
+	"requires": {
+		"MediaWiki": ">= 1.39.0"
+	},
 	"author": [
 		"'''Universal Omega'''",
+		"WikiForMen",
 		"Inez Korczyński",
 		"Christian Williams",
 		"Daniel Friesen",
@@ -13,9 +17,6 @@
 	"descriptionmsg": "monaco-desc",
 	"license-name": "GPL-2.0-or-later",
 	"type": "skin",
-	"requires": {
-		"MediaWiki": ">= 1.39.0"
-	},
 	"ValidSkinNames": {
 		"monaco": {
 			"displayname": "Monaco",
@@ -23,6 +24,12 @@
 			"args": [ {
 				"name": "monaco",
 				"bodyOnly": true,
+				"menus": [
+					"associated-pages",
+					"views",
+					"actions",
+					"variants"
+				],
 				"template": "MonacoTemplate",
 				"styles": [
 					"skins.monaco"
@@ -33,19 +40,35 @@
 			} ]
 		}
 	},
+	"attributes": {
+		"Theme": {
+			"Modules": {
+				"monaco": [
+					"beach",
+					"brick",
+					"carbon",
+					"forest",
+					"gaming",
+					"jade",
+					"moonlight",
+					"obsession",
+					"ruby",
+					"sapphire",
+					"sky",
+					"slate",
+					"smoke",
+					"spring"
+				]
+			}
+		}
+	},
 	"MessagesDirs": {
 		"Monaco": [
 			"i18n"
 		]
 	},
-	"AutoloadClasses": {
-		"SkinMonaco": "includes/SkinMonaco.php",
-		"MonacoHooks": "includes/MonacoHooks.php",
-		"MonacoSidebar": "includes/MonacoSidebar.php",
-		"MonacoTemplate": "includes/MonacoTemplate.php"
-	},
 	"ConfigRegistry": {
-		"monaco": "GlobalVarConfig::newInstance"
+		"monaco": "MediaWiki\\Config\\GlobalVarConfig::newInstance"
 	},
 	"ResourceModules": {
 		"skins.monaco": {
@@ -66,7 +89,7 @@
 				"desktop",
 				"mobile"
 			],
-			"position": "top",		
+			"position": "top",
 			"styles": {
 				"style/css/print.css": {
 					"media": "print"
@@ -100,7 +123,7 @@
 				},
 				"style/css/sprite.css": {
 					"media": "screen"
-				},	
+				},
 				"style/css/modal.css": {
 					"media": "screen"
 				},
@@ -128,37 +151,87 @@
 	},
 	"config": {
 		"MonacoAllowUseTheme": {
+			"type": "boolean",
 			"value": true
 		},
-		"MonacoTheme": {
+		"MonacoDefaultTheme": {
+			"type": "string",
 			"value": "sapphire"
 		},
+		"SkipMonacoThemes": {
+			"type": "array",
+			"value": []
+		},
 		"MonacoDynamicCreateOverride": {
+			"type": "boolean",
 			"value": false
 		},
 		"MonacoUseMoreButton": {
+			"type": "boolean",
 			"value": true
 		},
 		"MonacoUseSitenoticeIsland": {
+			"type": "boolean",
 			"value": false
 		},
 		"MonacoUseMasthead": {
+			"type": "boolean",
 			"value": true
 		},
 		"MonacoCompactSpecialPages": {
+			"type": "boolean",
 			"value": false
 		},
 		"MonacoBiggestCategoriesBlacklist": {
+			"type": "array",
+			"value": []
+		},
+		"MonacoEnablePaypal": {
+			"type": "boolean",
+			"value": false
+		},
+		"MonacoPaypalID": {
+			"type": "string",
+			"value": ""
+		},
+		"MonacoEnablePatreon": {
+			"type": "boolean",
+			"value": false
+		},
+		"MonacoPatreonURL": {
+			"type": "string",
+			"value": ""
+		},
+		"MonacoSearchDefaultFulltext": {
+			"type": "boolean",
+			"value": false
+		},
+		"MonacoSpecialPagesRequiredLogin": {
+			"type": "array",
 			"value": []
 		}
 	},
+	"AutoloadClasses": {
+		"SkinMonaco": "includes/SkinMonaco.php",
+		"MonacoHooks": "includes/MonacoHooks.php",
+		"MonacoSidebar": "includes/MonacoSidebar.php",
+		"MonacoTemplate": "includes/MonacoTemplate.php"
+	},
+	"HookHandlers": {
+		"main": {
+			"class": "MonacoHooks",
+			"services": [
+				"MainConfig",
+				"UserOptionsLookup"
+			]
+		}
+	},
 	"Hooks": {
+		"GetPreferences": "main",
 		"MessageCacheReplace": [
 			"MonacoSidebar::invalidateCache"
 		],
-		"OutputPageBodyAttributes": [
-			"MonacoHooks::onOutputPageBodyAttributes"
-		]
+		"OutputPageBodyAttributes": "main"
 	},
 	"manifest_version": 2
 }
