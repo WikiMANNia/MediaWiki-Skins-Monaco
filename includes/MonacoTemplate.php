@@ -104,63 +104,64 @@ class MonacoTemplate extends BaseTemplate {
 	}
 		$html .= '<!-- /HEADER -->
 
-		<!-- PAGE -->
-	<div id="monaco_shrinkwrap_main" class="monaco_shrinkwrap with_left_sidebar'
-			. ( $this->hasRightSidebar() ? ' with_right_sidebar' : null ) . '">
-		<div id="page_wrapper">';
+		<!-- PAGE -->' .
+			Html::openElement( 'div',
+				[
+					'id' => 'monaco_shrinkwrap_main',
+					'class' => 'monaco_shrinkwrap with_left_sidebar' . ( $this->hasRightSidebar() ? ' with_right_sidebar' : '' )
+				]
+			) .
+			Html::openElement( 'div', [ 'id' => 'page_wrapper' ] );
 		$hookContainer->run( 'MonacoBeforePage', [ $this, &$html ] );
 		$html .= $this->printBeforePage();
 		if ( $MonacoUseSitenoticeIsland && $this->data['sitenotice'] ) {
-			$html .= '<div class="page">
-				<div id="siteNotice">' . $this->get( 'sitenotice' ) . '</div>
-			</div>';
+			$html .= Html::rawElement( 'div', [ 'class' => 'page' ],
+				Html::rawElement( 'div', [ 'id' => 'siteNotice' ], $this->get( 'sitenotice' ) )
+			);
 		}
-		$html .= '<div id="wikia_page" class="page">' .
+		$html .= Html::openElement( 'div', [ 'id' => 'wikia_page', 'class' => 'page' ] ) .
 			$this->printMasthead();
 			$hookContainer->run( 'MonacoBeforePageBar', [ $this ] );
 			$html .= $this->printPageBar() . '
-			<!-- ARTICLE -->
 
-			<article id="content" class="mw-body" role="main" aria-labelledby="firstHeading">
-				<a id="top"></a>';
+			<!-- ARTICLE -->' .
+			Html::openElement( 'article', [ 'id' => 'content', 'class' => 'mw-body', 'role' => 'main', 'aria-labelledby' => 'firstHeading' ] ) .
+			Html::rawElement( 'a', [ 'id' => 'top' ] );
 		$hookContainer->run( 'MonacoAfterArticle', [ $this, &$html ] );
 		if ( !$MonacoUseSitenoticeIsland && $this->data['sitenotice'] ) {
-			$html .= '<div id="siteNotice">' . $this->get( 'sitenotice' ) . '</div>';
+			$html .= Html::rawElement( 'div', [ 'id' => 'siteNotice' ], $this->get( 'sitenotice' ) );
 		}
 		if ( method_exists( $this, 'getIndicators' ) ) {
 			$html .= $this->getIndicators();
 		}
-		$html .= $this->printFirstHeading() . '
-			<div id="bodyContent" class="body_content">
-			<h2 id="siteSub">' . $this->getMsg( 'tagline' )->parse() . '</h2>';
+			$html .= $this->printFirstHeading() .
+				Html::openElement( 'div', [ 'id' => 'bodyContent', 'class' => 'body_content' ] ) .
+				Html::rawElement( 'h2', [ 'id' => 'siteSub' ], $this->getMsg( 'tagline' )->parse() );
+
 		if ( $this->data['subtitle'] ) {
-			$html .= '<div id="contentSub">' . $this->get( 'subtitle' ) . '</div>';
+			$html .= Html::rawElement( 'div', [ 'id' => 'contentSub' ], $this->get( 'subtitle' ) );
 		}
 		if ( $this->data['undelete'] ) {
-			$html .= '<div id="contentSub2">' . $this->get( 'undelete' ) . '</div>';
+			$html .= Html::rawElement( 'div', [ 'id' => 'contentSub2' ], $this->get( 'undelete' ) );
 		}
 		if ( $this->data['newtalk'] ) {
-			$html .= '<div class="usermessage noprint">' . $this->get( 'newtalk' ) . '</div>';
+			$html .= Html::rawElement( 'div', [ 'id' => 'usermessage noprint' ], $this->get( 'newtalk' ) );
 		}
 		if ( !empty( $skin->newuemsg ) ) {
 			$html .= $skin->newuemsg;
 		}
+					$html .= '<!-- start content -->';
 
-		$html .= '<!-- start content -->';
-
-		// Display content
-		$html .= $this->printContent();
-
-		$html .= $this->printCategories();
-
-		$html .= '<!-- end content -->';
-		if ( $this->data['dataAfterContent'] ) {
-			$html .= $this->get( 'dataAfterContent' );
-		}
-		$html .= '<div class="visualClear"></div>
-					</div>
-
-				</article>
+					// Display content
+					$html .= $this->printContent();
+					$html .= $this->printCategories();
+					$html .= '<!-- end content -->';
+				if ( $this->data['dataAfterContent'] ) {
+					$html .= $this->get( 'dataAfterContent' );
+				}
+					$html .= Html::rawElement( 'div', [ 'class' => 'visualClear' ] );
+					$html .= Xml::closeElement( 'div' );
+					$html .= Xml::closeElement( 'article' ) . '
 				<!-- /ARTICLE -->
 
 			<!-- ARTICLE FOOTER -->';
@@ -189,12 +190,12 @@ class MonacoTemplate extends BaseTemplate {
 			if ( ( $namespaceType != 'none' )
 				&& in_array( $action, [ 'view', 'purge', 'edit', 'history', 'delete', 'protect' ] ) ) {
 				$nav_urls = $this->data['nav_urls'];
-					$html .= '<div id="articleFooter" class="reset article_footer">
-				<table style="border-spacing: 0;">
-					<tr>
-						<td class="col1">
-							<ul class="actions" id="articleFooterActions">';
-				if ( $namespaceType == 'talk' ) {
+					$html .= Html::openElement( 'div', [ 'id' => 'articleFooter', 'class' => 'reset article_footer' ] ) .
+						Html::openElement( 'table', [ 'style' => 'border-spacing: 0' ] ) .
+						Html::openElement( 'tr' ) .
+						Html::openElement( 'td', [ 'class' => 'col1' ] ) .
+						Html::openElement( 'ul', [ 'style' => 'actions', 'id' => 'articleFooterActions' ] );
+				if ( $namespaceType === 'talk' ) {
 					$custom_article_footer = '';
 					// assign $this to a temporary variable so we can pass it as a reference
 					$template = $this;
@@ -298,7 +299,11 @@ class MonacoTemplate extends BaseTemplate {
 					);
 				}
 
-				$html .= "</ul>\n</td>\n<td class='col2'>";
+				$html .= Xml::closeElement( 'ul' ) .
+						Xml::closeElement( 'td' ) .
+						Html::openElement( 'td', [ 'class' => 'col2' ] );
+
+				$li_elements = '';
 
 				if ( !empty( $this->data['content_actions']['history'] ) ||
 					!empty( $nav_urls['recentchangeslinked'] ) ) {
@@ -508,7 +513,7 @@ class MonacoTemplate extends BaseTemplate {
 			$html .= $this->get( 'headscripts' );
 		}
 
-		$html .= '</div>' .
+		$html .= Xml::closeElement( 'div' ) .
 		$this->printRightSidebar() . '
 		<!-- WIDGETS -->';
 		$html .= '<div id="widget_sidebar" class="reset widget_sidebar left_sidebar sidebar">
@@ -824,22 +829,21 @@ class MonacoTemplate extends BaseTemplate {
 			$html .= '</tbody>';
 		}
 	// END: create static box
-		$html .= '</table>';
+		$html .= Xml::closeElement( 'table' );
 		$hookContainer->run( 'MonacoStaticboxEnd', [ $this, &$html ] );
-		$html .= '</div>
+		$html .= Xml::closeElement( 'div' ) . '
 			<!-- /SEARCH/NAVIGATION -->' .
 		$this->printExtraSidebar();
 		$hookContainer->run( 'MonacoSidebarEnd', [ $this, &$html ] );
-		$html .= '</div>
+		$html .= Xml::closeElement( 'div' ) . '
 		<!-- /WIDGETS -->
 	<!--/div-->';
 
 // curse like cobranding
 		$html .= $this->printCustomFooter();
-
-		$html .= '</div>';
+		$html .= Xml::closeElement( 'div' );
 		$hookContainer->run( 'SpecialFooter' );
-		$html .= '<div id="positioned_elements" class="reset"></div>';
+		$html .= Html::rawElement( 'div', [ 'id' => 'positioned_elements', 'class' => 'reset' ] );
 		echo $html;
 	} // end execute()
 
@@ -1065,51 +1069,67 @@ class MonacoTemplate extends BaseTemplate {
 			];
 
 		} else {
-			$data['userpage'] = [
-				'text' => $user->getName(),
-				'href' => $this->data['personal_urls']['userpage']['href']
-			];
-			$data['mytalk'] = [
-				'text' => $this->data['personal_urls']['mytalk']['text'],
-				'href' => $this->data['personal_urls']['mytalk']['href']
-			];
+			/**
+			 * Use of QuickTemplate with parameter ´personal_urls´ is deprecated
+			 * Use ´content_navigation instead
+			 */
+			if ( isset( $this->data['content_navigation']['userpage'] ) ) {
+				$data['userpage'] = [
+					'text' => $user->getName(),
+					'href' => $this->data['content_navigation']['userpage']['href']
+				];
+			}
 
-			if ( isset( $this->data['personal_urls']['watchlist'] ) ) {
+			if ( isset( $this->data['content_navigation']['mytalk'] ) ) {
+				$data['mytalk'] = [
+					'text' => $this->data['content_navigation']['mytalk']['text'],
+					'href' => $this->data['content_navigation']['mytalk']['href']
+				];
+			}
+
+			if ( isset( $this->data['content_navigation']['watchlist'] ) ) {
 				$data['watchlist'] = [
-					/*'text' => $this->data['personal_urls']['watchlist']['text'],*/
+					/*'text' => $this->data['content_navigation']['watchlist']['text'],*/
 					'text' => wfMessage( 'prefs-watchlist' )->text(),
-					'href' => $this->data['personal_urls']['watchlist']['href']
+					'href' => $this->data['content_navigation']['watchlist']['href']
 				];
 			}
 
 			// In some cases, logout will be removed explicitly (such as when it is replaced by fblogout).
-			if ( isset( $this->data['personal_urls']['logout'] ) ) {
+			if ( isset( $this->data['content_navigation']['logout'] ) ) {
 				$data['logout'] = [
-					'text' => $this->data['personal_urls']['logout']['text'],
-					'href' => $this->data['personal_urls']['logout']['href']
+					'text' => $this->data['content_navigation']['logout']['text'],
+					'href' => $this->data['content_navigation']['logout']['href']
 				];
 			}
 
-			$data['more']['userpage'] = [
-				'text' => wfMessage( 'mypage' )->text(),
-				'href' => $this->data['personal_urls']['userpage']['href']
-			];
+			if ( isset( $this->data['content_navigation']['userpage'] ) ) {
+				$data['more']['userpage'] = [
+					'text' => wfMessage( 'mypage' )->text(),
+					'href' => $this->data['content_navigation']['userpage']['href']
+				];
+			}
 
-			if ( isset( $this->data['personal_urls']['userprofile'] ) ) {
+			if ( isset( $this->data['content_navigation']['userprofile'] ) ) {
 				$data['more']['userprofile'] = [
-					'text' => $this->data['personal_urls']['userprofile']['text'],
-					'href' => $this->data['personal_urls']['userprofile']['href']
+					'text' => $this->data['content_navigation']['userprofile']['text'],
+					'href' => $this->data['content_navigation']['userprofile']['href']
 				];
 			}
 
-			$data['more']['mycontris'] = [
-				'text' => wfMessage( 'mycontris' )->text(),
-				'href' => $this->data['personal_urls']['mycontris']['href']
-			];
-			$data['more']['preferences'] = [
-				'text' => $this->data['personal_urls']['preferences']['text'],
-				'href' => $this->data['personal_urls']['preferences']['href']
-			];
+			if ( isset( $this->data['content_navigation']['mycontris'] ) ) {
+				$data['more']['mycontris'] = [
+					'text' => wfMessage( 'mycontris' )->text(),
+					'href' => $this->data['content_navigation']['mycontris']['href']
+				];
+			}
+
+			if ( isset( $this->data['content_navigation']['preferences'] ) ) {
+				$data['more']['preferences'] = [
+					'text' => $this->data['content_navigation']['preferences']['text'],
+					'href' => $this->data['content_navigation']['preferences']['href']
+				];
+			}
 		}
 
 		// This function ignores anything from PersonalUrls hook which it doesn't expect.  This
@@ -1117,7 +1137,7 @@ class MonacoTemplate extends BaseTemplate {
 		// Perhaps we should have some system to let PersonalUrls hook work again on its own?
 		// - Sean Colombo
 
-		foreach ( $this->data['personal_urls'] as $urlName => $urlData ) {
+		foreach ( $this->data['content_navigation'] as $urlName => $urlData ) {
 			if ( strpos( $urlName, 'fb' ) === 0 ) {
 				$data[$urlName] = $urlData;
 			}
@@ -1279,11 +1299,13 @@ class MonacoTemplate extends BaseTemplate {
 			}
 
 			if ( $user->isRegistered() ) {
+				/* deprecated in 1.46 */
 				$toolbar = $this->getPersonalTools();
 
 				unset( $toolbar['preferences'] );
 				unset( $toolbar['mycontris'] );
 				unset( $toolbar['logout'] );
+
 				foreach ( $toolbar as $key => $item ) {
 					$html .= $this->makeListItem( $key, $item );
 				}
@@ -1297,6 +1319,10 @@ class MonacoTemplate extends BaseTemplate {
 					<div id="headerMenuUser" class="headerMenu color1 reset">
 						<ul>';
 
+					if ( !isset( $this->data['userlinks']['more'] ) ) {
+						// avoid warning: "Undefined array key 'more'"
+						$this->data['userlinks']['more'] = [];
+					}
 					foreach ( $this->data['userlinks']['more'] as $key => $link ) {
 						if ( $key != 'userpage' ) { // haleyjd 20140420: Do not repeat user page here.
 							$html .= Html::rawElement( 'li',
@@ -1325,24 +1351,30 @@ class MonacoTemplate extends BaseTemplate {
 						}
 					}
 				}
-				$html .= '<span>' .
-					Html::element( 'a',
-						[ 'href' => $this->data['userlinks']['logout']['href'] ] +
-							Linker::tooltipAndAccesskeyAttribs( 'pt-logout' ),
-						$this->data['userlinks']['logout']['text']
-					) . '</span>';
+				if ( isset( $this->data['userlinks']['logout'] ) ) {
+					$html .= '<span>' .
+						Html::element( 'a',
+							[ 'href' => $this->data['userlinks']['logout']['href'] ] +
+								Linker::tooltipAndAccesskeyAttribs( 'pt-logout' ),
+							$this->data['userlinks']['logout']['text']
+						) . '</span>';
+				}
 			} else {
-				$html .= '<span id="userLogin">
-					<a class="wikia-button" id="login" href="' .
-					htmlspecialchars( $this->data['userlinks']['login']['href'] ) . '">' .
-					htmlspecialchars( $this->data['userlinks']['login']['text'] ) . '</a>
-				</span>
-					<a class="wikia-button" id="register" href="' .
-					htmlspecialchars( $this->data['userlinks']['register']['href'] ) . '">' .
-					htmlspecialchars( $this->data['userlinks']['register']['text'] ) . '</a>';
+				if ( isset( $this->data['userlinks']['logout'] ) ) {
+					$html .= '<span id="userLogin">
+						<a class="wikia-button" id="login" href="' .
+						htmlspecialchars( $this->data['userlinks']['login']['href'] ) . '">' .
+						htmlspecialchars( $this->data['userlinks']['login']['text'] ) . '</a>
+					</span>';
+				}
+				if ( isset( $this->data['userlinks']['register'] ) ) {
+					$html .= '<a class="wikia-button" id="register" href="' .
+						htmlspecialchars( $this->data['userlinks']['register']['href'] ) . '">' .
+						htmlspecialchars( $this->data['userlinks']['register']['text'] ) . '</a>';
+				}
 			}
 		}
-			$html .= '</div>';
+			$html .= Xml::closeElement( 'div' );
 
 			return $html;
 	}
