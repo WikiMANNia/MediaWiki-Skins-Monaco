@@ -1,5 +1,7 @@
 <?php
 
+namespace MediaWiki\Skin\Monaco;
+
 use MediaWiki\Config\GlobalVarConfig;
 use MediaWiki\Context\RequestContext;
 use MediaWiki\Html\Html;

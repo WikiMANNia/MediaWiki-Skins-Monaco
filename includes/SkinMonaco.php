@@ -1,9 +1,12 @@
 <?php
 
+namespace MediaWiki\Skin\Monaco;
+
 use MediaWiki\Context\RequestContext;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Output\OutputPage;
 use MediaWiki\Revision\SlotRecord;
+use MediaWiki\Registration\ExtensionRegistry;
 use MediaWiki\Skin\SkinTemplate;
 use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\Title\Title;
@@ -52,15 +55,19 @@ class SkinMonaco extends SkinTemplate {
 			$themes[$ourSkin] = [];
 		}
 
-		// Ensure that 'default' is always the 1st array item
-		array_unshift( $themes[$ourSkin], 'default' );
-
 		// Filter out the themes defined in $wgSkipThemes for a skin, if any
 		$skipThemes = MediaWikiServices::getInstance()->getMainConfig()->get( 'SkipMonacoThemes' );
+
 		if ( is_array( $skipThemes ) ) {
-			if ( !empty( $skipThemes[$ourSkin] ) ) {
-				foreach ( $skipThemes[$ourSkin] as $skippable ) {
-					unset( $themes[$ourSkin][$skippable] );
+
+			if ( !empty( $skipThemes ) ) {
+				foreach ( $skipThemes as $skippable ) {
+
+					$key = array_search( $skippable, $themes[$ourSkin], true );
+
+					if ( $key !== false ) {
+						unset( $themes[$ourSkin][$key] );
+					}
 				}
 			}
 		} else {
@@ -142,11 +149,11 @@ class SkinMonaco extends SkinTemplate {
 	}
 
 	public function showMasthead(): bool {
-		if ( !$this->config->get( 'MonacoUseMasthead' ) ) {
+		if ( $this->config->get( 'MonacoUseMasthead' ) !== true ) {
 			return false;
 		}
 
-		return is_bool( $this->getMastheadUser() ) ? false : true;
+		return !is_bool( $this->getMastheadUser() );
 	}
 
 	/**

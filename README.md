@@ -7,7 +7,7 @@ About
 This is an unbranded fork of the Monaco skin originally developed by [Fandom](https://en.wikipedia.org/wiki/Fandom_(website)) (formerly known as Wikicities and Wikia).
 
 Compared to the original version of the skin, this fork now supports MediaWiki
-version 1.44+ officially.
+version 1.39+ officially.
 This codebase will usually remain up-to-date against MediaWiki, and will drop
 support for older versions unconditionally once it becomes impractical to
 continue to support them.
@@ -137,7 +137,7 @@ Version history
 2.8.5 - Oct 27, 2025
 
 - Fix - Oct 26, 2025: Fix search bar not redirecting to Special:Search [Universal-Omega#38](https://github.com/Universal-Omega/Monaco/issues/38)
--- Use ENT_QUOTES since the skin currently requires 1.41 which still supports PHP 7 where ENT_QUOTES is not enabled by default.
+-- Use ENT_QUOTES since the skin currently requires 1.39 which supports PHP 7 where ENT_QUOTES is not enabled by default.
 - Code refinement
 
 
@@ -152,3 +152,9 @@ Version history
 - Refactoring: Use of Html::rawElement(), Html::openElement() and Xml::closeElement()
 - Use of QuickTemplate with parameter ´personal_urls´ is deprecated. Use ´content_navigation´ instead.
 - Avoid accessing uninitialized arrays: Add ´if ( isset( … ) {}´
+
+
+2.9.0 - Oct 15, 2026
+
+- add compatibility with REL1_47
+- add backward compatibility with REL1_39
