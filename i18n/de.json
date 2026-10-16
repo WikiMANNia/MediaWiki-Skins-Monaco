@@ -1,12 +1,12 @@
 {
 	"@metadata": {
 		"authors": [
+			"Brettchenweber",
 			"Daniel Friesen",
 			"James Haley",
 			"Justman10000",
 			"McDutchie",
 			"Roger Meier",
-			"Brettchenweber",
 			"WikiMANNia"
 		]
 	},
@@ -17,8 +17,25 @@
 	"monaco-footer-improve": "Verbessere {{SITENAME}} über $1",
 	"monaco-footer-improve-linktext": "Bearbeite diese Seite",
 	"monaco-footer-lastedit": "$1 machte eine Bearbeitung auf $2",
-	"viewrandompage": "Zeige Zufällige Seite",
-	"masthead-anonymous-user": "Gast",
+	"monaco-view-random-page": "Zeige zufällige Seite",
+	"monaco-masthead-anonymous-user": "Gast",
 	"skinname-monaco": "Monaco",
-	"monaco-tab-addsection": "Nachricht hinterlassen"
+	"monaco-tab-addsection": "Nachricht hinterlassen",
+	"monaco-theme-prefs-label": "Thema:",
+	"monaco-theme-name-beach": "Strand",
+	"monaco-theme-name-brick": "Ziegelstein",
+	"monaco-theme-name-carbon": "Kohle",
+	"monaco-theme-name-default": "voreingestellt",
+	"monaco-theme-name-forest": "Wald",
+	"monaco-theme-name-gaming": "Spiel",
+	"monaco-theme-name-jade": "Jade",
+	"monaco-theme-name-moonlight": "Mondschein",
+	"monaco-theme-name-obsession": "Besessenheit",
+	"monaco-theme-name-ruby": "Rubin",
+	"monaco-theme-name-sapphire": "Saphir",
+	"monaco-theme-name-sky": "Himmel",
+	"monaco-theme-name-slate": "Schiefer",
+	"monaco-theme-name-smoke": "Rauch",
+	"monaco-theme-name-spring": "Frühling",
+	"monaco-theme-selection-deactivated": "Die Auswahl der Themen ist deaktiviert."
 }
