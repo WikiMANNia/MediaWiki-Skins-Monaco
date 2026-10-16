@@ -1,8 +1,13 @@
 <?php
 
+use MediaWiki\Context\RequestContext;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Output\OutputPage;
 use MediaWiki\Revision\SlotRecord;
+use MediaWiki\Skin\SkinTemplate;
+use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\Title\Title;
+use MediaWiki\User\User;
 use MediaWiki\User\UserOptionsLookup;
 
 class SkinMonaco extends SkinTemplate {
@@ -32,23 +37,47 @@ class SkinMonaco extends SkinTemplate {
 	}
 
 	/**
-	 * @return string
+	 * Get all the enabled themes the given skin has.
+	 *
+	 * @return array Array containing theme names for the skin or 'default' if
+	 *               the skin has no custom themes available
 	 */
-	public static function getSkinMonacoDefaultTheme() {
+	public static function getAvailableThemes(): array {
+
+		$ourSkin = 'monaco';
+
+		$themes = ExtensionRegistry::getInstance()->getAttribute( 'ThemeModules' );
+
+		if ( !isset( $themes[$ourSkin] ) ) {
+			$themes[$ourSkin] = [];
+		}
+
+		// Ensure that 'default' is always the 1st array item
+		array_unshift( $themes[$ourSkin], 'default' );
+
+		// Filter out the themes defined in $wgSkipThemes for a skin, if any
+		$skipThemes = MediaWikiServices::getInstance()->getMainConfig()->get( 'SkipMonacoThemes' );
+		if ( is_array( $skipThemes ) ) {
+			if ( !empty( $skipThemes[$ourSkin] ) ) {
+				foreach ( $skipThemes[$ourSkin] as $skippable ) {
+					unset( $themes[$ourSkin][$skippable] );
+				}
+			}
+		} else {
+			throw new InvalidArgumentException( "SkinMonaco skin has a configuration error: 'SkipMonacoThemes' is not an array." );
+		}
+
+		return !empty( $themes[$ourSkin] ) ? $themes[$ourSkin] : [ 'default' => 'default' ];
+	}
+
+	private static function getSkinMonacoFallbackTheme(): string {
 		return "sapphire";
 	}
 
-	/**
-	 * @return string[]
-	 */
-	public static function getSkinMonacoThemeList() {
-		return [ "beach", "brick", "carbon", "forest", "gaming", "jade", "moonlight", "obsession", "ruby", "sapphire",
-			"sky", "slate", "smoke", "spring" ];
+	public static function getThemeKey(): string {
+		return 'theme_monaco';
 	}
 
-	/**
-	 * @param OutputPage $out
-	 */
 	public function initPage( OutputPage $out ) {
 		parent::initPage( $out );
 
@@ -64,27 +93,33 @@ class SkinMonaco extends SkinTemplate {
 		}
 
 		$request = $this->getRequest();
+		$theme_key = self::getThemeKey();
+		$themes = self::getAvailableThemes();
 		$user = RequestContext::getMain()->getUser();
 		// Check the following things in this order:
-		// 1) value of $wgDefaultTheme (set in site configuration)
+		// 1) value of $wgMonacoDefaultTheme (set in site configuration)
 		// 2) user's personal preference/override
 		// 3) per-page usetheme URL parameter
-		$theme = $this->config->get( 'MonacoTheme' );
-		$theme = $this->mUserOptionsLookup->getOption( $user, 'theme_monaco', $theme );
-		$theme = $request->getText( 'usetheme', $theme );
-
-		$themes = self::getSkinMonacoThemeList();
-		$theme_fallback = self::getSkinMonacoDefaultTheme();
-		if ( !in_array( $theme, $themes ) ) {
-			$theme = $theme_fallback;
+		$theme_fallback = self::getSkinMonacoFallbackTheme();
+		$theme_default = $this->config->get( 'MonacoDefaultTheme', $theme_fallback );
+		if ( !in_array( $theme_default, $themes ) ) {
+			// May be $wgMonacoDefaultTheme is not in the list (i.e. because a misspelling)
+			$theme_default = $theme_fallback;
 		}
-
+		$theme = $theme_default;
 		if ( $this->config->get( 'MonacoAllowUseTheme' ) ) {
-			// Theme is another conditional feature, we can't really resource load this
-			if ( isset( $theme ) && is_string( $theme ) && ( $theme != $theme_fallback ) ) {
-				$out->addStyle( "Monaco/style/{$theme}/css/main.css", 'screen' );
+			$theme_user = $this->mUserOptionsLookup->getOption( $user, $theme_key, $theme_default );
+			if ( !in_array( $theme_user, $themes ) ) {
+				$theme_user = $theme_default;
+			}
+			$theme = $request->getText( 'usetheme', $theme_user );
+			if ( !in_array( $theme, $themes ) ) {
+				$theme = $theme_user;
 			}
 		}
+
+		// Theme is another conditional feature, we can't really resource load this
+		$out->addStyle( "Monaco/style/{$theme}/css/main.css", 'screen' );
 
 		// TODO: explicit RTL style sheets are supposed to be obsolete w/ResourceLoader
 		// I have no way to test this currently, however. -haleyjd
@@ -100,24 +135,18 @@ class SkinMonaco extends SkinTemplate {
 		);
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getDefaultModules() {
+	public function getDefaultModules(): array {
 		$modules = parent::getDefaultModules();
 
 		return $modules;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function showMasthead() {
+	public function showMasthead(): bool {
 		if ( !$this->config->get( 'MonacoUseMasthead' ) ) {
 			return false;
 		}
 
-		return (bool)$this->getMastheadUser();
+		return is_bool( $this->getMastheadUser() ) ? false : true;
 	}
 
 	/**
@@ -127,8 +156,7 @@ class SkinMonaco extends SkinTemplate {
 		$title = $this->getTitle();
 
 		if ( !isset( $this->mMastheadUser ) ) {
-			$ns = $title->getNamespace();
-			if ( $ns == NS_USER || $ns == NS_USER_TALK ) {
+			if ( $title->inNamespace( NS_USER ) || $title->inNamespace( NS_USER_TALK ) ) {
 				$this->mMastheadUser = User::newFromName( strtok( $title->getText(), '/' ), false );
 				$this->mMastheadTitleVisible = false;
 			} else {
@@ -141,10 +169,7 @@ class SkinMonaco extends SkinTemplate {
 		return $this->mMastheadUser;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isMastheadTitleVisible() {
+	public function isMastheadTitleVisible(): bool {
 		if ( !$this->showMasthead() ) {
 			return true;
 		}
@@ -158,7 +183,7 @@ class SkinMonaco extends SkinTemplate {
 	 * @param array $lines
 	 * @return array
 	 */
-	public function parseToolboxLinks( $lines ) {
+	public function parseToolboxLinks( $lines ): array {
 		$nodes = [];
 		if ( is_array( $lines ) ) {
 			foreach ( $lines as $line ) {
@@ -169,7 +194,6 @@ class SkinMonaco extends SkinTemplate {
 				}
 
 				$item = MonacoSidebar::parseItem( $trimmed );
-
 				$nodes[] = $item;
 			}
 		}
@@ -177,15 +201,13 @@ class SkinMonaco extends SkinTemplate {
 		return $nodes;
 	}
 
-	/**
-	 * @param string $message_key
-	 * @return array
-	 */
-	public function getLines( $message_key ) {
+	public function getLines( string $message_key ): array {
 		$revisionStore = MediaWikiServices::getInstance()->getRevisionStore();
 		$revision = $revisionStore->getRevisionByTitle( Title::newFromText( $message_key, NS_MEDIAWIKI ) );
+
 		if ( is_object( $revision ) ) {
-			$text = $revision->getContent( SlotRecord::MAIN )->serialize();
+			$content = $revision->getContent( SlotRecord::MAIN );
+			$text = ContentHandler::getContentText( $content );
 
 			if ( trim( $text ) != '' ) {
 				$temp = MonacoSidebar::getMessageAsArray( $message_key );
@@ -202,18 +224,11 @@ class SkinMonaco extends SkinTemplate {
 		return $lines;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getToolboxLinks() {
+	public function getToolboxLinks(): array {
 		return $this->parseToolboxLinks( $this->getLines( 'Monaco-toolbox' ) );
 	}
 
-	/**
-	 * @param array &$node
-	 * @param array &$nodes
-	 */
-	public function addExtraItemsToSidebarMenu( &$node, &$nodes ) {
+	public function addExtraItemsToSidebarMenu( array &$node, array &$nodes ): void {
 		$extraWords = [
 			'#voted#' => [ 'highest_ratings', 'GetTopVotedArticles' ],
 			'#popular#' => [ 'most_popular', 'GetMostPopularArticles' ],
@@ -227,7 +242,6 @@ class SkinMonaco extends SkinTemplate {
 				if ( strtolower( $node['org'] ) == strtolower( $node['text'] ) ) {
 					$node['text'] = wfMessage( trim( strtolower( $node['org'] ), ' *' ) )->text();
 				}
-
 				$node['magic'] = true;
 			}
 
@@ -235,14 +249,16 @@ class SkinMonaco extends SkinTemplate {
 			$results[] = [
 				'url' => SpecialPage::getTitleFor( 'Top/' . $extraWords[ strtolower( $node['org'] ) ][0] )
 					->getLocalURL(),
-				'text' => strtolower( wfMessage( 'moredotdotdot' )->text() ), 'class' => 'Monaco-sidebar_more'
+				'text' => strtolower( wfMessage( 'moredotdotdot' )->text() ),
+				'class' => 'Monaco-sidebar_more'
 			];
 
 			if ( $this->getUser()->isAllowed( 'editinterface' ) ) {
 				if ( strtolower( $node['org'] ) == '#popular#' ) {
 					$results[] = [
-						'url' => Title::makeTitle( NS_MEDIAWIKI, 'Most popular articles' )->getLocalURL(),
-						'text' => wfMessage( 'monaco-edit-this-menu' )->text(), 'class' => 'Monaco-sidebar_edit'
+						'url' => Title::makeTitle( NS_MEDIAWIKI, 'Most popular articles' )->getLocalUrl(),
+						'text' => wfMessage( 'monaco-edit-this-menu' )->text(),
+						'class' => 'Monaco-sidebar_edit'
 					];
 				}
 			}
@@ -265,7 +281,7 @@ class SkinMonaco extends SkinTemplate {
 	 * @param array $lines
 	 * @return array
 	 */
-	public function parseSidebarMenu( $lines ) {
+	public function parseSidebarMenu( $lines ): array {
 		$nodes = [];
 		$nodes[] = [];
 		$lastDepth = 0;
@@ -304,7 +320,7 @@ class SkinMonaco extends SkinTemplate {
 				}
 
 				$nodes[$i + 1] = $node;
-				$nodes[ $node['parentIndex'] ]['children'][] = $i + 1;
+				$nodes[$node['parentIndex']]['children'][] = $i + 1;
 				$lastDepth = $node['depth'];
 				$i++;
 			}
@@ -313,10 +329,7 @@ class SkinMonaco extends SkinTemplate {
 		return $nodes;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getSidebarLinks() {
+	public function getSidebarLinks(): array {
 		return $this->parseSidebarMenu( $this->getLines( 'Monaco-sidebar' ) );
 	}
 
@@ -325,13 +338,13 @@ class SkinMonaco extends SkinTemplate {
 	 * @param bool $asArray
 	 * @return array|string|null
 	 */
-	public function getTransformedArticle( $name, $asArray = false ) {
+	public function getTransformedArticle( string $name, bool $asArray = false ) {
 		$revisionStore = MediaWikiServices::getInstance()->getRevisionStore();
 		$revision = $revisionStore->getRevisionByTitle( Title::newFromText( $name ) );
 		$parser = MediaWikiServices::getInstance()->getParser();
 
 		if ( is_object( $revision ) ) {
-			$text = $revision->getContent( SlotRecord::MAIN )->serialize();
+			$text = $revision->getText();
 
 			if ( !empty( $text ) ) {
 				$ret = $parser->transformMsg( $text, $parser->getOptions() );
