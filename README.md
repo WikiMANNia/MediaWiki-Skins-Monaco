@@ -145,3 +145,10 @@ Version history
 
 - Add ´$wgSkipMonacoThemes´ to allow system administrators to disable specific skins/themes.
 - Rename ´$wgMonacoTheme´ into ´$wgMonacoDefaultTheme´
+
+
+2.8.7 - Oct 15, 2026
+
+- Refactoring: Use of Html::rawElement(), Html::openElement() and Xml::closeElement()
+- Use of QuickTemplate with parameter ´personal_urls´ is deprecated. Use ´content_navigation´ instead.
+- Avoid accessing uninitialized arrays: Add ´if ( isset( … ) {}´
