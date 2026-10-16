@@ -152,3 +152,9 @@ Version history
 - Refactoring: Use of Html::rawElement(), Html::openElement() and Xml::closeElement()
 - Use of QuickTemplate with parameter ´personal_urls´ is deprecated. Use ´content_navigation´ instead.
 - Avoid accessing uninitialized arrays: Add ´if ( isset( … ) {}´
+
+
+2.9.0 - Oct 15, 2026
+
+- add compatibility with REL1_47
+- add backward compatibility with REL1_39
