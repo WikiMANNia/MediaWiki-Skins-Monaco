@@ -46,22 +46,22 @@ Configuration
 -------------
 
 Set the default theme:
-: $wgMonacoDefaultTheme = "sapphire";
+- $wgMonacoDefaultTheme = "sapphire";
 
 Exclude the following themes:
-: $wgSkipMonacoThemes = [];
+- $wgSkipMonacoThemes = [];
 
 Enable Paypal:
-: $wgMonacoEnablePaypal = true;
-		},
+- $wgMonacoEnablePaypal = true;
+
 Set the Paypal ID:
-: $wgMonacoPaypalID = "yourID";
+- $wgMonacoPaypalID = "yourID";
 
 Enable Patreon:
-: $wgMonacoEnablePatreon = true;
-		},
+- $wgMonacoEnablePatreon = true;
+
 Set the Patreon URL:
-: $wgMonacoPatreonURL = "yourURL";
+- $wgMonacoPatreonURL = "yourURL";
 
 License
 -------
