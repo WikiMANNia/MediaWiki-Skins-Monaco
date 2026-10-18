@@ -2,15 +2,36 @@
 	"@metadata": {
 		"authors": [
 			"Bartomelow",
+			"Eduardoaddad",
 			"Jesielt"
 		]
 	},
 	"monaco-desc": "Tema Mônaco sem marca para uso com o MediaWiki padrão.",
+	"dynamic-links": "Pode adicionar identificadores de links dinâmicas ao tema Mónaco usando esta mensagem. Adicione um novo identificador em cada linha (pode usar um * no início, como na barra lateral e na barra lateral do Mónaco, para fazer uma lista). As linhas que começam com um espaço serão tratadas como comentários. Depois de adicionar um novo identificador à lista, pode usar a mensagem 'dynamic-links-<id>' para personalizar o texto do link e a mensagem 'dynamic-links-<id>-url' com o nome de um título de página na wiki à qual a link dinâmica conduzirá.",
 	"dynamic-links-write-article": "Crie um novo artigo",
 	"dynamic-links-add-image": "Carregue uma nova imagem",
 	"monaco-footer-improve": "Melhore {{SITENAME}} por $1",
 	"monaco-footer-improve-linktext": "editando esta página",
 	"monaco-footer-lastedit": "$1 fez uma edição em $2",
+	"monaco-view-random-page": "Ver página aleatória",
+	"monaco-masthead-anonymous-user": "Editor anônimo",
 	"skinname-monaco": "Mônaco",
-	"monaco-tab-addsection": "Deixe uma mensagem"
+	"monaco-tab-addsection": "Deixe uma mensagem",
+	"monaco-theme-prefs-label": "Tema:",
+	"monaco-theme-name-beach": "Praia",
+	"monaco-theme-name-brick": "Tijolo",
+	"monaco-theme-name-carbon": "Carbono",
+	"monaco-theme-name-default": "padrão",
+	"monaco-theme-name-forest": "Floresta",
+	"monaco-theme-name-gaming": "Jogo",
+	"monaco-theme-name-jade": "Jade",
+	"monaco-theme-name-moonlight": "Luar",
+	"monaco-theme-name-obsession": "Obsessão",
+	"monaco-theme-name-ruby": "Rubi",
+	"monaco-theme-name-sapphire": "Safira",
+	"monaco-theme-name-sky": "Céu",
+	"monaco-theme-name-slate": "Ardósia",
+	"monaco-theme-name-smoke": "Fumaça",
+	"monaco-theme-name-spring": "Primavera",
+	"monaco-theme-selection-deactivated": "A seleção de temas está desativada."
 }
