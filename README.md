@@ -148,3 +148,8 @@ Version history
 
 - Add ´$wgMonacoSkipThemes´ to allow system administrators to disable specific skins/themes.
 - Function ´getPersonalTools()´ is deprecated, use ´getPersonalToolsForMakeListItem()´ instead.
+
+
+2.8.7 - Oct 15, 2026
+
+- Refactoring: Use of Html::rawElement(), Html::openElement() and Xml::closeElement()
