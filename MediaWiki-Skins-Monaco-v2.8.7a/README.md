@@ -1,0 +1,156 @@
+Monaco Skin for MediaWiki
+=========================
+
+About
+-----
+
+This is an unbranded fork of the Monaco skin originally developed by [Fandom](https://en.wikipedia.org/wiki/Fandom_(website)) (formerly known as Wikicities and Wikia).
+
+Compared to the original version of the skin, this fork now supports MediaWiki
+version 1.43+ officially.
+This codebase will usually remain up-to-date against MediaWiki, and will drop
+support for older versions unconditionally once it becomes impractical to
+continue to support them.
+
+Installation
+------------
+
+To install, install Monaco into a Monaco/ folder in your skins/ folder.
+From the command line you can do this by cd'ing to your skins/ folder inside
+your MediaWiki installation and running:
+
+`git clone git://github.com/Universal-Omega/Monaco.git Monaco`
+
+After you have placed the skin into that folder add:
+
+`wfLoadSkin( 'Monaco' );`
+
+near the end of your LocalSettings.php to finish installation of the skin.
+
+Additionally you can install the Monaco/ContentRightSidebar extension using:
+
+`wfLoadSkin( 'Monaco/ContentRightSidebar' );`
+
+Doing so will provide you with a `<right-sidebar>...</right-sidebar>` tag which 
+will create right floated content in the page that will be moved into the right
+sidebar in monaco based skins. You can also use it with the args 
+
+`<right-sidebar with-box="true" title="My Title">...</right-sidebar>`
+
+to include that sidebar in a sidebar box. Note that a value is required for 
+the `with-box` attribute when this extension is used with MediaWiki 1.25 or
+later. For consistency, it is suggested that you provide this value anyway,
+since it also works with earlier versions of MediaWiki.
+
+Configuration
+-------------
+
+Set the default theme:
+- $wgMonacoDefaultTheme = "sapphire";
+
+Exclude the following themes:
+- $wgMonacoSkipThemes = [];
+
+Enable Paypal:
+- $wgMonacoEnablePaypal = true;
+
+Set the Paypal ID:
+- $wgMonacoPaypalID = "yourID";
+
+Enable Patreon:
+- $wgMonacoEnablePatreon = true;
+
+Set the Patreon URL:
+- $wgMonacoPatreonURL = "yourURL";
+
+License
+-------
+All of the code released by Fandom was made available under GPL v2.0 or later.
+This license can be found in the LICENSE file.
+
+Legacy
+------
+A fork [maintained by haleyjd](https://github.com/haleyjd/monaco-port) supports MediaWiki versions 1.24 to 1.29 officially, with verified support for 1.30+ in the works.
+
+This is an unbranded fork of the Monaco skin originally developed by Wikia (now [Fandom](https://en.wikipedia.org/wiki/Fandom_(website))) which is being maintained for use at [DoomWiki.org](http://doomwiki.org/). It was also previously deployed at the Orain non-profit wiki farm before it went offline.
+
+Development
+-----------
+
+* https://github.com/Universal-Omega/Monaco
+* https://github.com/wikimedia/mediawiki-skins-Monaco
+
+Version history
+---------------
+
+2.7.0 - Apr 25, 2024
+
+- add new hook MonacoStaticboxEnd (for inserting Donation button)
+- add support for Paypal and Patreon
+- add &$html parameter to hooks
+
+2.7.1 - Apr 25, 2024
+
+- add compatibility with REL1_41
+
+2.8.0 - May 11, 2024
+
+- Themes activated
+- add hook GetPreferences
+- add UserOptionsLookup
+- add i18n - Translations of the themes
+- Compatibility with ´Theme´ extension
+
+
+2.8.1 - Jul 21, 2024
+
+- Fix issue with Global Variables:
+-- ´MonacoSearchDefaultFulltext´
+-- ´MonacoSpecialPagesRequiredLogin´
+- add i18n files
+
+
+2.8.2 - Sep 29, 2024
+
+- Fix ´Call to undefined method MonacoTemplate::getContext()´ [Universal-Omega#33](https://github.com/Universal-Omega/Monaco/pull/33)
+-- Replace ´wfUrlProtocols()´ with ´wfUrlProtocolsWithoutProtRel()´
+-- Substituted deprecated function ´Skin::makeSpecialUrl()´ into ´SkinComponentUtils::makeSpecialUrl()´
+- Add i18n files
+
+
+2.8.3 - Mar 4, 2025
+
+- Fix - Nov 9, 2024: ´Call to undefined method MonacoTemplate::getContext()´ - [Universal-Omega#34](https://github.com/Universal-Omega/Monaco/pull/34)
+- Fix - Jan 28, 2025: ´Call to undefined method LanguageZh::getPreferredVariant()´ - [Universal-Omega#35](https://github.com/Universal-Omega/Monaco/pull/35)
+
+
+2.8.4 - Oct 25, 2025
+
+- Fix - May 2, 2015: Fix 1.44 compatibility; replace deprecated methods [Universal-Omega#37](https://github.com/Universal-Omega/Monaco/pull/37)
+-- Add namespaced imports for Html, Title and Linker (the non-namespaced aliases are removed in 1.44)
+-- Replace wfUrlProtocols() (hard-deprecated since 1.43) with UrlUtils->validProtocols()
+-- Replace Skin::makeSpecialUrl (deprecated since 1.39) with SkinComponentUtils::makeSpecialUrl
+- Improve logic regarding settings of $wgMonacoAllowUseTheme and $wgMonacoTheme
+- Localisation updates from https://translatewiki.net/.
+
+
+2.8.5 - Oct 27, 2025
+
+- Fix - Oct 26, 2025: Fix search bar not redirecting to Special:Search [Universal-Omega#38](https://github.com/Universal-Omega/Monaco/issues/38)
+-- Use ENT_QUOTES since the skin currently requires 1.41 which still supports PHP 7 where ENT_QUOTES is not enabled by default.
+- Code refinement:
+-- Rename variable ´$wgMonacoTheme´ into ´$wgMonacoDefaultTheme´
+-- Rename function ´getSkinMonacoDefaultTheme()´ into ´getSkinMonacoFallbackTheme´
+-- Rename function ´getSkinMonacoThemeList()´ into ´getAvailableThemes´
+
+
+2.8.6 - Oct 15, 2026
+
+- Add ´$wgMonacoSkipThemes´ to allow system administrators to disable specific skins/themes.
+- Function ´getPersonalTools()´ is deprecated, use ´getPersonalToolsForMakeListItem()´ instead.
+
+
+2.8.7 - Oct 15, 2026
+
+- Refactoring: Use of Html::rawElement(), Html::openElement() and Xml::closeElement()
+- Avoid accessing uninitialized arrays: Add ´if ( isset( … ) {}´ or ´if ( !empty( … ) {}´

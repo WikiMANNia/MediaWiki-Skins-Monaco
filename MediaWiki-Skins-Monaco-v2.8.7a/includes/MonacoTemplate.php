@@ -1,0 +1,1729 @@
+<?php
+
+use MediaWiki\Config\GlobalVarConfig;
+use MediaWiki\Context\RequestContext;
+use MediaWiki\Html\Html;
+use MediaWiki\Linker\Linker;
+use MediaWiki\MediaWikiServices;
+use MediaWiki\Skin\BaseTemplate;
+use MediaWiki\SpecialPage\SpecialPage;
+use MediaWiki\Title\Title;
+use MediaWiki\User\User;
+
+class MonacoTemplate extends BaseTemplate {
+
+	private GlobalVarConfig $mConfig;
+	private string $mRightSidebar = '';
+	private bool $primaryPageBarPrinted = false;
+
+	public function __construct() {
+		$this->mConfig = new GlobalVarConfig();
+	}
+
+	/**
+	 * Shortcut for building these crappy blankimg based icons that probably could
+	 * have been implemented in a less ugly way.
+	 * @author Daniel Friesen
+	 */
+	private function blankimg( array $attrs = [] ): string {
+		return Html::element( 'img', [ 'src' => $this->data['blankimg'] ] + $attrs );
+	}
+
+	/**
+	 * Make this a method so that subskins can override this if they reorganize
+	 * the user header and need the more button to function.
+	 *
+	 * @author Daniel Friesen
+	 */
+	private function useUserMore(): bool {
+
+		return $this->mConfig->get( 'MonacoUseMoreButton' );
+	}
+
+	/** @inheritDoc */
+	public function execute() {
+
+		$sitename = $this->mConfig->get( 'Sitename' );
+		$styleVersion =
+			$this->mConfig->has( 'wgStyleVersion' )
+			? $this->mConfig->get( 'wgStyleVersion' )
+			: '';
+		$MonacoUseSitenoticeIsland = $this->mConfig->get( 'MonacoUseSitenoticeIsland' );
+
+		$this->addVariables();
+
+		$skin = $this->data['skin'];
+		$lang = $skin->getLanguage();
+		$user = $skin->getUser();
+		$request = $skin->getContext()->getRequest();
+		$title = $skin->getContext()->getTitle();
+		$stylepath = $this->data['stylepath'];
+
+		$this->set( 'blankimg', $stylepath . '/Monaco/style/images/blank.gif' );
+
+		$this->setupRightSidebar();
+		ob_start();
+		$hookContainer = $this->getHookContainer();
+		$hookContainer->run( 'MonacoRightSidebar', [ $this ] );
+		$this->addToRightSidebar( ob_get_contents() );
+		ob_end_clean();
+
+		// @fixme not valid
+		$html = $this->printAdditionalHead();
+
+		// this hook allows adding extra HTML just after <body> opening tag
+		// append your content to $html variable instead of echoing
+		$hookContainer->run( 'GetHTMLAfterBody', [ $this, &$html ] );
+
+		$html .= '<div id="skiplinks"> 
+	<a class="skiplink" href="#article" tabIndex=1>Skip to Content</a> 
+	<a class="skiplink wikinav" href="#widget_sidebar" tabIndex=1>Skip to Navigation</a> 
+</div>
+
+	<div id="background_accent1"></div>
+	<div id="background_accent2"></div>
+
+	<!-- HEADER -->';
+		$html .= $this->printCustomHeader();
+		$html .= Html::rawElement( 'div', [ 'id' => 'wikia_header', 'class' => 'color2' ],
+			Html::rawElement( 'div', [ 'class' => 'monaco_shrinkwrap' ],
+				$this->printMonacoBranding() .
+				$this->printUserData()
+			)
+		);
+
+	if ( $hookContainer->run( 'AlternateNavLinks' ) ) {
+		$html .= Html::rawElement( 'div', [ 'id' => 'background_strip', 'class' => 'reset' ],
+				Html::rawElement( 'div', [ 'class' => 'monaco_shrinkwrap' ],
+					Html::element( 'div', [ 'id' => 'accent_graphic1' ] ) .
+					Html::element( 'div', [ 'id' => 'accent_graphic2' ] )
+				)
+			);
+	}
+		$html .= '<!-- /HEADER -->
+
+		<!-- PAGE -->' .
+			Html::openElement( 'div',
+				[
+					'id' => 'monaco_shrinkwrap_main',
+					'class' => 'monaco_shrinkwrap with_left_sidebar' . ( $this->hasRightSidebar() ? ' with_right_sidebar' : '' )
+				]
+			) .
+			Html::openElement( 'div', [ 'id' => 'page_wrapper' ] );
+		$hookContainer->run( 'MonacoBeforePage', [ $this, &$html ] );
+		$html .= $this->printBeforePage();
+		if ( $MonacoUseSitenoticeIsland && $this->data['sitenotice'] ) {
+			$html .= Html::rawElement( 'div', [ 'class' => 'page' ],
+				Html::rawElement( 'div', [ 'id' => 'siteNotice' ], $this->get( 'sitenotice' ) )
+			);
+		}
+		$html .= Html::openElement( 'div', [ 'id' => 'wikia_page', 'class' => 'page' ] ) .
+			$this->printMasthead();
+			$hookContainer->run( 'MonacoBeforePageBar', [ $this ] );
+			$html .= $this->printPageBar() . '
+
+			<!-- ARTICLE -->' .
+			Html::openElement( 'article',
+				[
+					'id' => 'content',
+					'class' => 'mw-body',
+					'role' => 'main',
+					'aria-labelledby' => 'firstHeading'
+				]
+			) .
+			Html::rawElement( 'a', [ 'id' => 'top' ] );
+		$hookContainer->run( 'MonacoAfterArticle', [ $this, &$html ] );
+		if ( !$MonacoUseSitenoticeIsland && $this->data['sitenotice'] ) {
+			$html .= Html::rawElement( 'div', [ 'id' => 'siteNotice' ], $this->get( 'sitenotice' ) );
+		}
+		if ( method_exists( $this, 'getIndicators' ) ) {
+			$html .= $this->getIndicators();
+		}
+			$html .= $this->printFirstHeading() .
+				Html::openElement( 'div', [ 'id' => 'bodyContent', 'class' => 'body_content' ] ) .
+				Html::rawElement( 'h2', [ 'id' => 'siteSub' ], $this->getMsg( 'tagline' )->parse() );
+
+		if ( $this->data['subtitle'] ) {
+			$html .= Html::rawElement( 'div', [ 'id' => 'contentSub' ], $this->get( 'subtitle' ) );
+		}
+		if ( $this->data['undelete'] ) {
+			$html .= Html::rawElement( 'div', [ 'id' => 'contentSub2' ], $this->get( 'undelete' ) );
+		}
+		if ( $this->data['newtalk'] ) {
+			$html .= Html::rawElement( 'div', [ 'id' => 'usermessage', 'class' => 'usermessage noprint' ], $this->get( 'newtalk' ) );
+		}
+		if ( !empty( $skin->newuemsg ) ) {
+			$html .= $skin->newuemsg;
+		}
+
+		$html .= '<!-- start content -->';
+
+		// Display content
+		$html .= $this->printContent();
+		$html .= $this->printCategories();
+		$html .= '<!-- end content -->';
+		if ( $this->data['dataAfterContent'] ) {
+			$html .= $this->get( 'dataAfterContent' );
+		}
+		$html .= Html::Element( 'div', [ 'class' => 'visualClear' ] );
+		$html .= Html::closeElement( 'div' );
+		$html .= Html::closeElement( 'article' ) . '
+				<!-- /ARTICLE -->
+			<!-- ARTICLE FOOTER -->';
+		$custom_article_footer = '';
+		$namespaceType = '';
+		// assign $this to a temporary variable so we can pass it as a reference
+		$template = $this;
+		$hookContainer->run( 'CustomArticleFooter', [ &$template, &$tpl, &$custom_article_footer ] );
+		if ( !empty( $custom_article_footer ) ) {
+			$html .= $custom_article_footer;
+		} else {
+			if ( $title->exists() && $title->isContentPage() && !$title->isTalkPage() ) {
+				// default footer
+				$namespaceType = 'content';
+			}
+			elseif ( $title->isTalkPage() ) {
+				// talk footer
+				$namespaceType = 'talk';
+			}
+			elseif ( $title->inNamespace( NS_SPECIAL ) ) {
+				// disable footer on some namespaces
+				$namespaceType = 'none';
+			}
+
+			$action = $request->getVal( 'action', 'view' );
+			if ( ( $namespaceType != 'none' )
+				&& in_array( $action, [ 'view', 'purge', 'edit', 'history', 'delete', 'protect' ] ) ) {
+				$nav_urls = $this->data['nav_urls'];
+					$html .= Html::openElement( 'div', [ 'id' => 'articleFooter', 'class' => 'reset article_footer' ] ) .
+						Html::openElement( 'table', [ 'style' => 'border-spacing: 0' ] ) .
+						Html::openElement( 'tr' ) .
+						Html::openElement( 'td', [ 'class' => 'col1' ] ) .
+						Html::openElement( 'ul', [ 'id' => 'articleFooterActions', 'class' => 'actions' ] );
+				if ( $namespaceType === 'talk' ) {
+					$custom_article_footer = '';
+					// assign $this to a temporary variable so we can pass it as a reference
+					$template = $this;
+					$hookContainer->run( 'AddNewTalkSection', [ &$template, &$tpl, &$custom_article_footer ] );
+					if ( !empty( $custom_article_footer ) ) {
+						 $html .= $custom_article_footer;
+					}
+				} else {
+					$html .= "								";
+					$html .= Html::rawElement( 'li', [],
+						Html::rawElement( 'a',
+							[ 'id' => 'fe_edit_icon',
+							'href' => $title->getEditURL() ],
+							$this->blankimg( [
+								'id' => 'fe_edit_img',
+								'class' => 'sprite edit',
+								'alt' => ''
+							] )
+						) .
+						' ' .
+						Html::rawElement( 'div', [],
+							wfMessage( 'monaco-footer-improve' )->rawParams(
+								Html::element( 'a',
+									[
+										'id' => 'fe_edit_link',
+										'href' => $title->getEditURL()
+									],
+									wfMessage( 'monaco-footer-improve-linktext' )->text()
+								)
+							)->text()
+						)
+					);
+				}
+
+				$myContext = $this->getSkin()->getContext();
+
+				if ( $myContext->canUseWikiPage() ) {
+					$wikiPage = $myContext->getWikiPage();
+					$timestamp = $wikiPage->getTimestamp();
+					$lastUpdate = $lang->date( $timestamp );
+					$userId = $wikiPage->getUser();
+
+					if ( $userId > 0 ) {
+						$user = User::newFromName( $wikiPage->getUserText() );
+						$userPageTitle = $user->getUserPage();
+						$userPageLink = $userPageTitle->getLocalURL();
+						$userPageExists = $userPageTitle->exists();
+						$userOptionsManager = MediaWikiServices::getInstance()->getUserOptionsManager();
+						$userGender = $userOptionsManager->getOption( $user, 'gender' );
+						$feUserIcon = $this->blankimg( [
+							'id' => 'fe_user_img',
+							'alt' => '',
+							'class' => ( $userGender == 'female' ? 'sprite user-female' : 'sprite user' )
+						] );
+						$linkRenderer = MediaWikiServices::getInstance()->getLinkRenderer();
+
+						if ( $userPageExists ) {
+							$feUserIcon = Html::rawElement(
+								'a',
+								[ 'id' => 'fe_user_icon', 'href' => $userPageLink ],
+								$feUserIcon
+							);
+						}
+
+						$html .= Html::rawElement( 'li', [],
+							$feUserIcon . ' ' .
+							Html::rawElement( 'div', [],
+								wfMessage( 'monaco-footer-lastedit' )->rawParams(
+									$linkRenderer->makeLink(
+										$userPageTitle,
+										$user->getName(),
+										[ 'id' => 'fe_user_link' ]
+									),
+									Html::element(
+										'time',
+										[ 'datetime' => wfTimestamp( TS_ISO_8601, $timestamp ) ],
+										$lastUpdate
+									)
+								)->escaped()
+							)
+						);
+					}
+				}
+
+				if ( $this->data['copyright'] ) {
+					$feCopyIcon = $this->blankimg( [
+						'id' => 'fe_copyright_img',
+						'class' => 'sprite copyright',
+						'alt' => ''
+					] );
+
+					$html .= Html::rawElement( 'li', [],
+						$feCopyIcon . ' ' .
+						Html::rawElement( 'div',
+							[ 'id' => 'copyright' ],
+							$this->get( 'copyright' )
+						)
+					);
+				}
+
+				$html .= Html::closeElement( 'ul' ) .
+						Html::closeElement( 'td' ) .
+						Html::openElement( 'td', [ 'class' => 'col2' ] );
+
+				if ( !empty( $this->data['content_actions']['history'] ) ||
+					!empty( $nav_urls['recentchangeslinked'] ) ) {
+
+					$html .= Html::openElement( 'ul', [ 'id' => 'articleFooterActions3', 'class' => 'actions clearfix' ] );
+
+					if ( !empty( $this->data['content_actions']['history'] ) ) {
+
+						$feHistoryIcon = $this->blankimg( [
+							'id' => 'fe_history_img',
+							'class' => 'sprite history',
+							'alt' => ''
+						] );
+						$feHistoryIcon = Html::rawElement( 'a',
+							[
+								'id' => 'fe_history_icon',
+								'href' => $this->data['content_actions']['history']['href']
+							],
+							$feHistoryIcon
+						);
+						$feHistoryLink = Html::rawElement( 'a',
+							[
+								'id' => 'fe_history_link',
+								'href' => $this->data['content_actions']['history']['href']
+							],
+							$this->data['content_actions']['history']['text']
+						);
+
+						$html .= Html::rawElement( 'li',
+							[ 'id' => 'fe_history' ],
+							$feHistoryIcon . ' ' .
+							Html::rawElement( 'div', [], $feHistoryLink )
+						);
+					}
+
+					if ( !empty( $nav_urls['recentchangeslinked'] ) ) {
+
+						$feRecentIcon = $this->blankimg( [
+							'id' => 'fe_recent_img',
+							'class' => 'sprite recent',
+							'alt' => ''
+						] );
+						$feRecentIcon = Html::rawElement( 'a',
+							[
+								'id' => 'fe_recent_icon',
+								'href' => $nav_urls['recentchangeslinked']['href']
+							],
+							$feRecentIcon
+						);
+						$feRecentLink = Html::rawElement( 'a',
+							[
+								'id' => 'fe_recent_link',
+								'href' => $nav_urls['recentchangeslinked']['href']
+							],
+							wfMessage( 'recentchangeslinked' )->escaped()
+						);
+
+						$html .= Html::rawElement( 'li',
+							[ 'id' => 'fe_recent' ],
+							$feRecentIcon . ' ' .
+							Html::rawElement( 'div', [], $feRecentLink )
+						);
+					}
+
+					$html .= Html::closeElement( 'ul' );
+				}
+
+				if ( !empty( $nav_urls['permalink'] ) || !empty( $nav_urls['whatlinkshere'] ) ) {
+
+					$html .= Html::openElement( 'ul', [ 'id' => 'articleFooterActions4', 'class' => 'actions clearfix' ] );
+
+					if ( !empty( $nav_urls['permalink'] ) ) {
+
+						$fePermaIcon = $this->blankimg( [
+							'id' => 'fe_permalink_img',
+							'class' => 'sprite move',
+							'alt' => ''
+						] );
+						$fePermaIcon = Html::rawElement( 'a',
+							[
+								'id' => 'fe_permalink_icon',
+								'href' => $nav_urls['permalink']['href']
+							],
+							$fePermaIcon
+						);
+						$fePermaLink = Html::rawElement( 'a',
+							[
+								'id' => 'fe_permalink_link',
+								'href' => $nav_urls['permalink']['href']
+							],
+							$nav_urls['permalink']['text']
+						);
+
+						$html .= Html::rawElement( 'li',
+							[ 'id' => 'fe_permalink' ],
+							$fePermaIcon . ' ' .
+							Html::rawElement( 'div', [], $fePermaLink )
+						);
+					}
+
+					if ( !empty( $nav_urls['whatlinkshere'] ) ) {
+
+						$feWhatIcon = $this->blankimg( [
+							'id' => 'fe_whatlinkshere_img',
+							'class' => 'sprite pagelink',
+							'alt' => ''
+						] );
+						$feWhatIcon = Html::rawElement( 'a',
+							[
+								'id' => 'fe_whatlinkshere_icon',
+								'rel' => 'nofollow',
+								'href' => $nav_urls['whatlinkshere']['href']
+							],
+							$feWhatIcon
+						);
+						$feWhatLink = Html::rawElement( 'a',
+							[
+								'id' => 'fe_whatlinkshere_link',
+								'rel' => 'nofollow',
+								'href' => $nav_urls['whatlinkshere']['href']
+							],
+							wfMessage( 'whatlinkshere' )->escaped()
+						);
+
+						$html .= Html::rawElement( 'li',
+							[ 'id' => 'fe_whatlinkshere' ],
+							$feWhatIcon . ' ' .
+							Html::rawElement( 'div', [], $feWhatLink )
+						);
+					}
+					$html .= Html::closeElement( 'ul' );
+				}
+
+				$feRandIcon = $this->blankimg( [
+					'id' => 'fe_random_img',
+					'class' => 'sprite random',
+					'alt' => ''
+				] );
+				$url_to_randompage =
+					method_exists( \MediaWiki\Skin\SkinComponentUtils::class, 'makeSpecialUrl' )
+					// Works with mediawiki version >= 1.40
+					? \MediaWiki\Skin\SkinComponentUtils::makeSpecialUrl( 'Randompage' )
+					// Support for MediaWiki versions < 1.40
+					: \MediaWiki\Skin\Skin::makeSpecialUrl( 'Randompage' );
+				$feRandIcon = Html::rawElement( 'a',
+					[
+						'id' => 'fe_random_icon',
+						'href' => $url_to_randompage
+					],
+					$feRandIcon
+				);
+				$feRandLink = Html::rawElement( 'a',
+					[
+						'id' => 'fe_random_link',
+						'href' => $url_to_randompage
+					],
+					wfMessage( 'monaco-view-random-page' )->escaped()
+				);
+
+				$html .= '<ul class="actions clearfix" id="articleFooterActions2">';
+				$html .= Html::rawElement( 'li',
+					[ 'id' => 'fe_randompage' ],
+					$feRandIcon . ' ' .
+					Html::rawElement( 'div', [], $feRandLink )
+				);
+
+				if ( !empty( $this->get( 'mobileview' ) ) ) {
+
+					$feMobileIcon = $this->blankimg( [
+						'id' => 'fe_mobile_img',
+						'class' => 'sprite mobile',
+						'alt' => ''
+					] );
+					$this->set( 'mobileview', preg_replace(
+						'/(<a[^>]*?href[^>]*?)>/',
+						'$1 rel="nofollow">',
+						$this->get( 'mobileview' )
+					) );
+
+					$html .= Html::rawElement( 'li',
+						[ 'id' => 'fe_mobile' ],
+						$feMobileIcon . ' ' .
+						Html::rawElement( 'div', [],
+							$this->get( 'mobileview' )
+						)
+					);
+				}
+
+				$html .= Html::closeElement( 'ul' );
+				$html .= Html::closeElement( 'td' );
+				$html .= Html::closeElement( 'tr' );
+				$html .= Html::closeElement( 'table' );
+				$html .= Html::closeElement( 'div' );
+			} // end $namespaceType != 'none'
+		} // end else from CustomArticleFooter hook
+
+				$html .= '<!-- /ARTICLE FOOTER -->
+			</div>
+			<!-- /PAGE -->
+
+			<noscript><link rel="stylesheet" property="stylesheet" type="text/css" href="'
+					. $this->get( 'stylepath' ) . '/Monaco/style/css/noscript.css?'
+					. $styleVersion . '" /></noscript>';
+		if ( !( ( $request->getVal( 'action' ) != '' ) || $title->inNamespace( NS_SPECIAL ) ) ) {
+			$html .= $this->get( 'JSloader' );
+			$html .= $this->get( 'headscripts' );
+		}
+
+		$html .= Html::closeElement( 'div' ) .
+		$this->printRightSidebar() . '
+		<!-- WIDGETS -->';
+		$html .= Html::openElement( 'div',
+				[
+					'id' => 'widget_sidebar',
+					'class' => 'reset widget_sidebar left_sidebar sidebar'
+				]
+			);
+		$html .= Html::rawElement( 'div',
+			[
+				'id' => 'wiki_logo',
+				'style' => 'background-image: url(' . $this->get( 'logopath' ) . ')'
+			],
+			Html::rawElement( 'a',
+				[
+					'href' => htmlspecialchars( $this->data['nav_urls']['mainpage']['href'] ),
+					'accesskey' => 'z',
+					'rel' => 'home'
+				],
+				$sitename
+			)
+		);
+		$html .= '<!-- SEARCH/NAVIGATION -->';
+		$html .= Html::openElement( 'div',
+				[ 'id' => 'navigation_widget', 'class' => 'widget sidebox navigation_box', 'role' => 'navigation' ]
+			);
+
+		$MonacoSearchDefaultFulltext = $this->mConfig->get( 'MonacoSearchDefaultFulltext' );
+		$msgSearchLabel = wfMessage( 'Tooltip-search' )->escaped();
+		$searchAction = SpecialPage::newSearchPage( $user )->getLocalURL();
+		$searchLabel =
+			wfMessage( 'Tooltip-search' )->isDisabled()
+			? wfMessage( 'ilsubmit' )->escaped() . ' ' . $sitename . '...'
+			: $msgSearchLabel;
+		$searchAction = htmlspecialchars( $searchAction, ENT_QUOTES );
+		$searchLabel = htmlspecialchars( $searchLabel );
+
+		$search_input_element = Html::input( 'search', '', 'search',
+				[
+					'id' => 'searchInput',
+					'maxlength' => 200,
+					'aria-label' => $searchLabel,
+					'placeholder' => $searchLabel,
+					'tabIndex' => 2,
+					'aria-required' => 'true',
+					'aria-flowto' => 'search-button',
+				] +
+				Linker::tooltipAndAccesskeyAttribs( 'search' )
+			);
+		$html .= Html::rawElement( 'div',
+				[ 'id' => 'search_box', 'class' => 'color1', 'role' => 'search' ],
+				'<form action="' . $searchAction . '" id="searchform">
+					<label style="display: none;" for="searchInput">' . $searchLabel . '</label>' .
+					$search_input_element .
+					'<input type="hidden" name="' . ( $MonacoSearchDefaultFulltext ? 'fulltext' : 'go' ) .
+						'" value="1" />
+					<input type="image" alt="' . htmlspecialchars( wfMessage( 'search' )->escaped() ) .
+						'" src="' . $this->get( 'blankimg' ) .
+						'" id="search-button" class="sprite search" tabIndex=2 />
+				</form>'
+			);
+		$monacoSidebar = new MonacoSidebar( $hookContainer );
+		if ( isset( $this->data['content_actions']['edit'] ) ) {
+			$monacoSidebar->editUrl = $this->data['content_actions']['edit']['href'];
+		}
+		$html .= $monacoSidebar->getCode();
+
+		$html .= '<table style="border-spacing: 0;" id="link_box_table">';
+	// BEGIN: create dynamic box
+		$showDynamicLinks = true;
+		$dynamicLinksArray = [];
+
+		if ( ( $request->getText( 'action' ) == 'edit' ) || ( $request->getText( 'action' ) == 'submit' ) ) {
+			$showDynamicLinks = false;
+		}
+
+		if ( $showDynamicLinks ) {
+			$dynamicLinksInternal = [];
+
+			$MonacoDynamicCreateOverride = $this->mConfig->get( 'MonacoDynamicCreateOverride' );
+			$createPage = null;
+			if ( !wfMessage( 'dynamic-links-write-article-url' )->isDisabled() ) {
+				$createPage = Title::newFromText( wfMessage( 'dynamic-links-write-article-url' )->text() );
+			}
+			if ( !isset( $createPage ) && !empty( $MonacoDynamicCreateOverride ) ) {
+				$createPage = Title::newFromText( $MonacoDynamicCreateOverride );
+			}
+			if ( !isset( $createPage ) ) {
+				$specialPageFactory = MediaWikiServices::getInstance()->getSpecialPageFactory();
+				$specialCreatePage = $specialPageFactory->getPage( 'CreatePage' );
+				if ( $specialCreatePage && $specialCreatePage->userCanExecute( $user ) ) {
+					$createPage = SpecialPage::getTitleFor( 'CreatePage' );
+				}
+			}
+			if ( isset( $createPage ) && ( $user->isAllowed( 'edit' ) || $user->isAnon() ) ) {
+				/* Redirect to login page instead of showing error, see Login friction project */
+				$dynamicLinksInternal['write-article'] =
+					[
+						'url' => $user->isAnon() ? SpecialPage::getTitleFor( 'Userlogin' )
+							->getLocalURL( [ 'returnto' => $createPage->getPrefixedDBkey() ] ) : $createPage->getLocalURL(),
+						'icon' => 'edit',
+					];
+			}
+			$EnableUploads = $this->mConfig->get( 'EnableUploads' );
+			$UploadNavigationUrl = $this->mConfig->get( 'UploadNavigationUrl' );
+			if ( ( $EnableUploads || !empty( $UploadNavigationUrl ) ) && ( $user->isAllowed( 'upload' ) ||
+					$user->isAnon() || !empty( $UploadNavigationUrl ) ) ) {
+				$uploadPage = SpecialPage::getTitleFor( 'Upload' );
+				/* Redirect to login page instead of showing error, see Login friction project */
+				if ( !empty( $UploadNavigationUrl ) ) {
+					$url = $UploadNavigationUrl;
+				} else {
+					$url = $user->isAnon() ? SpecialPage::getTitleFor( 'Userlogin' )
+						->getLocalURL( [ 'returnto' => $uploadPage->getPrefixedDBkey() ] ) : $uploadPage->getLocalURL();
+				}
+				$dynamicLinksInternal['add-image'] = [
+					'url' => $url,
+					'icon' => 'photo',
+				];
+			}
+
+			$html .= $this->extendDynamicLinks( $dynamicLinksInternal );
+			$hookContainer->run( 'MonacoDynamicLinks', [ $this, &$dynamicLinksInternal ] );
+			$html .= $this->extendDynamicLinksAfterHook( $dynamicLinksInternal );
+
+			$dynamicLinksUser = [];
+			foreach ( explode( "\n", wfMessage( 'dynamic-links' )->inContentLanguage()->text() ) as $line ) {
+				if ( !$line || ( $line[0] == ' ' ) ) {
+					continue;
+				}
+				$line = trim( $line, '* ' );
+				if ( !wfMessage( "dynamic-links-$line-url" )->isDisabled() ) {
+					$url = Title::newFromText( wfMessage( "dynamic-links-$line-url" )->text() );
+					if ( $url ) {
+						$dynamicLinksUser[$line] = [
+							'url' => $url,
+							// @note Designers used messy css sprites so we can't really let this be customized easily
+							'icon' => 'edit'
+						];
+					}
+				}
+			}
+
+			foreach ( $dynamicLinksUser as $key => $value ) {
+				$dynamicLinksArray[$key] = $value;
+			}
+			foreach ( $dynamicLinksInternal as $key => $value ) {
+				$dynamicLinksArray[$key] = $value;
+			}
+		}
+
+		if ( count( $dynamicLinksArray ) > 0 ) {
+
+			$html .= '<tbody id="link_box_dynamic">
+			<tr>
+				<td colspan="2">
+					<ul>';
+			foreach ( $dynamicLinksArray as $key => $link ) {
+				$link['id'] = "dynamic-links-$key";
+				if ( !isset( $link['text'] ) ) {
+					$link['text'] = wfMessage( "dynamic-links-$key" )->text();
+				}
+				$html .= "						";
+				$html .= Html::rawElement( 'li',
+					[
+						'id' => "{$link['id']}-row",
+						'class' => 'link_box_dynamic_item'
+					],
+					Html::rawElement( 'a',
+						[
+							'id' => "{$link['id']}-icon",
+							'href' => $link['url'],
+							'tabIndex' => -1
+						],
+						$this->blankimg( [
+							'id' => "{$link['id']}-img",
+							'class' => "sprite {$link['icon']}",
+							'alt' => ''
+						] )
+					) . ' ' .
+					Html::rawElement( 'a',
+						[
+							'id' => "{$link['id']}-link",
+							'href' => $link['url'],
+							'tabIndex' => 3
+						],
+						$link['text']
+					)
+				);
+			}
+
+			$html .=  Html::closeElement( 'ul' ) .
+			Html::closeElement( 'td' ) .
+			Html::closeElement( 'tr' ) .
+			Html::closeElement( 'tbody' );
+		}
+	// END: create dynamic box
+
+	// BEGIN: create static box
+		$linksArrayL = $linksArrayR = [];
+		$linksArray = $this->data['data']['toolboxlinks'];
+
+		// add user specific links
+		if ( !empty( $nav_urls['contributions'] ) ) {
+			$linksArray[] = [
+				'href' => $nav_urls['contributions']['href'],
+				'text' => wfMessage( 'contributions' )->text()
+			];
+		}
+		if ( !empty( $nav_urls['blockip'] ) ) {
+			$linksArray[] = [
+				'href' => $nav_urls['blockip']['href'],
+				'text' => wfMessage( 'blockip' )->text()
+			];
+		}
+		if ( !empty( $nav_urls['emailuser'] ) ) {
+			$linksArray[] = [
+				'href' => $nav_urls['emailuser']['href'],
+				'text' => wfMessage( 'emailuser' )->text()
+			];
+		}
+
+		if ( is_array( $linksArray ) && ( count( $linksArray ) > 0 ) ) {
+			$MonacoSpecialPagesRequiredLogin = $this->mConfig->get( 'MonacoSpecialPagesRequiredLogin' );
+
+			if ( !is_array( $MonacoSpecialPagesRequiredLogin ) ) {
+				$MonacoSpecialPagesRequiredLogin = [];
+			}
+
+			for ( $i = 0, $max = max( array_keys( $linksArray ) ); $i <= $max; $i++ ) {
+				$item = isset( $linksArray[$i] ) ? $linksArray[$i] : false;
+				// Redirect to login page instead of showing error, see Login friction project
+				if ( ( $item !== false ) &&
+					$user->isAnon() &&
+					isset( $item['specialCanonicalName'] ) &&
+					$MonacoSpecialPagesRequiredLogin &&
+					in_array( $item['specialCanonicalName'], $MonacoSpecialPagesRequiredLogin ) )
+				{
+					$returnto = SpecialPage::getTitleFor( $item['specialCanonicalName'] )->getPrefixedDBkey();
+					$item['href'] = SpecialPage::getTitleFor( 'Userlogin' )->getLocalURL( [ 'returnto' => $returnto ] );
+				}
+				$i & 1 ? $linksArrayR[] = $item : $linksArrayL[] = $item;
+			}
+		}
+
+		if ( ( count( $linksArrayL ) > 0 ) || ( count( $linksArrayR ) > 0 ) ) {
+			$html .= Html::openElement( 'tbody', [ 'id' => 'link_box', 'class' => 'color2 linkbox_static' ] );
+			$html .= Html::openElement( 'tr' );
+			$html .= Html::openElement( 'td' );
+			$html .= Html::openElement( 'ul' );
+			if ( is_array( $linksArrayL ) && ( count( $linksArrayL ) > 0 ) ) {
+				foreach ( $linksArrayL as $key => $val ) {
+					if ( $val === false ) {
+						$html .= '<li>&nbsp;</li>';
+					} else {
+						$html .= '<li><a' .
+							( !isset( $val['internal'] ) || !$val['internal'] ? ' rel="nofollow" ' : null ) .
+							'href="' . htmlspecialchars( $val['href'] ) . '" tabIndex=3>' .
+							htmlspecialchars( $val['text'] ) . "</a></li>\n";
+					}
+				}
+			}
+			$html .= Html::closeElement( 'ul' ) . Html::closeElement( 'td' );
+			$html .= Html::openElement( 'td' ) . Html::openElement( 'ul' );
+			if ( is_array( $linksArrayR ) && ( count( $linksArrayR ) > 0 ) ) {
+				foreach ( $linksArrayR as $key => $val ) {
+					if ( $val === false ) {
+						$html .= '<li>&nbsp;</li>';
+					} else {
+						$html .= '<li><a' .
+							( !isset( $val['internal'] ) || !$val['internal'] ? ' rel="nofollow" ' : null ) .
+							'href="' . htmlspecialchars( $val['href'] ) . '" tabIndex=3>' .
+							htmlspecialchars( $val['text'] ) . "</a></li>\n";
+					}
+				}
+			}
+						$html .= '<li style="font-size: 1px; position: absolute; top: -10000px"><a href="' .
+							Title::newFromText( 'Special:Recentchanges' )->getLocalURL() .
+							'" accesskey="r">Recent changes</a><a href="' .
+							Title::newFromText( 'Special:Random' )->getLocalURL() .
+							'" accesskey="x">Random page</a></li>';
+			$html .= Html::closeElement( 'ul' );
+			$html .= Html::closeElement( 'td' );
+			$html .= Html::closeElement( 'tr' );
+
+			$MonacoEnablePaypal  = $this->mConfig->get( 'MonacoEnablePaypal' );
+			$MonacoPaypalID      = $this->mConfig->get( 'MonacoPaypalID' );
+			$MonacoEnablePatreon = $this->mConfig->get( 'MonacoEnablePatreon' );
+			$MonacoPatreonURL    = $this->mConfig->get( 'MonacoPatreonURL' );
+
+			$lang_code = $skin->getLanguage()->getCode();
+			switch ( $lang_code ) {
+				case 'de-at':
+				case 'de-ch':
+				case 'de-formal':
+					$lang_code = 'de_DE';
+					break;
+				case 'es-formal':
+					$lang_code = 'es_ES';
+					break;
+				case 'nl-formal':
+					$lang_code = 'nl_NL';
+					break;
+				case 'en-ca':
+					$lang_code = 'en_CA';
+					break;
+				case 'en-gb':
+					$lang_code = 'en_GB';
+					break;
+				case 'en':
+					$lang_code = 'en_US';
+					break;
+				default:
+					$lang_code = strtolower( $lang_code ) . '_' . strtoupper( $lang_code );
+					break;
+			}
+
+			if ( $MonacoEnablePaypal && !empty( $MonacoPaypalID ) ) {
+				$html .= Html::rawElement( 'tr', [],
+						Html::rawElement( 'td',
+							[
+								'colspan' => 2,
+								'style' => 'text-align:center'
+							],
+							'<form action="https://www.paypal.com/cgi-bin/webscr" method="post" title="PayPal">
+								<input type="hidden" name="cmd" value="_s-xclick" />
+								<input type="hidden" name="hosted_button_id" value="' . $MonacoPaypalID . '" />
+								<input type="image" src="' . $stylepath . '/Monaco/style/images/paypal.png" name="submit"
+									alt="PayPal - The safer, easier way to pay online!"
+									style="border: 0; width:139px; margin:0;" />
+								<img alt="" src="https://www.paypalobjects.com/' . $lang_code . '/i/scr/pixel.gif"
+									width="1" height="1" style="border: 0;" />
+							</form>'
+						)
+					);
+			}
+			if ( $MonacoEnablePatreon && !empty( $MonacoPatreonURL ) ) {
+				$html .= Html::rawElement( 'tr', [],
+						Html::rawElement( 'td',
+							[
+								'colspan' => 2,
+								'style' => 'text-align:center'
+							],
+							Html::rawElement( 'a',
+								[
+									'href' => $MonacoPatreonURL,
+									'rel' => 'nofollow',
+									'target' => '_blank'
+								],
+								Html::rawElement( 'img',
+									[
+										'alt' => 'Patreon',
+										'src' => $stylepath . '/Monaco/style/images/patreon.png',
+										'width' => 139,
+										'height' => 37
+									]
+								)
+							)
+						)
+					);
+			}
+			$html .= Html::closeElement( 'tbody' );
+		}
+	// END: create static box
+		$html .= Html::closeElement( 'table' );
+		$hookContainer->run( 'MonacoStaticboxEnd', [ $this, &$html ] );
+		$html .= Html::closeElement( 'div' ) . '
+			<!-- /SEARCH/NAVIGATION -->' .
+		$this->printExtraSidebar();
+		$hookContainer->run( 'MonacoSidebarEnd', [ $this, &$html ] );
+		$html .= Html::closeElement( 'div' ) . '
+		<!-- /WIDGETS -->
+	<!--/div-->';
+
+// curse like cobranding
+		$html .= $this->printCustomFooter();
+		$html .= Html::closeElement( 'div' );
+		$hookContainer->run( 'SpecialFooter' );
+		$html .= Html::rawElement( 'div', [ 'id' => 'positioned_elements', 'class' => 'reset' ] );
+		echo $html;
+	} // end execute()
+
+	public function addVariables() {
+		$skin = $this->getSkin();
+		$user = $skin->getUser();
+		$data_array = [];
+
+		$contLang = MediaWikiServices::getInstance()->getContentLanguage();
+		$lang = $skin->getContext()->getLanguage();
+
+		$parserCache = MediaWikiServices::getInstance()->getParserCache();
+
+		// We want to cache populated data only if user language is same with wiki language
+		$cache = ( $lang->getCode() == $contLang->getCode() );
+
+		if ( $cache ) {
+			$key = ObjectCache::getLocalClusterInstance()->makeKey( 'MonacoDataOld' );
+			$data_array = $parserCache->getCacheStorage()->get( $key );
+		}
+
+		if ( empty( $data_array ) ) {
+			$data_array = [];
+			$data_array['toolboxlinks'] = $skin->getToolboxLinks();
+
+			if ( $cache ) {
+				$parserCache->getCacheStorage()->set( $key, $data_array, 4 * 60 * 60 /* 4 hours */ );
+			}
+		}
+
+		if ( $user->isRegistered() ) {
+			if ( empty( $user->mMonacoData ) ||
+				( $skin->getTitle()->inNamespace( NS_USER ) &&
+					( $skin->getRequest()->getText( 'action' ) === 'delete' ) )
+			) {
+				$user->mMonacoData = [];
+
+				$text = $skin->getTransformedArticle( 'User:' . $user->getName() . '/Monaco-toolbox', true );
+				$user->mMonacoData['toolboxlinks'] =
+					empty( $text )
+					? false
+					: $skin->parseToolboxLinks( $text );
+			}
+
+			if ( ( $user->mMonacoData['toolboxlinks'] !== false ) && is_array( $user->mMonacoData['toolboxlinks'] ) ) {
+				$data_array['toolboxlinks'] = $user->mMonacoData['toolboxlinks'];
+			}
+		}
+
+		foreach ( $data_array['toolboxlinks'] as $key => $val ) {
+			if ( isset( $val['org'] ) && ( $val['org'] == 'whatlinkshere' ) ) {
+				if ( isset( $this->data['nav_urls']['whatlinkshere'] ) ) {
+					$data_array['toolboxlinks'][$key]['href'] = $this->data['nav_urls']['whatlinkshere']['href'];
+				} else {
+					unset( $data_array['toolboxlinks'][$key] );
+				}
+			}
+
+			if ( isset( $val['org'] ) && ( $val['org'] == 'permalink' ) ) {
+				if ( isset( $this->data['nav_urls']['permalink'] ) ) {
+					$data_array['toolboxlinks'][$key]['href'] = $this->data['nav_urls']['permalink']['href'];
+				} else {
+					unset( $data_array['toolboxlinks'][$key] );
+				}
+			}
+		}
+
+		$this->set( 'data', $data_array );
+
+		// Article content links (View, Edit, Delete, Move, etc.)
+		$this->set( 'articlelinks', $this->getArticleLinks() );
+
+		// User actions links
+		$this->set( 'userlinks', $this->getUserLinks() );
+	}
+
+	private function getArticleLinks(): array {
+		$skin = $this->getSkin();
+		$links = [];
+
+		if ( !empty( $this->data['content_navigation'] ) ) {
+			// Use MediaWiki 1.18's better vector based content_navigation structure
+			// to organize our tabs better
+			foreach ( $this->data['content_navigation'] as $section => $nav ) {
+				foreach ( $nav as $key => $val ) {
+					if ( isset( $val['redundant'] ) && $val['redundant'] ) {
+						continue;
+					}
+
+					$kk =
+						isset( $val['id'] ) && ( substr( $val['id'], 0, 3 ) == 'ca-' )
+						? substr( $val['id'], 3 )
+						: $key;
+
+					$msgKey = $kk;
+					if ( $kk == 'edit' ) {
+						$title = $skin->getRelevantTitle();
+						$msgKey =
+							$title->exists() ||
+							( $title->inNamespace( NS_MEDIAWIKI ) &&
+								!wfMessage( $title->getText() )->inContentLanguage()->isBlank() )
+							? 'edit'
+							: 'create';
+					}
+
+					// @note We know we're in 1.18 so we don't need to pass the second param to wfEmptyMsg anymore
+					$tabText = wfMessage( "monaco-tab-{$msgKey}" )->text();
+					if ( $tabText && ( $tabText != '-' ) && wfMessage( "monaco-tab-{$msgKey}" )->exists() ) {
+						$val['text'] = $tabText;
+					}
+
+					switch ( $section ) {
+						case 'namespaces':
+							$side = 'right';
+							break;
+						case 'variants':
+							$side = 'variants';
+							break;
+						default:
+							$side = 'left';
+							break;
+					}
+
+					$links[$side][$kk] = $val;
+				}
+			}
+		} else {
+			// rarely ever happens, but it does
+			if ( empty( $this->data['content_actions'] ) ) {
+				return $links;
+			}
+
+			# @todo: might actually be useful to move this to a global var and handle this in extension files --TOR
+			$force_right = [ 'userprofile', 'talk', 'TheoryTab' ];
+			foreach ( $this->data['content_actions'] as $key => $val ) {
+				$msgKey = $key;
+				if ( $key == 'edit' ) {
+					$title = $skin->getTitle();
+					$msgKey =
+						$title->exists() ||
+						( $title->inNamespace( NS_MEDIAWIKI ) &&
+							wfMessage( $title->getText() )->exists() )
+						? 'edit'
+						: 'create';
+				}
+
+				$tabText = wfMessage( "monaco-tab-{$msgKey}" )->text();
+				if ( $tabText && $tabText != '-' && wfMessage( "monaco-tab-{$msgKey}" )->exists() ) {
+					$val['text'] = $tabText;
+				}
+
+				if ( strpos( $key, 'varlang-' ) === 0 ) {
+					$links['variants'][$key] = $val;
+				} elseif ( ( strpos( $key, 'nstab-' ) === 0 ) || in_array( $key, $force_right ) ) {
+					$links['right'][$key] = $val;
+				} else {
+					$links['left'][$key] = $val;
+				}
+			}
+		}
+
+		if ( !empty( $links['left'] ) ) {
+			foreach ( $links['left'] as $key => &$v ) {
+				/* Fix icons */
+				if ( $key == 'unprotect' ) {
+					// unprotect uses the same icon as protect
+					$v['icon'] = 'protect';
+				} elseif ( $key == 'undelete' ) {
+					// undelete uses the same icon as delelte
+					$v['icon'] = 'delete';
+				} elseif ( $key == 'purge' ) {
+					$v['icon'] = 'refresh';
+				} elseif ( $key == 'addsection' ) {
+					$v['icon'] = 'talk';
+				}
+			}
+		}
+
+		return $links;
+	}
+
+	private function getUserLinks(): array {
+		$skin = $this->getSkin();
+
+		$data = [];
+		$request = $skin->getRequest();
+		$user = $skin->getUser();
+
+		$page = Title::newFromURL( $request->getVal( 'title', '' ) );
+		$page = $request->getVal( 'returnto', $page );
+		$a = [];
+
+		if ( !empty( strval( $page ) ) ) {
+			$a['returnto'] = $page;
+			$query = $request->getVal( 'returntoquery' );
+			if ( empty( $query ) && !$request->wasPosted() ) {
+				$thisquery = $request->getValues();
+				unset( $thisquery['title'] );
+				unset( $thisquery['returnto'] );
+				unset( $thisquery['returntoquery'] );
+				$query = $thisquery;
+			}
+			if ( !empty( $query ) ) {
+				$a['returntoquery'] = $query;
+			}
+		}
+		$returnto = wfArrayToCGI( $a );
+
+		if ( !$user->isRegistered() ) {
+			$signUpHref =
+				method_exists( \MediaWiki\Skin\SkinComponentUtils::class, 'makeSpecialUrl' )
+				// Works with mediawiki version >= 1.40
+				? \MediaWiki\Skin\SkinComponentUtils::makeSpecialUrl( 'Userlogin', $returnto )
+				// Support for MediaWiki versions < 1.40
+				: \MediaWiki\Skin\Skin::makeSpecialUrl( 'Userlogin', $returnto );
+			$data['login'] = [
+				'text' => wfMessage( 'login' )->text(),
+				'href' => $signUpHref . '&type=login'
+			];
+			$data['register'] = [
+				'text' => wfMessage( 'pt-createaccount' )->text(),
+				'href' => $signUpHref . '&type=signup'
+			];
+
+		} else {
+			/**
+			 * Use of QuickTemplate with parameter ´personal_urls´ is deprecated
+			 * Use ´content_navigation´ instead
+			 */
+			if ( !empty( $this->data['personal_urls']['userpage'] ) ) {
+				$data['userpage'] = [
+					'text' => $user->getName(),
+					'href' => $this->data['personal_urls']['userpage']['href']
+				];
+			}
+
+			if ( !empty( $this->data['personal_urls']['mytalk'] ) ) {
+				$data['mytalk'] = [
+					'text' => $this->data['personal_urls']['mytalk']['text'],
+					'href' => $this->data['personal_urls']['mytalk']['href']
+				];
+			}
+
+			if ( !empty( $this->data['personal_urls']['watchlist'] ) ) {
+				$data['watchlist'] = [
+					/*'text' => $this->data['personal_urls']['watchlist']['text'],*/
+					'text' => wfMessage( 'prefs-watchlist' )->text(),
+					'href' => $this->data['personal_urls']['watchlist']['href']
+				];
+			}
+
+			// In some cases, logout will be removed explicitly (such as when it is replaced by fblogout).
+			if ( !empty( $this->data['personal_urls']['logout'] ) ) {
+				$data['logout'] = [
+					'text' => $this->data['personal_urls']['logout']['text'],
+					'href' => $this->data['personal_urls']['logout']['href']
+				];
+			}
+
+			if ( !empty( $this->data['personal_urls']['userpage'] ) ) {
+				$data['more']['userpage'] = [
+					'text' => wfMessage( 'mypage' )->text(),
+					'href' => $this->data['personal_urls']['userpage']['href']
+				];
+			}
+
+			if ( !empty( $this->data['personal_urls']['userprofile'] ) ) {
+				$data['more']['userprofile'] = [
+					'text' => $this->data['personal_urls']['userprofile']['text'],
+					'href' => $this->data['personal_urls']['userprofile']['href']
+				];
+			}
+
+			if ( !empty( $this->data['personal_urls']['mycontris'] ) ) {
+				$data['more']['mycontris'] = [
+					'text' => wfMessage( 'mycontris' )->text(),
+					'href' => $this->data['personal_urls']['mycontris']['href']
+				];
+			}
+
+			if ( !empty( $this->data['personal_urls']['preferences'] ) ) {
+				$data['more']['preferences'] = [
+					'text' => $this->data['personal_urls']['preferences']['text'],
+					'href' => $this->data['personal_urls']['preferences']['href']
+				];
+			}
+		}
+
+		// This function ignores anything from PersonalUrls hook which it doesn't expect.  This
+		// loops lets it expect anything starting with "fb*" (because we need that for facebook connect).
+		// Perhaps we should have some system to let PersonalUrls hook work again on its own?
+		// - Sean Colombo
+
+		if ( empty( $this->data['personal_urls'] ) ) {
+			$this->data['personal_urls'] = [];
+		}
+		foreach ( $this->data['personal_urls'] as $urlName => $urlData ) {
+			if ( strpos( $urlName, 'fb' ) === 0 ) {
+				$data[$urlName] = $urlData;
+			}
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Allow subskins to tweak dynamic links
+	 * @param array &$dynamicLinks
+	 */
+	protected function extendDynamicLinks( &$dynamicLinks ): string {
+		return '';
+	}
+
+	/**
+	 * @param array &$dynamicLinks
+	 */
+	protected function extendDynamicLinksAfterHook( &$dynamicLinks ): string {
+		return '';
+	}
+
+	/**
+	 * Allow subskins to add extra sidebar extras
+	 */
+	protected function printExtraSidebar(): string {
+		return '';
+	}
+
+	/**
+	 * @param string $bar
+	 * @param string|array $cont
+	 * @param array $options
+	 */
+	protected function sidebarBox( $bar, $cont, $options = [] ): string {
+		$titleClass = 'sidebox_title';
+		$contentClass = 'sidebox_contents';
+		if ( isset( $options['widget'] ) && $options['widget'] ) {
+			$titleClass .= ' widget_contents';
+			$contentClass .= ' widget_title';
+		}
+
+		$attrs = [ 'class' => 'widget sidebox' ];
+		if ( isset( $options['id'] ) ) {
+			$attrs['id'] = $options['id'];
+		}
+		if ( isset( $options['class'] ) ) {
+			$attrs['class'] .= " {$options['class']}";
+		}
+
+		$box = "			";
+		$box .= Html::openElement( 'div', $attrs );
+		$box .= "\n";
+		if ( isset( $bar ) ) {
+			$box .= "				";
+			$out = !wfMessage( $bar )->exists() ? $bar : wfMessage( $bar )->text();
+			if ( $out ) {
+				$box .= Html::element( 'h3', [ 'class' => "color1 $titleClass" ], $out ) . "\n";
+			}
+		}
+		if ( is_array( $cont ) ) {
+			$boxContent .= "					<ul>\n";
+			foreach ( $cont as $key => $val ) {
+				$boxContent .= "						" . $this->makeListItem( $key, $val ) . "\n";
+			}
+			$boxContent .= "					</ul>\n";
+		} else {
+			$boxContent = $cont;
+		}
+		if ( !isset( $options['wrapcontents'] ) || $options['wrapcontents'] ) {
+			$boxContent = "				" .
+				Html::rawElement( 'div',
+					[ 'class' => $contentClass ],
+					"\n" . $boxContent . "				"
+				) . "\n";
+		}
+		$box .= $boxContent;
+		$box .= Html::closeElement( 'div' );
+
+		return $box;
+	}
+
+	/**
+	 * @param string $bar
+	 * @param string|array $cont
+	 */
+	protected function customBox( $bar, $cont ): string {
+		return $this->sidebarBox( $bar, $cont );
+	}
+
+	/**
+	 * Hook for subskins
+	 */
+	protected function setupRightSidebar() {
+	}
+
+	protected function addToRightSidebar( string $html ): string {
+		$html = $this->mRightSidebar .= $html;
+		return $html;
+	}
+
+	protected function hasRightSidebar(): bool {
+		return !empty( trim( $this->mRightSidebar ) );
+	}
+
+	/**
+	 * Hook for things that you only want in the sidebar if there are already things
+	 * inside the sidebar.
+	 */
+	protected function lateRightSidebar() {
+	}
+
+	protected function printRightSidebar(): string {
+		if ( $this->hasRightSidebar() ) {
+			$html = '<!-- RIGHT SIDEBAR -->
+		 <div id="right_sidebar" class="sidebar right_sidebar">' .
+			$this->lateRightSidebar();
+			$hookContainer->run( 'MonacoRightSidebar::Late', [ $this ] );
+			$html .= $this->mRightSidebar . '
+		</div>
+		<!-- /RIGHT SIDEBAR -->';
+			return $html;
+		}
+		return '';
+	}
+
+	protected function printMonacoBranding(): string {
+		$hookContainer = $this->getHookContainer();
+		ob_start();
+		$hookContainer->run( 'MonacoBranding', [ $this ] );
+		$branding = ob_get_contents();
+		ob_end_clean();
+
+		if ( trim( $branding ) ) {
+			return '<div id="monacoBranding">' . $branding . '</div>';
+		}
+		return '';
+	}
+
+	protected function printUserData(): string {
+		$skin = $this->data['skin'];
+		$user = $skin->getUser();
+		$html = '<div id="userData">';
+
+		$custom_user_data = "";
+
+		if ( $custom_user_data ) {
+			$html .= $custom_user_data;
+		} else {
+
+			// Output the facebook connect links that were added with PersonalUrls.
+			// @author Sean Colombo
+			foreach ( $this->data['userlinks'] as $linkName => $linkData ) {
+
+				if ( !empty( $linkData['html'] ) ) {
+					$html .= $linkData['html'];
+				}
+			}
+
+			if ( $user->isRegistered() ) {
+				$toolbar = [];
+				$personal_urls = $this->get( 'personal_urls' );
+				if ( is_array( $personal_urls ) && ( count( $personal_urls ) > 0 ) ) {
+					$toolbar = $this->getSkin()->getPersonalToolsForMakeListItem( $personal_urls );
+				}
+
+				unset( $toolbar['preferences'] );
+				unset( $toolbar['mycontris'] );
+				unset( $toolbar['logout'] );
+
+				foreach ( $toolbar as $key => $item ) {
+					$html .= $this->makeListItem( $key, $item );
+				}
+
+				$links_user_more = [];
+				if ( isset( $this->data['userlinks']['more'] ) ) {
+					if ( is_array( $this->data['userlinks']['more'] ) ) {
+						$links_user_more = $this->data['userlinks']['more'];
+					}
+				}
+
+				if ( $this->useUserMore() ) {
+					$html .= '<span class="more hovermenu">
+					<button id="headerButtonUser" class="header-button color1" tabIndex="-1">' .
+						trim( wfMessage( 'moredotdotdot' )->escaped(), ' .' ) .
+						'<img src="' . $this->get( 'blankimg' ) . '" /></button>
+					<span class="invisibleBridge"></span>
+					<div id="headerMenuUser" class="headerMenu color1 reset">
+						<ul>';
+
+					foreach ( $links_user_more as $key => $link ) {
+						if ( $key != 'userpage' ) { // haleyjd 20140420: Do not repeat user page here.
+							$html .= Html::rawElement( 'li',
+								[ 'id' => "header_$key" ],
+								Html::element( 'a',
+									[ 'href' => $link['href'] ],
+									$link['text']
+								)
+							) . "\n";
+						}
+					}
+		$html .= Html::closeElement( 'ul' );
+		$html .= Html::closeElement( 'div' );
+		$html .= Html::closeElement( 'span' );
+
+				} else {
+					foreach ( $links_user_more as $key => $link ) {
+						if ( $key != 'userpage' ) { // haleyjd 20140420: Do not repeat user page here.
+							$html .= Html::rawElement( 'span',
+								[ 'id' => "header_$key" ],
+								Html::element( 'a',
+									[ 'href' => $link['href'] ],
+									$link['text']
+								)
+							) . "\n";
+						}
+					}
+				}
+				if ( !empty( $this->data['userlinks']['logout'] ) ) {
+					$html .= '<span>' .
+						Html::element( 'a',
+							[ 'href' => $this->data['userlinks']['logout']['href'] ] +
+								Linker::tooltipAndAccesskeyAttribs( 'pt-logout' ),
+							$this->data['userlinks']['logout']['text']
+						) . '</span>';
+				}
+			} else {
+				if ( !empty( $this->data['userlinks']['logout'] ) ) {
+					$html .= '<span id="userLogin">
+						<a class="wikia-button" id="login" href="' .
+						htmlspecialchars( $this->data['userlinks']['login']['href'] ) . '">' .
+						htmlspecialchars( $this->data['userlinks']['login']['text'] ) . '</a>
+					</span>';
+				}
+				if ( !empty( $this->data['userlinks']['register'] ) ) {
+					$html .= '<a class="wikia-button" id="register" href="' .
+						htmlspecialchars( $this->data['userlinks']['register']['href'] ) . '">' .
+						htmlspecialchars( $this->data['userlinks']['register']['text'] ) . '</a>';
+				}
+			}
+		}
+			$html .= Html::closeElement( 'div' );
+
+			return $html;
+	}
+
+	// allow subskins to add pre-page islands
+	protected function printBeforePage(): string {
+		return '';
+	}
+
+	// curse like cobranding
+	protected function printCustomHeader(): string {
+		return '';
+	}
+
+	protected function printCustomFooter(): string {
+		return '';
+	}
+
+	// Made a separate method so recipes, answers, etc can override. This is for any additional CSS, Javacript, etc HTML
+	// that appears within the HEAD tag
+	protected function printAdditionalHead(): string {
+		return '';
+	}
+
+	protected function printMasthead(): string {
+		$skin = $this->data['skin'];
+		if ( !$skin->showMasthead() ) {
+			return '';
+		}
+		$language = $this->getSkin()->getLanguage();
+		$user = $skin->getMastheadUser();
+		$username = $user->isAnon() ? wfMessage( 'monaco-masthead-anonymous-user' )->text() : $user->getName();
+		$editcount = $language->formatNum( $user->isAnon() ? 0 : $user->getEditcount() );
+		$html = Html::openElement( 'div',
+				[ 'id' => 'user_masthead', 'class' => 'accent reset clearfix' ]
+			);
+		$h2_element = htmlspecialchars( $username );
+		$h2_element .=
+			$user->isAnon()
+			? '<small id="user_masthead_anon">' . $user->getName() . '</small>'
+			: '<div id="user_masthead_scorecard" class="dark_text_1">' .
+				htmlspecialchars( $editcount ) . '</div>';
+		$html .= Html::element( 'div',
+				[ 'id' => 'user_masthead_head', 'class' => 'clearfix' ],
+				Html::element( 'h2', [], $h2_element )
+			);
+		$html .= Html::openElement( 'ul', [ 'id' => 'user_masthead_tabs', 'class' => 'nav_links' ] );
+
+		foreach ( $this->data['articlelinks']['right'] as $navLink ) {
+			$class = 'color1';
+			if ( isset( $navLink['class'] ) ) {
+				$class .= " {$navLink['class']}";
+			}
+			$html .= Html::rawElement( 'li',
+				[ 'class' => $class ],
+				Html::element( 'a',
+					[ 'href' => $navLink['href'] ],
+					$navLink['text']
+				)
+			);
+		}
+		$html .= Html::closeElement( 'ul' );
+		$html .= Html::closeElement( 'div' );
+		// hide the right articlelinks since we've already displayed them
+		unset( $this->data['articlelinks']['right'] );
+
+		return $html;
+	}
+
+	/**
+	 * Separate method so recipes, answers, etc can override. Notably, answers turns it off.
+	 */
+	protected function printPageBar(): string {
+		// Allow for other skins to conditionally include it
+		return $this->realPrintPageBar();
+	}
+
+	protected function realPrintPageBar(): string {
+		foreach ( $this->data['articlelinks'] as $side => $links ) {
+			foreach ( $links as $key => $link ) {
+				$this->data['articlelinks'][$side][$key]['id'] = "ca-$key";
+				if ( ( $side == 'left' ) && !isset( $link['icon'] ) ) {
+					$this->data['articlelinks'][$side][$key]['icon'] = $key;
+				}
+			}
+		}
+
+		$bar = [];
+		if ( !empty( $this->data['articlelinks']['right'] ) ) {
+			$bar[] = [
+				'id' => 'page_tabs',
+				'type' => 'tabs',
+				'class' => 'primary_tabs',
+				'links' => $this->data['articlelinks']['right'],
+			];
+		}
+		if ( !empty( $this->data['articlelinks']['variants'] ) ) {
+			$contLang = MediaWikiServices::getInstance()->getContentLanguage();
+			$converter = MediaWikiServices::getInstance()->getLanguageConverterFactory()
+				->getLanguageConverter( $contLang );
+			$preferred = $converter->getPreferredVariant();
+
+			$bar[] = [
+				'id' => 'page_variants',
+				'type' => 'tabs',
+				'class' => 'page_variants',
+				'links' => [
+					[
+						'class' => 'selected',
+						'text' => $contLang->getVariantname( $preferred ),
+						'href' => $this->data['skin']->getTitle()->getLocalURL( '', $preferred ),
+						'links' => $this->data['articlelinks']['variants'],
+					]
+				]
+			];
+		}
+		if ( !empty( $this->data['articlelinks']['left'] ) ) {
+			$bar[] = [
+				'id' => 'page_controls',
+				'type' => 'buttons',
+				'class' => 'page_controls',
+				'bad_hook' => 'MonacoAfterArticleLinks',
+				'links' => $this->data['articlelinks']['left'],
+			];
+		}
+
+		return $this->printCustomPageBar( $bar );
+	}
+
+	/**
+	 * @param array $bar
+	 * @return string
+	 */
+	protected function printCustomPageBar( $bar ) {
+
+		$MonacoCompactSpecialPages = $this->mConfig->get( 'MonacoCompactSpecialPages' );
+
+		$isPrimary = !$this->primaryPageBarPrinted;
+		$this->primaryPageBarPrinted = true;
+
+		$count = 0;
+		foreach ( $bar as $list ) {
+			if ( $list['links'] ) {
+				$count += count( $list['links'] );
+			}
+		}
+		$useCompactBar = $MonacoCompactSpecialPages && ( $count == 1 );
+		$deferredList = null;
+
+		$divClass = 'reset color1 page_bar clearfix';
+
+		foreach ( $bar as $i => $list ) {
+			if ( $useCompactBar && ( $list['id'] == 'page_tabs' ) &&
+				!empty( $list['links'] ) && isset( $list['links']['nstab-special'] ) ) {
+				$deferredList = $list;
+				$deferredList['class'] .= ' compact_page_tabs';
+				$divClass .= ' compact_page_bar';
+				unset( $bar[$i] );
+				break;
+			}
+		}
+
+		$html = "		";
+		$html .= Html::openElement( 'div',
+				[
+					'id' => $isPrimary ? 'page_bar' : '',
+					'class' => $divClass
+				]
+			);
+		if ( !$useCompactBar || !isset( $deferredList ) ) {
+			foreach ( $bar as $list ) {
+				$html .= $this->printCustomPageBarList( $list );
+			}
+		}
+		$html .= Html::closeElement( 'div' );
+		if ( isset( $deferredList ) ) {
+			$html .= $this->printCustomPageBarList( $deferredList );
+		}
+
+		return $html;
+	}
+
+	/**
+	 * @param array $list
+	 * @return string
+	 */
+	protected function printCustomPageBarList( $list ) {
+		if ( !isset( $list['type'] ) ) {
+			$list['type'] = 'buttons';
+		}
+		$attrs = [
+			'class' => "page_{$list['type']}",
+			'id' => $list['id'],
+			'role' => /*$list['type'] == 'tabs' ? 'navigation' :*/ 'toolbar',
+		];
+		if ( isset( $list['class'] ) && $list['class'] ) {
+			$attrs['class'] .= " {$list['class']}";
+		}
+
+		return $this->printCustomPageBarListLinks( $list['links'], $attrs, "			",
+			isset( $list['bad_hook'] ) ? $list['bad_hook'] : 'MonacoAfterArticleLinks' );
+	}
+
+	/**
+	 * @param array $links
+	 * @param array $attrs
+	 * @param string $indent
+	 * @param string|null $hook
+	 * @return string
+	 */
+	protected function printCustomPageBarListLinks( $links, $attrs = [], $indent = '', $hook = null ) {
+		$html = $indent;
+		$html .= Html::openElement( 'ul', $attrs );
+		$html .= "\n";
+
+		foreach ( $links as $link ) {
+			if ( isset( $link['links'] ) ) {
+				$link['class'] = trim( "{$link['class']} hovermenu" );
+			}
+			$liAttrs = [
+				'id' => $link['id'] ?? '',
+				'class' => $link['class'] ?? '',
+			];
+			$aAttrs = [
+				'href' => $link['href'],
+			];
+			if ( isset( $link['id'] ) ) {
+				$aAttrs += Linker::tooltipAndAccesskeyAttribs( $link['id'] );
+			}
+			$html .= "$indent	";
+			$html .= Html::openElement( 'li', $liAttrs );
+			if ( isset( $link['icon'] ) ) {
+				$html .= $this->blankimg( [ 'class' => "sprite {$link['icon']}", 'alt' => '' ] );
+			}
+			$html .= Html::element( 'a', $aAttrs, $link['text'] );
+
+			if ( isset( $link['links'] ) ) {
+				$html .= $this->blankimg();
+				$html .= $this->printCustomPageBarListLinks( $link['links'], [], "$indent	" );
+			}
+
+			$html .= Html::closeElement( 'li' );
+		}
+		$hookContainer = $this->getHookContainer();
+		if ( $hook ) {
+			$hookContainer->run( $hook );
+		}
+		$html .= $indent;
+		$html .= Html::closeElement( 'ul' );
+
+		return $html;
+	}
+
+	/**
+	 * Made a separate method so recipes, answers, etc can override. Notably, answers turns it off.
+	 */
+	protected function printFirstHeading(): string {
+		$hookContainer = $this->getHookContainer();
+		if ( !$this->data['skin']->isMastheadTitleVisible() ) {
+			return '';
+		}
+		$html = '<h1 id="firstHeading" class="firstHeading" aria-level="1">' . $this->get( 'title' );
+		$hookContainer->run( 'MonacoPrintFirstHeading' );
+		$html .= '</h1>';
+
+		return $html;
+	}
+
+	/**
+	 * Made a separate method so recipes, answers, etc can override.
+	 */
+	protected function printContent(): string {
+		return $this->get( 'bodytext' );
+	}
+
+	/**
+	 * Made a separate method so recipes, answers, etc can override.
+	 */
+	protected function printCategories(): string {
+		// Display categories
+		if ( $this->data['catlinks'] ) {
+			return $this->get( 'catlinks' );
+		}
+		return '';
+	}
+
+	/**
+	 * Returns all footer links, but removes the last modified text, since
+	 * it is already implemented in Monaco in a different way.
+	 * @inheritDoc
+	 */
+	protected function getFooterLinks( $option = null ) {
+		return array_diff( parent::getFooterLinks( $option ), [ 'lastmod' ] );
+	}
+}
