@@ -1,7 +1,16 @@
 <?php
 
+namespace MediaWiki\Skin\Monaco;
+
+use MediaWiki\Context\RequestContext;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Output\OutputPage;
 use MediaWiki\Revision\SlotRecord;
+use MediaWiki\Registration\ExtensionRegistry;
+use MediaWiki\Skin\SkinTemplate;
+use MediaWiki\SpecialPage\SpecialPage;
+use MediaWiki\Title\Title;
+use MediaWiki\User\User;
 use MediaWiki\User\UserOptionsLookup;
 
 class SkinMonaco extends SkinTemplate {
