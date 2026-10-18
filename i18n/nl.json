@@ -1,0 +1,37 @@
+{
+	"@metadata": {
+		"authors": [
+			"Mainframe98",
+			"McDutchie",
+			"Siebrand"
+		]
+	},
+	"monaco-desc": "Merkloze Monaco-skin voor gebruik met standaard MediaWiki.",
+	"dynamic-links": "U kunt dynamische koppelings-ID’s aan monaco toevoegen met behulp van dit bericht. Voeg op elke regel een nieuwe ID toe (om hier een lijst van te maken kunt u een * gebruiken aan het begin zoals in sidebar en monaco-sidebar). Regels die beginnen met een spatie worden behandeld als een commentaar. Na het toevoegen van een nieuwe ID aan de lijst kunt u het bericht 'dynamic-links-<id>' gebruiken om de tekst van de koppeling aan te passen en het bericht 'dynamic-links-<id>-url' met de naam van een paginatitel op de wiki waarnaar de dynamische koppeling moet verwijzen.",
+	"dynamic-links-write-article": "Maak een nieuwe pagina aan",
+	"dynamic-links-add-image": "Nieuwe afbeelding toevoegen",
+	"monaco-footer-improve": "Verbeter {{SITENAME}} met $1",
+	"monaco-footer-improve-linktext": "deze pagina bewerken",
+	"monaco-footer-lastedit": "$1 heeft een bewerking gemaakt op $2",
+	"monaco-view-random-page": "Willekeurige pagina bekijken",
+	"monaco-masthead-anonymous-user": "Anonieme gebruiker",
+	"skinname-monaco": "Monaco",
+	"monaco-tab-addsection": "Een bericht achterlaten",
+	"monaco-theme-prefs-label": "Thema:",
+	"monaco-theme-name-beach": "Strand",
+	"monaco-theme-name-brick": "Steen",
+	"monaco-theme-name-carbon": "Carbon",
+	"monaco-theme-name-default": "standaard",
+	"monaco-theme-name-forest": "Bos",
+	"monaco-theme-name-gaming": "Gamen",
+	"monaco-theme-name-jade": "Jade",
+	"monaco-theme-name-moonlight": "Maanlicht",
+	"monaco-theme-name-obsession": "Obsessie",
+	"monaco-theme-name-ruby": "Robijn",
+	"monaco-theme-name-sapphire": "Saffier",
+	"monaco-theme-name-sky": "Lucht",
+	"monaco-theme-name-slate": "Leisteen",
+	"monaco-theme-name-smoke": "Rook",
+	"monaco-theme-name-spring": "Lente",
+	"monaco-theme-selection-deactivated": "De selectie van thema's is gedeactiveerd."
+}

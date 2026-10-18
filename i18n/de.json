@@ -1,21 +1,41 @@
 {
 	"@metadata": {
 		"authors": [
+			"Brettchenweber",
 			"Daniel Friesen",
 			"James Haley",
-			"Roger Meier"
+			"Justman10000",
+			"McDutchie",
+			"Roger Meier",
+			"WikiMANNia"
 		]
 	},
 	"monaco-desc": "Markenfreier Monaco Skin für die Nutzung mit Vanilla MediaWiki.",
-	"dynamic-links": "You can add dynamic link ids to monaco using this message, add a new id on each line\n (you can use a * at the start like in sidebar and monaco-sidebar to make this a list)\n Lines starting with a space will be treated as a comment.\n After adding a new id to the list you can use the 'dynamic-links-<id>' message\n to customize the text of the link and 'dynamic-links-<id>-url' message with the name\n of a page title on the wiki for the dynamic link to link to.",
+	"dynamic-links": "Du kannst dynamische Link-IDs zu monaco verwenden, indem du in jeder Zeile eine neue ID hinzufügst\n (du kannst ein * am Anfang verwenden, wie in sidebar und monaco-sidebar, um eine Liste durchzuführen)\n Zeilen, die mit einem Leerzeichen beginnen, werden wie ein Kommentar behandelt.\n Nachdem du der Liste eine neue ID hinzugefügt hast, kannst du die Nachricht 'dynamic-links-<id>' verwenden,\n um den Text des Links anzupassen und die Nachricht 'dynamic-links-<id>-url' mit dem Namen\n eines Seitentitels im Wiki angeben, auf den der dynamische Link verweisen soll.",
 	"dynamic-links-write-article": "Neuen Artikel erstellen",
-	"dynamic-links-write-article-url": "-",
 	"dynamic-links-add-image": "Neues Bild hochladen",
 	"monaco-footer-improve": "Verbessere {{SITENAME}} über $1",
 	"monaco-footer-improve-linktext": "Bearbeite diese Seite",
 	"monaco-footer-lastedit": "$1 machte eine Bearbeitung auf $2",
-	"viewrandompage": "Zeige Zufällige Seite",
-	"masthead-anonymous-user": "Gast",
+	"monaco-view-random-page": "Zeige zufällige Seite",
+	"monaco-masthead-anonymous-user": "Gast",
 	"skinname-monaco": "Monaco",
-	"monaco-tab-addsection": "Nachricht hinterlassen"
+	"monaco-tab-addsection": "Nachricht hinterlassen",
+	"monaco-theme-prefs-label": "Thema:",
+	"monaco-theme-name-beach": "Strand",
+	"monaco-theme-name-brick": "Ziegelstein",
+	"monaco-theme-name-carbon": "Kohle",
+	"monaco-theme-name-default": "voreingestellt",
+	"monaco-theme-name-forest": "Wald",
+	"monaco-theme-name-gaming": "Spiel",
+	"monaco-theme-name-jade": "Jade",
+	"monaco-theme-name-moonlight": "Mondschein",
+	"monaco-theme-name-obsession": "Besessenheit",
+	"monaco-theme-name-ruby": "Rubin",
+	"monaco-theme-name-sapphire": "Saphir",
+	"monaco-theme-name-sky": "Himmel",
+	"monaco-theme-name-slate": "Schiefer",
+	"monaco-theme-name-smoke": "Rauch",
+	"monaco-theme-name-spring": "Frühling",
+	"monaco-theme-selection-deactivated": "Die Auswahl der Themen ist deaktiviert."
 }

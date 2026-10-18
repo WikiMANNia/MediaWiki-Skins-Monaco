@@ -97,7 +97,7 @@ h1, h2, h3, h4, h5, h6 {
 h1 { font-size: 188%; }
 h1 .editsection { font-size: 53%; }
 h2 {
-	font-size: 150%; 
+	font-size: 150%;
 }
 h2 .editsection { font-size: 67%; }
 h3, h4, h5, h6 {
@@ -191,7 +191,6 @@ pre {
 	background-color: #f9f9f9;
 	line-height: 1.1em;
 	overflow: auto;
-	max-height: 800px;
 }
 
 /*
@@ -268,7 +267,9 @@ span.subpages {
 	color: red;
 	font-size: larger;
 }
-.errorbox, .successbox {
+
+.mw-message-box-error,
+.mw-message-box-success {
 	font-size: larger;
 	border: 2px solid;
 	padding: .5em 1em;
@@ -276,15 +277,19 @@ span.subpages {
 	margin-bottom: 2em;
 	color: #000;
 }
-.errorbox {
+
+.mw-message-box-error {
 	border-color: red;
 	background-color: #fff2f2;
 }
-.successbox {
+
+.mw-message-box-success {
 	border-color: green;
 	background-color: #dfd;
 }
-.errorbox h2, .successbox h2 {
+
+.mw-message-box-error h2,
+.mw-message-box-success h2 {
 	font-size: 1em;
 	font-weight: bold;
 	display: inline;
@@ -737,7 +742,7 @@ div#userloginForm .captcha {
 }
 
 .page-Special_UserLogin .firstHeading {
-	display: none !important;	
+	display: none !important;
 }
 */
 
@@ -1032,7 +1037,7 @@ input#wpPreview {
 
 #editform .editOptions {
 	display: inline;
-	
+
 	/* haleyjd 20140420: must override some options getting inherited from monobook or somewhere... */
 	background: none;
 	border:     none;
@@ -1050,8 +1055,8 @@ input#wpPreview {
 
 /* Classes for article validation */
 
-select#wpaccuracy, select#wpdepth, select#wpstyle, 
-input#mw-fr-commentbox, input#mw-fr-submit-accept, 
+select#wpaccuracy, select#wpdepth, select#wpstyle,
+input#mw-fr-commentbox, input#mw-fr-submit-accept,
 input#mw-fr-submit-unaccept, input#mw-fr-submit-reject {
 	font-family: inherit;
 }

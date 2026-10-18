@@ -1,0 +1,36 @@
+{
+	"@metadata": {
+		"authors": [
+			"Amire80",
+			"מקף"
+		]
+	},
+	"monaco-desc": "עיצוב מונקו לא ממותג לשימוש עם התקנת מדיה־ויקי פשוטה.",
+	"dynamic-links": "באפשרותך להוסיף מזהי קישור דינמיים למונקו באמצעות ההודעה הזאת. יש להוסיף מזהה חדש בכל שורה\n (אפשר להשתמש ב־* בהתחלה כמו בהודעות sidebar ו־monaco-sidebar כדי להפוך את זה לרשימה)\n שורות המתחילות ברווח יטופלו כהערה.\n לאחר הוספת מזהה חדש לרשימה אפשר להשתמש בהודעה \"dynamic-links-<id>\"‎\n כדי להתאים את הטקסט של הקישור ובהודעה \"dynamic-links-<id>-url\" עם השם\n של כותרת דף בוויקי עבור הקישור הדינמי לקישור אליו.",
+	"dynamic-links-write-article": "יצירת ערך חדש",
+	"dynamic-links-add-image": "העלאת תמונה חדשה",
+	"monaco-footer-improve": "{{GENDER:|שפר|שפרי}} את {{SITENAME}} על־ידי $1",
+	"monaco-footer-improve-linktext": "עריכת הדף הזה",
+	"monaco-footer-lastedit": "$1 {{GENDER:|ערך|ערכה}} בדף $2",
+	"monaco-view-random-page": "צפייה בדף אקראי",
+	"monaco-masthead-anonymous-user": "משתמש אלמוני",
+	"skinname-monaco": "מונקו",
+	"monaco-tab-addsection": "להשאיר הודעה",
+	"monaco-theme-prefs-label": "ערכת נושא:",
+	"monaco-theme-name-beach": "חוף",
+	"monaco-theme-name-brick": "לבנים",
+	"monaco-theme-name-carbon": "פחמן",
+	"monaco-theme-name-default": "ברירת המחדל",
+	"monaco-theme-name-forest": "יער",
+	"monaco-theme-name-gaming": "משחקים",
+	"monaco-theme-name-jade": "ירקן",
+	"monaco-theme-name-moonlight": "אור הירח",
+	"monaco-theme-name-obsession": "אובססיה",
+	"monaco-theme-name-ruby": "אודם",
+	"monaco-theme-name-sapphire": "ספיר",
+	"monaco-theme-name-sky": "שמיים",
+	"monaco-theme-name-slate": "צפחה",
+	"monaco-theme-name-smoke": "עשן",
+	"monaco-theme-name-spring": "אביב",
+	"monaco-theme-selection-deactivated": "בחירת ערכת הנושא מושבתת."
+}

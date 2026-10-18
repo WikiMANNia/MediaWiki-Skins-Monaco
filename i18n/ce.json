@@ -1,0 +1,34 @@
+{
+	"@metadata": {
+		"authors": [
+			"Умар"
+		]
+	},
+	"monaco-desc": "Ваниллин MediaWiki-ца лело бренд йоцу Monaco скин.",
+	"dynamic-links-write-article": "Кхолла керла йаззам",
+	"dynamic-links-add-image": "Чудаккха керла сурт",
+	"monaco-footer-improve": "Тоде {{SITENAME}} $1 тӀехь",
+	"monaco-footer-improve-linktext": "хӀара агӀо хийцар",
+	"monaco-footer-lastedit": "$1 хийцамаш бина $2 тӀе",
+	"monaco-view-random-page": "Цахууш нисйелла агӀо гайта",
+	"monaco-masthead-anonymous-user": "Анониман декъашхо",
+	"skinname-monaco": "Монако",
+	"monaco-tab-addsection": "Хаам бита",
+	"monaco-theme-prefs-label": "Кечйар:",
+	"monaco-theme-name-beach": "Пляж",
+	"monaco-theme-name-brick": "Кибарчиг",
+	"monaco-theme-name-carbon": "Углерод",
+	"monaco-theme-name-default": "Ӏадйитаран кеп",
+	"monaco-theme-name-forest": "Хьун",
+	"monaco-theme-name-gaming": "Ловзарш",
+	"monaco-theme-name-jade": "Джейд",
+	"monaco-theme-name-moonlight": "Беттан серло",
+	"monaco-theme-name-obsession": "Сацам байна",
+	"monaco-theme-name-ruby": "Руби",
+	"monaco-theme-name-sapphire": "Сапфир",
+	"monaco-theme-name-sky": "Стигал",
+	"monaco-theme-name-slate": "Шифер",
+	"monaco-theme-name-smoke": "КӀур",
+	"monaco-theme-name-spring": "БӀаьсте",
+	"monaco-theme-selection-deactivated": "Теманаш къастор дӀадаьккхина."
+}
