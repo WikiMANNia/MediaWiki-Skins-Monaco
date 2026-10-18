@@ -48,6 +48,9 @@ Configuration
 Set the default theme:
 - $wgMonacoDefaultTheme = "sapphire";
 
+Exclude the following themes:
+- $wgMonacoSkipThemes = [];
+
 Enable Paypal:
 - $wgMonacoEnablePaypal = true;
 
@@ -139,3 +142,9 @@ Version history
 -- Rename variable ´$wgMonacoTheme´ into ´$wgMonacoDefaultTheme´
 -- Rename function ´getSkinMonacoDefaultTheme()´ into ´getSkinMonacoFallbackTheme´
 -- Rename function ´getSkinMonacoThemeList()´ into ´getAvailableThemes´
+
+
+2.8.6 - Oct 15, 2026
+
+- Add ´$wgMonacoSkipThemes´ to allow system administrators to disable specific skins/themes.
+- Function ´getPersonalTools()´ is deprecated, use ´getPersonalToolsForMakeListItem()´ instead.

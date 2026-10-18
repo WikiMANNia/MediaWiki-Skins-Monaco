@@ -82,6 +82,8 @@ class MonacoHooks implements
 		$showIf = [ '!==', 'skin', 'monaco' ];
 
 		// The entry 'theme' conflicts with Extension:Theme.
+		$preferences['theme'][ 'hide-if' ] = [ '===', 'skin', 'monaco' ];
+
 		$preferences[$theme_key] =
 			$this->allowedThemes
 			?	[
