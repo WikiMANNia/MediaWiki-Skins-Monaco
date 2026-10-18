@@ -1,31 +1,44 @@
 <?php
 
-use MediaWiki\Config\Config;
 use MediaWiki\Hook\OutputPageBodyAttributesHook;
 use MediaWiki\Preferences\Hook\GetPreferencesHook;
+
+if ( class_exists( \GlobalVarConfig::class ) && /* < 1.41 */
+	!class_exists( 'MediaWiki\\Config\\GlobalVarConfig', false ) ) {
+	class_alias(
+		\GlobalVarConfig::class,
+		'MediaWiki\\Config\\GlobalVarConfig'
+	);
+}
+
+use MediaWiki\Config\GlobalVarConfig;
+use MediaWiki\Context\RequestContext;
 use MediaWiki\User\UserOptionsLookup;
 
 class MonacoHooks implements
 	GetPreferencesHook,
 	OutputPageBodyAttributesHook
 {
-
 	private UserOptionsLookup $userOptionsLookup;
 	private bool $allowedThemes;
 	private string $defaultTheme;
 
 	/**
-	 * @param Config $config
+	 * @param GlobalVarConfig $config
 	 * @param UserOptionsLookup $userOptionsLookup
 	 */
 	public function __construct(
-		Config $config,
+		GlobalVarConfig $config,
 		UserOptionsLookup $userOptionsLookup
 	) {
 		$this->userOptionsLookup = $userOptionsLookup;
 		$this->allowedThemes = $config->get( "MonacoAllowUseTheme" );
-		$this->defaultTheme = $config->get( "MonacoTheme" );
+		$this->defaultTheme = $config->get( "MonacoDefaultTheme" );
 	}
+
+    public static function onRegistration() {
+        Compat::init();
+    }
 
 	/**
 	 * Add the theme selector to user preferences.
@@ -35,10 +48,12 @@ class MonacoHooks implements
 	 * @return bool|void True or no return value to continue or false to abort
 	 */
 	public function onGetPreferences( $user, &$preferences ) {
+
 		$ctx = RequestContext::getMain();
 		$skin = $ctx->getSkin();
 		$skinName = $skin->getSkinName();
-		$themes = SkinMonaco::getSkinMonacoThemeList();
+		$themes = SkinMonaco::getAvailableThemes();
+		$theme_key = SkinMonaco::getThemeKey();
 
 		// Braindead code needed to make the theme *names* show up
 		// Without this they show up as "0", "1", etc. in the UI
@@ -75,12 +90,15 @@ class MonacoHooks implements
 			$themeArray[$themeDisplayName] = $theme;
 		}
 
-		$usersTheme = $this->userOptionsLookup->getOption( $user, 'theme_monaco', $this->defaultTheme );
+		$usersTheme = $this->userOptionsLookup->getOption( $user, $theme_key, $this->defaultTheme );
 		$showIf = [ '!==', 'skin', 'monaco' ];
 
 		// The entry 'theme' conflicts with Extension:Theme.
-		$preferences['theme_monaco'] = $this->allowedThemes
-			? [
+		$preferences['theme'][ 'hide-if' ] = [ '===', 'skin', 'monaco' ];
+
+		$preferences[$theme_key] =
+			$this->allowedThemes
+			?	[
 					'type' => 'select',
 					'options' => $themeArray,
 					'default' => $usersTheme,
@@ -88,10 +106,9 @@ class MonacoHooks implements
 					'section' => 'rendering/skin',
 					'hide-if' => $showIf
 				]
-			:
-				// If the selection of themes is deactiveted,
-				// show only an informative message instead
-				[
+			// If the selection of themes is deactiveted,
+			// show only an informative message instead
+			:	[
 					'type' => 'info',
 					'label-message' => 'monaco-theme-prefs-label',
 					'default' => $ctx->msg( 'monaco-theme-selection-deactivated' )->text(),
