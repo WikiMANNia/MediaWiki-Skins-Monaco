@@ -10,7 +10,7 @@
 	"license-name": "GPL-2.0-or-later",
 	"type": "parserhook",
 	"requires": {
-		"MediaWiki": ">= 1.39.0",
+		"MediaWiki": ">= 1.35.0",
 		"skins": {
 			"Monaco": "*"
 		}
@@ -24,15 +24,14 @@
 		]
 	},
 	"Hooks": {
-		"BeforePageDisplay": [
-			"MonacoContentRightSidebarHooks::onBeforePageDisplay"
-		],
-		"MonacoRightSidebar": [
-			"MonacoContentRightSidebarHooks::onMonacoRightSidebar"
-		],
-		"ParserFirstCallInit": [
-			"MonacoContentRightSidebarHooks::onParserFirstCallInit"
-		]
+		"BeforePageDisplay": "main",
+		"MonacoRightSidebar": "main",
+		"ParserFirstCallInit": "main"
+	},
+	"HookHandlers": {
+		"main": {
+			"class": "MonacoContentRightSidebarHooks"
+		}
 	},
 	"ResourceModules": {
 		"ext.MonacoContentRightSidebar": {

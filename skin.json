@@ -1,6 +1,6 @@
 {
 	"name": "Monaco",
-	"version": "2.8.0",
+	"version": "2.8.5",
 	"requires": {
 		"MediaWiki": ">= 1.43.0"
 	},
@@ -10,7 +10,8 @@
 		"Christian Williams",
 		"Daniel Friesen",
 		"James Haley",
-		"Roger Meier"
+		"Roger Meier",
+		"WikiForMen"
 	],
 	"url": "https://www.mediawiki.org/wiki/Skin:Monaco",
 	"descriptionmsg": "monaco-desc",
@@ -37,12 +38,6 @@
 		"Monaco": [
 			"i18n"
 		]
-	},
-	"AutoloadClasses": {
-		"SkinMonaco": "includes/SkinMonaco.php",
-		"MonacoHooks": "includes/MonacoHooks.php",
-		"MonacoSidebar": "includes/MonacoSidebar.php",
-		"MonacoTemplate": "includes/MonacoTemplate.php"
 	},
 	"ConfigRegistry": {
 		"monaco": "MediaWiki\\Config\\GlobalVarConfig::newInstance"
@@ -128,48 +123,67 @@
 	},
 	"config": {
 		"MonacoAllowUseTheme": {
+			"type": "boolean",
 			"value": true
 		},
-		"MonacoTheme": {
+		"MonacoDefaultTheme": {
+			"type": "string",
 			"value": "sapphire"
 		},
 		"MonacoDynamicCreateOverride": {
+			"type": "boolean",
 			"value": false
 		},
 		"MonacoUseMoreButton": {
+			"type": "boolean",
 			"value": true
 		},
 		"MonacoUseSitenoticeIsland": {
+			"type": "boolean",
 			"value": false
 		},
 		"MonacoUseMasthead": {
+			"type": "boolean",
 			"value": true
 		},
 		"MonacoCompactSpecialPages": {
+			"type": "boolean",
 			"value": false
 		},
 		"MonacoBiggestCategoriesBlacklist": {
+			"type": "array",
 			"value": []
 		},
 		"MonacoEnablePaypal": {
+			"type": "boolean",
 			"value": false
 		},
 		"MonacoPaypalID": {
+			"type": "string",
 			"value": ""
 		},
 		"MonacoEnablePatreon": {
+			"type": "boolean",
 			"value": false
 		},
 		"MonacoPatreonURL": {
+			"type": "string",
 			"value": ""
+		},
+		"MonacoSearchDefaultFulltext": {
+			"type": "boolean",
+			"value": false
+		},
+		"MonacoSpecialPagesRequiredLogin": {
+			"type": "array",
+			"value": []
 		}
 	},
-	"Hooks": {
-		"GetPreferences": "main",
-		"MessageCacheReplace": [
-			"MonacoSidebar::invalidateCache"
-		],
-		"OutputPageBodyAttributes": "main"
+	"AutoloadClasses": {
+		"SkinMonaco": "includes/SkinMonaco.php",
+		"MonacoHooks": "includes/MonacoHooks.php",
+		"MonacoSidebar": "includes/MonacoSidebar.php",
+		"MonacoTemplate": "includes/MonacoTemplate.php"
 	},
 	"HookHandlers": {
 		"main": {
@@ -179,6 +193,13 @@
 				"UserOptionsLookup"
 			]
 		}
+	},
+	"Hooks": {
+		"GetPreferences": "main",
+		"MessageCacheReplace": [
+			"MonacoSidebar::invalidateCache"
+		],
+		"OutputPageBodyAttributes": "main"
 	},
 	"manifest_version": 2
 }
