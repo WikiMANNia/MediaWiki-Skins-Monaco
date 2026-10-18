@@ -48,6 +48,9 @@ Configuration
 Set the default theme:
 - $wgMonacoDefaultTheme = "sapphire";
 
+Exclude the following themes:
+- $wgMonacoSkipThemes = [];
+
 Enable Paypal:
 - $wgMonacoEnablePaypal = true;
 
@@ -132,3 +135,8 @@ Version history
 - Fix - Oct 26, 2025: Fix search bar not redirecting to Special:Search [Universal-Omega#38](https://github.com/Universal-Omega/Monaco/issues/38)
 - Code refinement:
 -- Rename variable ´$wgMonacoTheme´ into ´$wgMonacoDefaultTheme´
+
+
+2.8.6 - Oct 15, 2026
+
+- Add ´$wgMonacoSkipThemes´ to allow system administrators to disable specific skins/themes.

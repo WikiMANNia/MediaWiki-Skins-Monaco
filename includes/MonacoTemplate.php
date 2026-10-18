@@ -219,7 +219,7 @@ class MonacoTemplate extends BaseTemplate {
 					$html .= "\n";
 				}
 
-				$myContext = RequestContext::getMain();
+				$myContext = $this->getSkin()->getContext();
 
 				if ( $myContext->canUseWikiPage() ) {
 					$wikiPage = $myContext->getWikiPage();
@@ -437,7 +437,7 @@ class MonacoTemplate extends BaseTemplate {
 						'id' => 'fe_random_link',
 						'href' => $url_to_randompage
 					],
-					wfMessage( 'viewrandompage' )->escaped()
+					wfMessage( 'monaco-view-random-page' )->escaped()
 				);
 
 				$html .= '<ul class="actions clearfix" id="articleFooterActions2">';
@@ -646,7 +646,7 @@ class MonacoTemplate extends BaseTemplate {
 							'alt' => ''
 						] )
 					) . ' ' .
-					Html::element( 'a',
+					Html::rawElement( 'a',
 						[
 							'id' => "{$link['id']}-link",
 							'href' => $link['url'],
@@ -1347,7 +1347,7 @@ class MonacoTemplate extends BaseTemplate {
 		}
 		$lang = $this->getSkin()->getLanguage();
 		$user = $skin->getMastheadUser();
-		$username = $user->isAnon() ? wfMessage( 'masthead-anonymous-user' )->text() : $user->getName();
+		$username = $user->isAnon() ? wfMessage( 'monaco-masthead-anonymous-user' )->text() : $user->getName();
 		$editcount = $lang->formatNum( $user->isAnon() ? 0 : $user->getEditcount() );
 		$html = '
 			<div id="user_masthead" class="accent reset clearfix">

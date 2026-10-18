@@ -167,9 +167,9 @@ class MonacoSidebar {
 			$menu_item =
 				Html::rawElement( 'a', [
 						'href' => !empty( $nodes[$val]['href'] ) ? $nodes[$val]['href'] : '#',
-						'class' => $nodes[$val]['class'] ?? null,
+						'class' => $nodes[$val]['class'] ?? '',
 						'tabIndex' => 3,
-						'rel' => $nodes[$val]['internal'] ? null : 'nofollow'
+						'rel' => $nodes[$val]['internal'] ? '' : 'nofollow'
 					], $link_html ) . "\n";
 			if ( !empty( $nodes[$val]['children'] ) ) {
 				$menu_item .= $this->getSubMenu( $nodes, $nodes[$val]['children'] );
@@ -243,7 +243,7 @@ class MonacoSidebar {
 			}
 
 			$classes[] = 'hover-navigation';
-			$menu = Html::rawElement( 'ul', null, $menu );
+			$menu = Html::rawElement( 'ul', [], $menu );
 			$menu = Html::rawElement( 'nav', [ 'id' => 'navigation', 'class' => implode( ' ', $classes ) ], $menu );
 
 			$menu =

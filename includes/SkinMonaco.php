@@ -35,16 +35,44 @@ class SkinMonaco extends SkinTemplate {
 	}
 
 	/**
-	 * Gets all themes available.
-	 * @return string[]
+	 * Gets all enabled themes and skips the specified ones.
+	 * @return array
 	 */
 	public static function getAvailableThemes() {
-		return [ "beach", "brick", "carbon", "forest", "gaming", "jade", "moonlight", "obsession", "ruby", "sapphire", "sky", "slate", "smoke", "spring" ];
+
+		$ourSkin = 'monaco';
+
+		$themes = ExtensionRegistry::getInstance()->getAttribute( 'ThemeModules' );
+
+		if ( !isset( $themes[$ourSkin] ) ) {
+			$themes[$ourSkin] = [];
+		}
+
+		// Filter out the themes defined in $wgSkipThemes for a skin, if any
+		$skipThemes = MediaWikiServices::getInstance()->getMainConfig()->get( 'MonacoSkipThemes' );
+
+		if ( is_array( $skipThemes ) ) {
+
+			if ( count( $skipThemes ) > 0 ) {
+				foreach ( $skipThemes as $skippable ) {
+
+					$key = array_search( $skippable, $themes[$ourSkin], true );
+
+					if ( $key !== false ) {
+						unset( $themes[$ourSkin][$key] );
+					}
+				}
+			}
+		} else {
+			throw new InvalidArgumentException( "SkinMonaco skin has a configuration error: 'MonacoSkipThemes' is not an array." );
+		}
+
+		return !empty( $themes[$ourSkin] ) ? $themes[$ourSkin] : [ 'default' => 'default' ];
 	}
 
 	/**
 	 * Fallback, if ´$wgMonacoDefaultTheme´ is not valid
-	 * @return string[]
+	 * @return string
 	 */
 	private static function getSkinMonacoFallbackTheme() {
 		return 'sapphire';
@@ -130,7 +158,7 @@ class SkinMonaco extends SkinTemplate {
 	 * @return bool
 	 */
 	public function showMasthead() {
-		if ( $this->config->get( 'MonacoUseMasthead' ) !== true ) {
+		if ( !$this->config->get( 'MonacoUseMasthead' ) ) {
 			return false;
 		}
 
