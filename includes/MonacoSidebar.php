@@ -1,11 +1,14 @@
 <?php
 
+namespace MediaWiki\Skin\Monaco;
+
 use MediaWiki\Context\RequestContext;
 use MediaWiki\HookContainer\HookContainer;
 use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Title\Title;
 use MediaWiki\Utils\UrlUtils;
+use ObjectCache;
 
 class MonacoSidebar {
 

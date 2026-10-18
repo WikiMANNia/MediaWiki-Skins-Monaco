@@ -1,5 +1,7 @@
 <?php
 
+namespace MediaWiki\Skin\Monaco;
+
 use MediaWiki\Config\GlobalVarConfig;
 use MediaWiki\Context\RequestContext;
 use MediaWiki\Html\Html;
@@ -9,6 +11,7 @@ use MediaWiki\Skin\BaseTemplate;
 use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\Title\Title;
 use MediaWiki\User\User;
+use ObjectCache;
 
 class MonacoTemplate extends BaseTemplate {
 

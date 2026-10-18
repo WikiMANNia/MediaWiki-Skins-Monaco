@@ -1,5 +1,7 @@
 <?php
 
+namespace MediaWiki\Skin\Monaco;
+
 use MediaWiki\Context\RequestContext;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Output\OutputPage;

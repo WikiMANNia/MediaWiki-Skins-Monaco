@@ -1,7 +1,17 @@
 <?php
 
+namespace MediaWiki\Skin\Monaco;
+
 use MediaWiki\Hook\OutputPageBodyAttributesHook;
 use MediaWiki\Preferences\Hook\GetPreferencesHook;
+
+if ( class_exists( \GlobalVarConfig::class ) && /* < 1.41 */
+	!class_exists( 'MediaWiki\\Config\\GlobalVarConfig', false ) ) {
+	class_alias(
+		\GlobalVarConfig::class,
+		'MediaWiki\\Config\\GlobalVarConfig'
+	);
+}
 
 use MediaWiki\Config\GlobalVarConfig;
 use MediaWiki\Context\RequestContext;
@@ -27,6 +37,10 @@ class MonacoHooks implements
 		$this->allowedThemes = $config->get( "MonacoAllowUseTheme" );
 		$this->defaultTheme = $config->get( "MonacoDefaultTheme" );
 	}
+
+    public static function onRegistration() {
+        Compat::init();
+    }
 
 	/**
 	 * Add the theme selector to user preferences.
