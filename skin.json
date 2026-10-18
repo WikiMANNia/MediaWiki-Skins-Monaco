@@ -1,21 +1,22 @@
 {
 	"name": "Monaco",
-	"version": "2.6.4",
+	"version": "2.8.5",
+	"requires": {
+		"MediaWiki": ">= 1.35.0"
+	},
 	"author": [
 		"'''Universal Omega'''",
 		"Inez Korczyński",
 		"Christian Williams",
 		"Daniel Friesen",
 		"James Haley",
-		"Roger Meier"
+		"Roger Meier",
+		"WikiForMen"
 	],
 	"url": "https://www.mediawiki.org/wiki/Skin:Monaco",
 	"descriptionmsg": "monaco-desc",
 	"license-name": "GPL-2.0-or-later",
 	"type": "skin",
-	"requires": {
-		"MediaWiki": ">= 1.35.0"
-	},
 	"ValidSkinNames": {
 		"monaco": {
 			"displayname": "Monaco",
@@ -39,12 +40,6 @@
 			"i18n"
 		]
 	},
-	"AutoloadClasses": {
-		"SkinMonaco": "includes/SkinMonaco.php",
-		"MonacoHooks": "includes/MonacoHooks.php",
-		"MonacoSidebar": "includes/MonacoSidebar.php",
-		"MonacoTemplate": "includes/MonacoTemplate.php"
-	},
 	"ConfigRegistry": {
 		"monaco": "GlobalVarConfig::newInstance"
 	},
@@ -55,7 +50,7 @@
 				"desktop",
 				"mobile"
 			],
-			"position": "top",		
+			"position": "top",
 			"styles": {
 				"style/css/print.css": {
 					"media": "print"
@@ -89,7 +84,7 @@
 				},
 				"style/css/sprite.css": {
 					"media": "screen"
-				},	
+				},
 				"style/css/modal.css": {
 					"media": "screen"
 				},
@@ -119,7 +114,7 @@
 		"MonacoAllowUseTheme": {
 			"value": true
 		},
-		"MonacoTheme": {
+		"MonacoDefaultTheme": {
 			"value": "sapphire"
 		},
 		"MonacoDynamicCreateOverride": {
@@ -139,15 +134,47 @@
 		},
 		"MonacoBiggestCategoriesBlacklist": {
 			"value": []
+		},
+		"MonacoEnablePaypal": {
+			"value": false
+		},
+		"MonacoPaypalID": {
+			"value": ""
+		},
+		"MonacoEnablePatreon": {
+			"value": false
+		},
+		"MonacoPatreonURL": {
+			"value": ""
+		},
+		"MonacoSearchDefaultFulltext": {
+			"value": true
+		},
+		"MonacoSpecialPagesRequiredLogin": {
+			"value": []
+		}
+	},
+	"AutoloadClasses": {
+		"SkinMonaco": "includes/SkinMonaco.php",
+		"MonacoHooks": "includes/MonacoHooks.php",
+		"MonacoSidebar": "includes/MonacoSidebar.php",
+		"MonacoTemplate": "includes/MonacoTemplate.php"
+	},
+	"HookHandlers": {
+		"main": {
+			"class": "MonacoHooks",
+			"services": [
+				"MainConfig",
+				"UserOptionsLookup"
+			]
 		}
 	},
 	"Hooks": {
+		"GetPreferences": "main",
 		"MessageCacheReplace": [
 			"MonacoSidebar::invalidateCache"
 		],
-		"OutputPageBodyAttributes": [
-			"MonacoHooks::onOutputPageBodyAttributes"
-		]
+		"OutputPageBodyAttributes": "main"
 	},
 	"manifest_version": 2
 }

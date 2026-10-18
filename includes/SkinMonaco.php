@@ -8,23 +8,23 @@ class SkinMonaco extends SkinTemplate {
 	/**
 	 * Overwrite few SkinTemplate methods which we don't need in Monaco
 	 */
-	function buildSidebar() {}
-	function getCopyrightIcon() {}
-	function getPoweredBy() {}
-	function disclaimerLink() {}
-	function privacyLink() {}
-	function aboutLink() {}
-	function getHostedBy() {}
-	function diggsLink() {}
-	function deliciousLink() {}
+	public function buildSidebar() {
+		return [];
+	}
 
 	/**
 	 * @var Config
 	 */
- 	private $config;
+	private $config;
+
+	private $mMastheadUser;
+	private $mMastheadTitleVisible;
+	private $mUserOptionsLookup;
+	private $lastExtraIndex = 1000;
 
 	public function __construct( array $options = [] ) {
 		$this->config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'monaco' );
+		$this->mUserOptionsLookup = $mUserOptionsLookup ?? MediaWikiServices::getInstance()->getUserOptionsLookup();
 
 		if ( version_compare( MW_VERSION, '1.36', '<' ) ) {
 			// Associate template - this is replaced by `template` option in 1.36
@@ -32,6 +32,29 @@ class SkinMonaco extends SkinTemplate {
 		}
 
 		parent::__construct( $options );
+	}
+
+	/**
+	 * Gets all themes available.
+	 * @return string[]
+	 */
+	public static function getAvailableThemes() {
+		return [ "beach", "brick", "carbon", "forest", "gaming", "jade", "moonlight", "obsession", "ruby", "sapphire", "sky", "slate", "smoke", "spring" ];
+	}
+
+	/**
+	 * Fallback, if ´$wgMonacoDefaultTheme´ is not valid
+	 * @return string[]
+	 */
+	private static function getSkinMonacoFallbackTheme() {
+		return 'sapphire';
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function getThemeKey() {
+		return 'theme_monaco';
 	}
 
 	/**
@@ -43,38 +66,48 @@ class SkinMonaco extends SkinTemplate {
 		// ResourceLoader doesn't do ie specific styles that well iirc, so we have
 		// to do those manually.
 		$out->addStyle( 'Monaco/style/css/monaco_ie8.css', 'screen', 'IE 8' );
-		$out->addStyle( 'Monaco/style/css/monaco_gteie8.css', 'screen', 'gte IE 8');
-		
+		$out->addStyle( 'Monaco/style/css/monaco_gteie8.css', 'screen', 'gte IE 8' );
+
 		// Likewise the masthead is a conditional feature so it's hard to include
 		// inside of the ResourceLoader.
 		if ( $this->showMasthead() ) {
 			$out->addStyle( 'Monaco/style/css/masthead.css', 'screen' );
 		}
-		
-		$theme = $this->config->get( 'MonacoTheme' );
-        
+
+		$request = $this->getRequest();
+		$theme_key = self::getThemeKey();
+		$themes = self::getAvailableThemes();
+		$user = RequestContext::getMain()->getUser();
+		// Check the following things in this order:
+		// 1) value of $wgMonacoDefaultTheme (set in site configuration)
+		// 2) user's personal preference/override
+		// 3) per-page usetheme URL parameter
+		$theme_fallback = self::getSkinMonacoFallbackTheme();
+		$theme_default = $this->config->get( 'MonacoDefaultTheme', $theme_fallback );
+		if ( !in_array( $theme_default, $themes ) ) {
+			// May be $wgMonacoDefaultTheme is not in the list (i.e. because a misspelling)
+			$theme_default = $theme_fallback;
+		}
+		$theme = $theme_default;
 		if ( $this->config->get( 'MonacoAllowUseTheme' ) ) {
-			$theme = $this->getRequest()->getText( 'usetheme', $theme );
-			if ( preg_match( '/[^a-z]/', $theme ) ) {
-				$theme = $this->config->get( 'MonacoTheme' );
+			$theme_user = $this->mUserOptionsLookup->getOption( $user, $theme_key, $theme_default );
+			if ( !in_array( $theme_user, $themes ) ) {
+				$theme_user = $theme_default;
+			}
+			$theme = $request->getText( 'usetheme', $theme_user );
+			if ( !in_array( $theme, $themes ) ) {
+				$theme = $theme_user;
 			}
 		}
 
-		if ( preg_match( '/[^a-z]/', $theme ) ) {
-			$theme = 'sapphire';
-		}
-		
 		// Theme is another conditional feature, we can't really resource load this
-		if ( isset( $theme ) && is_string( $theme ) && $theme != 'sapphire' ) {
-			$out->addStyle( "Monaco/style/{$theme}/css/main.css", 'screen' );
-		}
-		
+		$out->addStyle( "Monaco/style/{$theme}/css/main.css", 'screen' );
+
 		// TODO: explicit RTL style sheets are supposed to be obsolete w/ResourceLoader
 		// I have no way to test this currently, however. -haleyjd
 		// rtl... hmm, how do we resource load this?
 		$out->addStyle( 'Monaco/style/rtl.css', 'screen', '', 'rtl' );
 
-		
 		$out->addScript(
 			'<!--[if IE]><script type="text/javascript' .
 				'">\'abbr article aside audio canvas details figcaption figure ' .
@@ -97,7 +130,7 @@ class SkinMonaco extends SkinTemplate {
 	 * @return bool
 	 */
 	public function showMasthead() {
-		if ( !$this->config->get( 'MonacoUseMasthead' ) ) {
+		if ( $this->config->get( 'MonacoUseMasthead' ) !== true ) {
 			return false;
 		}
 
@@ -111,13 +144,13 @@ class SkinMonaco extends SkinTemplate {
 		$title = $this->getTitle();
 
 		if ( !isset( $this->mMastheadUser ) ) {
-			$ns = $title->getNamespace();
-			if ( $ns == NS_USER || $ns == NS_USER_TALK ) {
+			if ( $title->inNamespace( NS_USER ) || $title->inNamespace( NS_USER_TALK ) ) {
 				$this->mMastheadUser = User::newFromName( strtok( $title->getText(), '/' ), false );
 				$this->mMastheadTitleVisible = false;
 			} else {
 				$this->mMastheadUser = false;
-				$this->mMastheadTitleVisible = true; // title is visible anyways if we're not on a masthead using page
+				// title is visible anyways if we're not on a masthead using page
+				$this->mMastheadTitleVisible = true;
 			}
 		}
 
@@ -146,12 +179,12 @@ class SkinMonaco extends SkinTemplate {
 		if ( is_array( $lines ) ) {
 			foreach ( $lines as $line ) {
 				$trimmed = trim( $line, ' *' );
-				if ( strlen( $trimmed ) == 0 ) { # ignore empty lines
+				# ignore empty lines
+				if ( strlen( $trimmed ) == 0 ) {
 					continue;
 				}
 
 				$item = MonacoSidebar::parseItem( $trimmed );
-
 				$nodes[] = $item;
 			}
 		}
@@ -166,8 +199,9 @@ class SkinMonaco extends SkinTemplate {
 	public function getLines( $message_key ) {
 		$revisionStore = MediaWikiServices::getInstance()->getRevisionStore();
 		$revision = $revisionStore->getRevisionByTitle( Title::newFromText( $message_key, NS_MEDIAWIKI ) );
+
 		if ( is_object( $revision ) ) {
-			$content = $revision->getContent( SlotRecord::MAIN ); 
+			$content = $revision->getContent( SlotRecord::MAIN );
 			$text = ContentHandler::getContentText( $content );
 
 			if ( trim( $text ) != '' ) {
@@ -192,8 +226,6 @@ class SkinMonaco extends SkinTemplate {
 		return $this->parseToolboxLinks( $this->getLines( 'Monaco-toolbox' ) );
 	}
 
-	var $lastExtraIndex = 1000;
-
 	/**
 	 * @param array &$node
 	 * @param array &$nodes
@@ -212,16 +244,24 @@ class SkinMonaco extends SkinTemplate {
 				if ( strtolower( $node['org'] ) == strtolower( $node['text'] ) ) {
 					$node['text'] = wfMessage( trim( strtolower( $node['org'] ), ' *' ) )->text();
 				}
-
 				$node['magic'] = true;
 			}
 
-			$results = DataProvider::$extraWords[strtolower($node['org'])][1]();
-			$results[] = [ 'url' => SpecialPage::getTitleFor( 'Top/'.$extraWords[ strtolower( $node['org'] ) ][0] )->getLocalURL(), 'text' => strtolower( wfMessage( 'moredotdotdot' )->text() ), 'class' => 'Monaco-sidebar_more' ];
+			$results = DataProvider::$extraWords[strtolower( $node['org'] )][1]();
+			$results[] = [
+				'url' => SpecialPage::getTitleFor( 'Top/' . $extraWords[ strtolower( $node['org'] ) ][0] )
+					->getLocalURL(),
+				'text' => strtolower( wfMessage( 'moredotdotdot' )->text() ),
+				'class' => 'Monaco-sidebar_more'
+			];
 
 			if ( $this->getUser()->isAllowed( 'editinterface' ) ) {
 				if ( strtolower( $node['org'] ) == '#popular#' ) {
-					$results[] = [ 'url' => Title::makeTitle( NS_MEDIAWIKI, 'Most popular articles' )->getLocalUrl(), 'text' => wfMessage( 'monaco-edit-this-menu' )->text(), 'class' => 'Monaco-sidebar_edit' ];
+					$results[] = [
+						'url' => Title::makeTitle( NS_MEDIAWIKI, 'Most popular articles' )->getLocalURL(),
+						'text' => wfMessage( 'monaco-edit-this-menu' )->text(),
+						'class' => 'Monaco-sidebar_edit'
+					];
 				}
 			}
 
@@ -251,7 +291,8 @@ class SkinMonaco extends SkinTemplate {
 
 		if ( is_array( $lines ) ) {
 			foreach ( $lines as $line ) {
-				if ( strlen( $line ) == 0 ) { # ignore empty lines
+				# ignore empty lines
+				if ( strlen( $line ) == 0 ) {
 					continue;
 				}
 
@@ -276,12 +317,12 @@ class SkinMonaco extends SkinTemplate {
 					}
 				}
 
-				if ( substr( $node['org'],0,1 ) == '#' ) {
+				if ( substr( $node['org'], 0, 1 ) == '#' ) {
 					$this->addExtraItemsToSidebarMenu( $node, $nodes );
 				}
 
-				$nodes[$i+1] = $node;
-				$nodes[ $node['parentIndex'] ]['children'][] = $i+1;
+				$nodes[$i + 1] = $node;
+				$nodes[$node['parentIndex']]['children'][] = $i + 1;
 				$lastDepth = $node['depth'];
 				$i++;
 			}
