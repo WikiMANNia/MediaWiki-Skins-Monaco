@@ -153,3 +153,4 @@ Version history
 2.8.7 - Oct 15, 2026
 
 - Refactoring: Use of Html::rawElement(), Html::openElement() and Xml::closeElement()
+- Avoid accessing uninitialized arrays: Add ´if ( isset( … ) {}´ or ´if ( !empty( … ) {}´

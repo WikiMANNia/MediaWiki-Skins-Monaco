@@ -964,7 +964,7 @@ class MonacoTemplate extends BaseTemplate {
 		$skin = $this->getSkin();
 		$links = [];
 
-		if ( isset( $this->data['content_navigation'] ) ) {
+		if ( !empty( $this->data['content_navigation'] ) ) {
 			// Use MediaWiki 1.18's better vector based content_navigation structure
 			// to organize our tabs better
 			foreach ( $this->data['content_navigation'] as $section => $nav ) {
@@ -1045,7 +1045,7 @@ class MonacoTemplate extends BaseTemplate {
 			}
 		}
 
-		if ( isset( $links['left'] ) ) {
+		if ( !empty( $links['left'] ) ) {
 			foreach ( $links['left'] as $key => &$v ) {
 				/* Fix icons */
 				if ( $key == 'unprotect' ) {
@@ -1109,16 +1109,25 @@ class MonacoTemplate extends BaseTemplate {
 			];
 
 		} else {
-			$data['userpage'] = [
-				'text' => $user->getName(),
-				'href' => $this->data['personal_urls']['userpage']['href']
-			];
-			$data['mytalk'] = [
-				'text' => $this->data['personal_urls']['mytalk']['text'],
-				'href' => $this->data['personal_urls']['mytalk']['href']
-			];
+			/**
+			 * Use of QuickTemplate with parameter ´personal_urls´ is deprecated
+			 * Use ´content_navigation´ instead
+			 */
+			if ( !empty( $this->data['personal_urls']['userpage'] ) ) {
+				$data['userpage'] = [
+					'text' => $user->getName(),
+					'href' => $this->data['personal_urls']['userpage']['href']
+				];
+			}
 
-			if ( isset( $this->data['personal_urls']['watchlist'] ) ) {
+			if ( !empty( $this->data['personal_urls']['mytalk'] ) ) {
+				$data['mytalk'] = [
+					'text' => $this->data['personal_urls']['mytalk']['text'],
+					'href' => $this->data['personal_urls']['mytalk']['href']
+				];
+			}
+
+			if ( !empty( $this->data['personal_urls']['watchlist'] ) ) {
 				$data['watchlist'] = [
 					/*'text' => $this->data['personal_urls']['watchlist']['text'],*/
 					'text' => wfMessage( 'prefs-watchlist' )->text(),
@@ -1127,33 +1136,40 @@ class MonacoTemplate extends BaseTemplate {
 			}
 
 			// In some cases, logout will be removed explicitly (such as when it is replaced by fblogout).
-			if ( isset( $this->data['personal_urls']['logout'] ) ) {
+			if ( !empty( $this->data['personal_urls']['logout'] ) ) {
 				$data['logout'] = [
 					'text' => $this->data['personal_urls']['logout']['text'],
 					'href' => $this->data['personal_urls']['logout']['href']
 				];
 			}
 
-			$data['more']['userpage'] = [
-				'text' => wfMessage( 'mypage' )->text(),
-				'href' => $this->data['personal_urls']['userpage']['href']
-			];
+			if ( !empty( $this->data['personal_urls']['userpage'] ) ) {
+				$data['more']['userpage'] = [
+					'text' => wfMessage( 'mypage' )->text(),
+					'href' => $this->data['personal_urls']['userpage']['href']
+				];
+			}
 
-			if ( isset( $this->data['personal_urls']['userprofile'] ) ) {
+			if ( !empty( $this->data['personal_urls']['userprofile'] ) ) {
 				$data['more']['userprofile'] = [
 					'text' => $this->data['personal_urls']['userprofile']['text'],
 					'href' => $this->data['personal_urls']['userprofile']['href']
 				];
 			}
 
-			$data['more']['mycontris'] = [
-				'text' => wfMessage( 'mycontris' )->text(),
-				'href' => $this->data['personal_urls']['mycontris']['href']
-			];
-			$data['more']['preferences'] = [
-				'text' => $this->data['personal_urls']['preferences']['text'],
-				'href' => $this->data['personal_urls']['preferences']['href']
-			];
+			if ( !empty( $this->data['personal_urls']['mycontris'] ) ) {
+				$data['more']['mycontris'] = [
+					'text' => wfMessage( 'mycontris' )->text(),
+					'href' => $this->data['personal_urls']['mycontris']['href']
+				];
+			}
+
+			if ( !empty( $this->data['personal_urls']['preferences'] ) ) {
+				$data['more']['preferences'] = [
+					'text' => $this->data['personal_urls']['preferences']['text'],
+					'href' => $this->data['personal_urls']['preferences']['href']
+				];
+			}
 		}
 
 		// This function ignores anything from PersonalUrls hook which it doesn't expect.  This
@@ -1161,6 +1177,9 @@ class MonacoTemplate extends BaseTemplate {
 		// Perhaps we should have some system to let PersonalUrls hook work again on its own?
 		// - Sean Colombo
 
+		if ( empty( $this->data['personal_urls'] ) ) {
+			$this->data['personal_urls'] = [];
+		}
 		foreach ( $this->data['personal_urls'] as $urlName => $urlData ) {
 			if ( strpos( $urlName, 'fb' ) === 0 ) {
 				$data[$urlName] = $urlData;
@@ -1337,7 +1356,12 @@ class MonacoTemplate extends BaseTemplate {
 					$html .= $this->makeListItem( $key, $item );
 				}
 
-				$links_user_more = $this->data['userlinks']['more'];
+				$links_user_more = [];
+				if ( isset( $this->data['userlinks']['more'] ) ) {
+					if ( is_array( $this->data['userlinks']['more'] ) ) {
+						$links_user_more = $this->data['userlinks']['more'];
+					}
+				}
 
 				if ( $this->useUserMore() ) {
 					$html .= '<span class="more hovermenu">
@@ -1376,21 +1400,27 @@ class MonacoTemplate extends BaseTemplate {
 						}
 					}
 				}
-				$html .= '<span>' .
-					Html::element( 'a',
-						[ 'href' => $this->data['userlinks']['logout']['href'] ] +
-							Linker::tooltipAndAccesskeyAttribs( 'pt-logout' ),
-						$this->data['userlinks']['logout']['text']
-					) . '</span>';
+				if ( !empty( $this->data['userlinks']['logout'] ) ) {
+					$html .= '<span>' .
+						Html::element( 'a',
+							[ 'href' => $this->data['userlinks']['logout']['href'] ] +
+								Linker::tooltipAndAccesskeyAttribs( 'pt-logout' ),
+							$this->data['userlinks']['logout']['text']
+						) . '</span>';
+				}
 			} else {
-				$html .= '<span id="userLogin">
-					<a class="wikia-button" id="login" href="' .
-					htmlspecialchars( $this->data['userlinks']['login']['href'] ) . '">' .
-					htmlspecialchars( $this->data['userlinks']['login']['text'] ) . '</a>
-				</span>
-					<a class="wikia-button" id="register" href="' .
-					htmlspecialchars( $this->data['userlinks']['register']['href'] ) . '">' .
-					htmlspecialchars( $this->data['userlinks']['register']['text'] ) . '</a>';
+				if ( !empty( $this->data['userlinks']['logout'] ) ) {
+					$html .= '<span id="userLogin">
+						<a class="wikia-button" id="login" href="' .
+						htmlspecialchars( $this->data['userlinks']['login']['href'] ) . '">' .
+						htmlspecialchars( $this->data['userlinks']['login']['text'] ) . '</a>
+					</span>';
+				}
+				if ( !empty( $this->data['userlinks']['register'] ) ) {
+					$html .= '<a class="wikia-button" id="register" href="' .
+						htmlspecialchars( $this->data['userlinks']['register']['href'] ) . '">' .
+						htmlspecialchars( $this->data['userlinks']['register']['text'] ) . '</a>';
+				}
 			}
 		}
 			$html .= Html::closeElement( 'div' );
@@ -1482,7 +1512,7 @@ class MonacoTemplate extends BaseTemplate {
 		}
 
 		$bar = [];
-		if ( isset( $this->data['articlelinks']['right'] ) ) {
+		if ( !empty( $this->data['articlelinks']['right'] ) ) {
 			$bar[] = [
 				'id' => 'page_tabs',
 				'type' => 'tabs',
@@ -1490,7 +1520,7 @@ class MonacoTemplate extends BaseTemplate {
 				'links' => $this->data['articlelinks']['right'],
 			];
 		}
-		if ( isset( $this->data['articlelinks']['variants'] ) ) {
+		if ( !empty( $this->data['articlelinks']['variants'] ) ) {
 			$contLang = MediaWikiServices::getInstance()->getContentLanguage();
 			$converter = MediaWikiServices::getInstance()->getLanguageConverterFactory()
 				->getLanguageConverter( $contLang );
@@ -1510,7 +1540,7 @@ class MonacoTemplate extends BaseTemplate {
 				]
 			];
 		}
-		if ( isset( $this->data['articlelinks']['left'] ) ) {
+		if ( !empty( $this->data['articlelinks']['left'] ) ) {
 			$bar[] = [
 				'id' => 'page_controls',
 				'type' => 'buttons',
