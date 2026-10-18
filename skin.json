@@ -1,6 +1,6 @@
 {
 	"name": "Monaco",
-	"version": "2.8.5",
+	"version": "2.8.6",
 	"requires": {
 		"MediaWiki": ">= 1.39.0"
 	},
@@ -38,6 +38,28 @@
 					"skins.monaco.scripts"
 				]
 			} ]
+		}
+	},
+	"attributes": {
+		"Theme": {
+			"Modules": {
+				"monaco": [
+					"beach",
+					"brick",
+					"carbon",
+					"forest",
+					"gaming",
+					"jade",
+					"moonlight",
+					"obsession",
+					"ruby",
+					"sapphire",
+					"sky",
+					"slate",
+					"smoke",
+					"spring"
+				]
+			}
 		}
 	},
 	"MessagesDirs": {
@@ -135,6 +157,10 @@
 		"MonacoDefaultTheme": {
 			"type": "string",
 			"value": "sapphire"
+		},
+		"MonacoSkipThemes": {
+			"type": "array",
+			"value": [ "theme1", "theme2" ]
 		},
 		"MonacoDynamicCreateOverride": {
 			"type": "boolean",

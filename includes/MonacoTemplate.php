@@ -650,7 +650,7 @@ class MonacoTemplate extends BaseTemplate {
 							'alt' => ''
 						] )
 					) . ' ' .
-					Html::element( 'a',
+					Html::rawElement( 'a',
 						[
 							'id' => "{$link['id']}-link",
 							'href' => $link['url'],
@@ -1270,7 +1270,11 @@ class MonacoTemplate extends BaseTemplate {
 			}
 
 			if ( $user->isRegistered() ) {
-				$toolbar = $this->getPersonalTools();
+				$toolbar = [];
+				$personal_urls = $this->get( 'personal_urls' );
+				if ( is_array( $personal_urls ) && ( count( $personal_urls ) > 0 ) ) {
+					$toolbar = $this->getSkin()->getPersonalToolsForMakeListItem( $personal_urls );
+				}
 
 				unset( $toolbar['preferences'] );
 				unset( $toolbar['mycontris'] );
