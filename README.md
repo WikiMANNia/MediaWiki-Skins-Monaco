@@ -140,7 +140,7 @@ Version history
 -- Use ENT_QUOTES since the skin currently requires 1.39 which supports PHP 7 where ENT_QUOTES is not enabled by default.
 
 
-2.8.8 - Oct 19, 2026
+2.9.0 - Oct 19, 2026
 
 - Add ´$wgMonacoSkipThemes´ to allow system administrators to disable specific skins/themes.
 - Function ´getPersonalTools()´ is deprecated, use ´getPersonalToolsForMakeListItem()´ instead.
@@ -153,5 +153,5 @@ Version history
 - Code refinement:
 -- Rename variable ´$wgMonacoTheme´ into ´$wgMonacoDefaultTheme´
 -- Rename function ´getSkinMonacoDefaultTheme()´ into ´getSkinMonacoFallbackTheme´
--- Rename function ´getAvailableThemes()´ into ´getAvailableThemes´
+-- Rename function ´getSkinMonacoThemeList()´ into ´getAvailableThemes´
 - add backward compatibility with REL1_39

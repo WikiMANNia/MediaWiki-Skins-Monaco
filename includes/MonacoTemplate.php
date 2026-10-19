@@ -1,12 +1,13 @@
 <?php
 
-use MediaWiki\Config\GlobalVarConfig;
+namespace MediaWiki\Skin\Monaco;
+
+use MediaWiki\Config\Config;
 use MediaWiki\Context\RequestContext;
 use MediaWiki\Html\Html;
 use MediaWiki\Linker\Linker;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Skin\BaseTemplate;
-use MediaWiki\Skin\SkinComponentUtils;
 use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\Title\Title;
 use MediaWiki\User\User;
@@ -14,12 +15,13 @@ use ObjectCache;
 
 class MonacoTemplate extends BaseTemplate {
 
-	private GlobalVarConfig $mConfig;
+	private Config $mConfig;
 	private string $mRightSidebar = '';
 	private bool $primaryPageBarPrinted = false;
 
 	public function __construct() {
-		$this->mConfig = new GlobalVarConfig();
+		$this->mConfig = MediaWikiServices::getInstance()->getMainConfig();
+		parent::__construct( $this->mConfig );
 	}
 
 	/**
