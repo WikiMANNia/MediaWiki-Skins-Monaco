@@ -5,8 +5,8 @@ namespace MediaWiki\Skin\Monaco;
 use MediaWiki\Context\RequestContext;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Output\OutputPage;
-use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Registration\ExtensionRegistry;
+use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Skin\SkinTemplate;
 use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\Title\Title;
@@ -188,7 +188,6 @@ class SkinMonaco extends SkinTemplate {
 
 	/**
 	 * @param array $lines
-	 * @return array
 	 */
 	public function parseToolboxLinks( $lines ): array {
 		$nodes = [];
@@ -213,8 +212,7 @@ class SkinMonaco extends SkinTemplate {
 		$revision = $revisionStore->getRevisionByTitle( Title::newFromText( $message_key, NS_MEDIAWIKI ) );
 
 		if ( is_object( $revision ) ) {
-			$content = $revision->getContent( SlotRecord::MAIN );
-			$text = ContentHandler::getContentText( $content );
+			$text = $revision->getContent( SlotRecord::MAIN )->serialize();
 
 			if ( trim( $text ) != '' ) {
 				$temp = MonacoSidebar::getMessageAsArray( $message_key );
@@ -286,7 +284,6 @@ class SkinMonaco extends SkinTemplate {
 
 	/**
 	 * @param array $lines
-	 * @return array
 	 */
 	public function parseSidebarMenu( $lines ): array {
 		$nodes = [];
@@ -341,20 +338,17 @@ class SkinMonaco extends SkinTemplate {
 	}
 
 	/**
-	 * @param string $name
-	 * @param bool $asArray
 	 * @return array|string|null
 	 */
 	public function getTransformedArticle( string $name, bool $asArray = false ) {
 		$revisionStore = MediaWikiServices::getInstance()->getRevisionStore();
 		$revision = $revisionStore->getRevisionByTitle( Title::newFromText( $name ) );
-		$parser = MediaWikiServices::getInstance()->getParser();
 
 		if ( is_object( $revision ) ) {
-			$content = $revision->getContent( SlotRecord::MAIN );
-			$text = ContentHandler::getContentText( $content );
+			$text = $revision->getContent( SlotRecord::MAIN )->serialize();
 
 			if ( !empty( $text ) ) {
+				$parser = MediaWikiServices::getInstance()->getParser();
 				$ret = $parser->transformMsg( $text, $parser->getOptions() );
 
 				if ( $asArray ) {
