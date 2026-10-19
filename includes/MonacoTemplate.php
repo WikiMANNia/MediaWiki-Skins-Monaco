@@ -2,7 +2,6 @@
 
 namespace MediaWiki\Skin\Monaco;
 
-use MediaWiki\Config\Config;
 use MediaWiki\Context\RequestContext;
 use MediaWiki\Html\Html;
 use MediaWiki\Linker\Linker;
@@ -15,13 +14,12 @@ use ObjectCache;
 
 class MonacoTemplate extends BaseTemplate {
 
-	private Config $mConfig;
 	private string $mRightSidebar = '';
 	private bool $primaryPageBarPrinted = false;
 
 	public function __construct() {
-		$this->mConfig = MediaWikiServices::getInstance()->getMainConfig();
-		parent::__construct( $this->mConfig );
+
+		parent::__construct( MediaWikiServices::getInstance()->getMainConfig() );
 	}
 
 	/**
@@ -41,18 +39,18 @@ class MonacoTemplate extends BaseTemplate {
 	 */
 	private function useUserMore(): bool {
 
-		return $this->mConfig->get( 'MonacoUseMoreButton' );
+		return $this->config->get( 'MonacoUseMoreButton' );
 	}
 
 	/** @inheritDoc */
 	public function execute() {
 
-		$sitename = $this->mConfig->get( 'Sitename' );
+		$sitename = $this->config->get( 'Sitename' );
 		$styleVersion =
-			$this->mConfig->has( 'wgStyleVersion' )
-			? $this->mConfig->get( 'wgStyleVersion' )
+			$this->config->has( 'wgStyleVersion' )
+			? $this->config->get( 'wgStyleVersion' )
 			: '';
-		$MonacoUseSitenoticeIsland = $this->mConfig->get( 'MonacoUseSitenoticeIsland' );
+		$MonacoUseSitenoticeIsland = $this->config->get( 'MonacoUseSitenoticeIsland' );
 
 		$this->addVariables();
 
@@ -567,7 +565,7 @@ class MonacoTemplate extends BaseTemplate {
 				[ 'id' => 'navigation_widget', 'class' => 'widget sidebox navigation_box', 'role' => 'navigation' ]
 			);
 
-		$MonacoSearchDefaultFulltext = $this->mConfig->get( 'MonacoSearchDefaultFulltext' );
+		$MonacoSearchDefaultFulltext = $this->config->get( 'MonacoSearchDefaultFulltext' );
 		$msgSearchLabel = wfMessage( 'Tooltip-search' )->escaped();
 		$searchAction = SpecialPage::newSearchPage( $user )->getLocalURL();
 		$searchLabel =
@@ -619,7 +617,7 @@ class MonacoTemplate extends BaseTemplate {
 		if ( $showDynamicLinks ) {
 			$dynamicLinksInternal = [];
 
-			$MonacoDynamicCreateOverride = $this->mConfig->get( 'MonacoDynamicCreateOverride' );
+			$MonacoDynamicCreateOverride = $this->config->get( 'MonacoDynamicCreateOverride' );
 			$createPage = null;
 			if ( !wfMessage( 'dynamic-links-write-article-url' )->isDisabled() ) {
 				$createPage = Title::newFromText( wfMessage( 'dynamic-links-write-article-url' )->text() );
@@ -643,8 +641,8 @@ class MonacoTemplate extends BaseTemplate {
 						'icon' => 'edit',
 					];
 			}
-			$EnableUploads = $this->mConfig->get( 'EnableUploads' );
-			$UploadNavigationUrl = $this->mConfig->get( 'UploadNavigationUrl' );
+			$EnableUploads = $this->config->get( 'EnableUploads' );
+			$UploadNavigationUrl = $this->config->get( 'UploadNavigationUrl' );
 			if ( ( $EnableUploads || !empty( $UploadNavigationUrl ) ) && ( $user->isAllowed( 'upload' ) ||
 					$user->isAnon() || !empty( $UploadNavigationUrl ) ) ) {
 				$uploadPage = SpecialPage::getTitleFor( 'Upload' );
@@ -765,7 +763,7 @@ class MonacoTemplate extends BaseTemplate {
 		}
 
 		if ( is_array( $linksArray ) && ( count( $linksArray ) > 0 ) ) {
-			$MonacoSpecialPagesRequiredLogin = $this->mConfig->get( 'MonacoSpecialPagesRequiredLogin' );
+			$MonacoSpecialPagesRequiredLogin = $this->config->get( 'MonacoSpecialPagesRequiredLogin' );
 
 			if ( !is_array( $MonacoSpecialPagesRequiredLogin ) ) {
 				$MonacoSpecialPagesRequiredLogin = [];
@@ -827,10 +825,10 @@ class MonacoTemplate extends BaseTemplate {
 			$html .= Html::closeElement( 'td' );
 			$html .= Html::closeElement( 'tr' );
 
-			$MonacoEnablePaypal  = $this->mConfig->get( 'MonacoEnablePaypal' );
-			$MonacoPaypalID      = $this->mConfig->get( 'MonacoPaypalID' );
-			$MonacoEnablePatreon = $this->mConfig->get( 'MonacoEnablePatreon' );
-			$MonacoPatreonURL    = $this->mConfig->get( 'MonacoPatreonURL' );
+			$MonacoEnablePaypal  = $this->config->get( 'MonacoEnablePaypal' );
+			$MonacoPaypalID      = $this->config->get( 'MonacoPaypalID' );
+			$MonacoEnablePatreon = $this->config->get( 'MonacoEnablePatreon' );
+			$MonacoPatreonURL    = $this->config->get( 'MonacoPatreonURL' );
 
 			$lang_code = $skin->getLanguage()->getCode();
 			switch ( $lang_code ) {
@@ -1592,7 +1590,7 @@ class MonacoTemplate extends BaseTemplate {
 	 */
 	protected function printCustomPageBar( $bar ) {
 
-		$MonacoCompactSpecialPages = $this->mConfig->get( 'MonacoCompactSpecialPages' );
+		$MonacoCompactSpecialPages = $this->config->get( 'MonacoCompactSpecialPages' );
 
 		$isPrimary = !$this->primaryPageBarPrinted;
 		$this->primaryPageBarPrinted = true;
