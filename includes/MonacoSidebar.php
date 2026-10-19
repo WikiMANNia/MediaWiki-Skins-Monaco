@@ -3,11 +3,11 @@
 namespace MediaWiki\Skin\Monaco;
 
 use MediaWiki\Context\RequestContext;
+use MediaWiki\Content\TextContent;
 use MediaWiki\HookContainer\HookContainer;
 use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Title\Title;
-use MediaWiki\Utils\UrlUtils;
 use ObjectCache;
 
 class MonacoSidebar {
@@ -331,8 +331,12 @@ class MonacoSidebar {
 
 		$revid = $title->getLatestRevID();
 		$a = new Article( $title, $revid );
+		$content = $a->getPage()->getContent();
+		if ( !$content instanceof TextContent ) {
+			return '';
+		}
 
-		return explode( "\n", ContentHandler::getContentText( $a->getPage()->getContent() ) );
+		return explode( "\n", $content->getText() );
 	}
 
 	/**
@@ -365,7 +369,11 @@ class MonacoSidebar {
 
 			$revid = $title->getLatestRevID();
 			$a = new Article( $title, $revid );
-			$text .= ContentHandler::getContentText( $a->getPage()->getContent() ) . "\n";
+			$content = $a->getPage()->getContent();
+			if ( $content instanceof TextContent ) {
+				$text .= $content->getText();
+			}
+			$text .= "\n";
 		}
 
 		return explode( "\n", $text );
@@ -397,9 +405,11 @@ class MonacoSidebar {
 				// expand to user sidebar
 				if ( $node['original'] == 'USER-SIDEBAR' ) {
 					$this->processSpecialSidebar(
-						$this->doUserSidebar( $context->getUser() ),
-						$lastDepth, $nodes, $i
-					);
+							$this->doUserSidebar(
+								$context->getUser()
+							),
+							$lastDepth, $nodes, $i
+						);
 
 					// we don't add the placeholder, we add the menu which is behind it
 					continue;
@@ -408,9 +418,11 @@ class MonacoSidebar {
 				// expand to group sidebar
 				if ( $node['original'] == 'GROUP-SIDEBAR' ) {
 					$this->processSpecialSidebar(
-						$this->doGroupSidebar( $context->getUser() ),
-						$lastDepth, $nodes, $i
-					);
+							$this->doGroupSidebar(
+								$context->getUser()
+							),
+							$lastDepth, $nodes, $i
+						);
 
 					// we don't add the placeholder, we add the menu which is behind it
 					continue;
