@@ -212,7 +212,8 @@ class SkinMonaco extends SkinTemplate {
 		$revision = $revisionStore->getRevisionByTitle( Title::newFromText( $message_key, NS_MEDIAWIKI ) );
 
 		if ( is_object( $revision ) ) {
-			$text = $revision->getContent( SlotRecord::MAIN )->serialize();
+			$content = $revision->getContent( SlotRecord::MAIN );
+			$text = ContentHandler::getContentText( $content );
 
 			if ( trim( $text ) != '' ) {
 				$temp = MonacoSidebar::getMessageAsArray( $message_key );
@@ -345,7 +346,8 @@ class SkinMonaco extends SkinTemplate {
 		$revision = $revisionStore->getRevisionByTitle( Title::newFromText( $name ) );
 
 		if ( is_object( $revision ) ) {
-			$text = $revision->getContent( SlotRecord::MAIN )->serialize();
+			$content = $revision->getContent( SlotRecord::MAIN );
+			$text = ContentHandler::getContentText( $content );
 
 			if ( !empty( $text ) ) {
 				$parser = MediaWikiServices::getInstance()->getParser();

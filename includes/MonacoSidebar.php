@@ -3,7 +3,6 @@
 namespace MediaWiki\Skin\Monaco;
 
 use MediaWiki\Context\RequestContext;
-use MediaWiki\Content\TextContent;
 use MediaWiki\HookContainer\HookContainer;
 use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
@@ -331,12 +330,8 @@ class MonacoSidebar {
 
 		$revid = $title->getLatestRevID();
 		$a = new Article( $title, $revid );
-		$content = $a->getPage()->getContent();
-		if ( !$content instanceof TextContent ) {
-			return '';
-		}
 
-		return explode( "\n", $content->getText() );
+		return explode( "\n", ContentHandler::getContentText( $a->getPage()->getContent() ) );
 	}
 
 	/**
@@ -369,11 +364,7 @@ class MonacoSidebar {
 
 			$revid = $title->getLatestRevID();
 			$a = new Article( $title, $revid );
-			$content = $a->getPage()->getContent();
-			if ( $content instanceof TextContent ) {
-				$text .= $content->getText();
-			}
-			$text .= "\n";
+			$text .= ContentHandler::getContentText( $a->getPage()->getContent() ) . "\n";
 		}
 
 		return explode( "\n", $text );
