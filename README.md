@@ -160,3 +160,8 @@ Version history
 
 - add compatibility with REL1_47
 - add backward compatibility with REL1_39
+
+
+2.9.1 - Oct 20, 2026
+
+- Improvements related to the menu node 'moredotdotdot'

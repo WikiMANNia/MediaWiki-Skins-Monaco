@@ -1394,17 +1394,46 @@ class MonacoTemplate extends BaseTemplate {
 					}
 				}
 
-				if ( $this->useUserMore() ) {
-					$html .= '<span class="more hovermenu">
-					<button id="headerButtonUser" class="header-button color1" tabIndex="-1">' .
-						trim( wfMessage( 'moredotdotdot' )->escaped(), ' .' ) .
-						'<img src="' . $this->get( 'blankimg' ) . '" /></button>
-					<span class="invisibleBridge"></span>
-					<div id="headerMenuUser" class="headerMenu color1 reset">
-						<ul>';
+				$links_user_more_without_userpage = [];
+				foreach ( $links_user_more as $key => $link ) {
+					echo "$i - key: $key -- ";
+					var_dump( $link );
+					// haleyjd 20140420: Do not repeat user page here.
+					if ( $key !== 'userpage' ) {
+						$links_user_more_without_userpage[$key] = $link;
+					}
+				}
 
-					foreach ( $links_user_more as $key => $link ) {
-						if ( $key != 'userpage' ) { // haleyjd 20140420: Do not repeat user page here.
+				if ( $this->useUserMore() ) {
+
+					$count_user_more = count( $links_user_more_without_userpage );
+			
+					if ( $count_user_more === 1 ) {
+
+						foreach ( $links_user_more_without_userpage as $key => $link ) {
+							$html .= Html::rawElement( 'li',
+								[
+									'id' => "pt-header_$key",
+									'class' => 'mw-list-item'
+								],
+								Html::element( 'a',
+									[ 'href' => $link['href'] ],
+									$link['text']
+								)
+							);
+						}
+					}
+					elseif ( $count_user_more >= 2 ) {
+
+						$html .= Html::openElement( 'li', [ 'class' => 'mw-list-item more hovermenu' ] );
+						$html .= '<button id="headerButtonUser" class="header-button color1" tabIndex="-1">' .
+							trim( wfMessage( 'moredotdotdot' )->escaped(), ' .' ) .
+							'<img src="' . $this->get( 'blankimg' ) . '" /></button>
+							<span class="invisibleBridge"></span>';
+						$html .= Html::openElement( 'div', [ 'id' => 'headerMenuUser', 'class' => 'headerMenu color1 reset' ] );
+						$html .= Html::openElement( 'ul' );
+
+						foreach ( $links_user_more_without_userpage as $key => $link ) {
 							$html .= Html::rawElement( 'li',
 								[ 'id' => "header_$key" ],
 								Html::element( 'a',
@@ -1413,50 +1442,78 @@ class MonacoTemplate extends BaseTemplate {
 								)
 							) . "\n";
 						}
+						$html .= Html::closeElement( 'ul' );
+						$html .= Html::closeElement( 'div' );
+						$html .= Html::closeElement( 'span' );
 					}
-		$html .= Html::closeElement( 'ul' );
-		$html .= Html::closeElement( 'div' );
-		$html .= Html::closeElement( 'span' );
 
 				} else {
-					foreach ( $links_user_more as $key => $link ) {
-						if ( $key != 'userpage' ) { // haleyjd 20140420: Do not repeat user page here.
-							$html .= Html::rawElement( 'span',
-								[ 'id' => "header_$key" ],
-								Html::element( 'a',
-									[ 'href' => $link['href'] ],
-									$link['text']
-								)
-							) . "\n";
-						}
+
+					foreach ( $links_user_more_without_userpage as $key => $link ) {
+						$html .= Html::rawElement( 'li',
+							[
+								'id' => "header_$key",
+								'class' => 'mw-list-item'
+							],
+							Html::element( 'a',
+								[ 'href' => $link['href'] ],
+								$link['text']
+							)
+						) . "\n";
 					}
 				}
 				if ( !empty( $this->data['userlinks']['logout'] ) ) {
-					$html .= '<span>' .
-						Html::element( 'a',
-							[ 'href' => $this->data['userlinks']['logout']['href'] ] +
-								Linker::tooltipAndAccesskeyAttribs( 'pt-logout' ),
-							$this->data['userlinks']['logout']['text']
-						) . '</span>';
+					$html .= Html::rawElement( 'li',
+							[
+								'id' => 'pt-logout',
+								'class' => 'mw-list-item'
+							],
+							Html::rawElement( 'a',
+								[
+									'href' => $this->data['userlinks']['logout']['href']
+								] + Linker::tooltipAndAccesskeyAttribs( 'pt-logout' ),
+								$this->data['userlinks']['logout']['text']
+							)
+						);
 				}
 			} else {
 				if ( !empty( $this->data['userlinks']['logout'] ) ) {
-					$html .= '<span id="userLogin">
-						<a class="wikia-button" id="login" href="' .
-						htmlspecialchars( $this->data['userlinks']['login']['href'] ) . '">' .
-						htmlspecialchars( $this->data['userlinks']['login']['text'] ) . '</a>
-					</span>';
+					$html .= Html::rawElement( 'li',
+							[
+								'id' => 'pt-userLogin',
+								'class' => 'mw-list-item'
+							],
+							Html::rawElement( 'a',
+								[
+									'id' => 'login',
+									'class' => 'wikia-button',
+									'href' => htmlspecialchars( $this->data['userlinks']['login']['href'] )
+								],
+								htmlspecialchars( $this->data['userlinks']['login']['text'] )
+							)
+						);
 				}
 				if ( !empty( $this->data['userlinks']['register'] ) ) {
-					$html .= '<a class="wikia-button" id="register" href="' .
-						htmlspecialchars( $this->data['userlinks']['register']['href'] ) . '">' .
-						htmlspecialchars( $this->data['userlinks']['register']['text'] ) . '</a>';
+					$html .= Html::rawElement( 'li',
+							[
+								'id' => 'pt-register',
+								'class' => 'mw-list-item'
+							],
+							Html::rawElement( 'a',
+								[
+									'id' => 'register',
+									'class' => 'wikia-button',
+									'href' => htmlspecialchars( $this->data['userlinks']['register']['href'] )
+								],
+								htmlspecialchars( $this->data['userlinks']['register']['text'] )
+							)
+						);
 				}
 			}
 		}
-			$html .= Html::closeElement( 'div' );
+		$html .= Html::closeElement( 'div' );
 
-			return $html;
+		return $html;
 	}
 
 	// allow subskins to add pre-page islands
