@@ -1396,8 +1396,6 @@ class MonacoTemplate extends BaseTemplate {
 
 				$links_user_more_without_userpage = [];
 				foreach ( $links_user_more as $key => $link ) {
-					echo "$i - key: $key -- ";
-					var_dump( $link );
 					// haleyjd 20140420: Do not repeat user page here.
 					if ( $key !== 'userpage' ) {
 						$links_user_more_without_userpage[$key] = $link;
