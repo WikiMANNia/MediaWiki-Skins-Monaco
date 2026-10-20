@@ -2,7 +2,6 @@
 
 namespace MediaWiki\Skin\Monaco;
 
-use MediaWiki\Config\GlobalVarConfig;
 use MediaWiki\Context\RequestContext;
 use MediaWiki\Html\Html;
 use MediaWiki\Linker\Linker;
@@ -15,12 +14,12 @@ use ObjectCache;
 
 class MonacoTemplate extends BaseTemplate {
 
-	private GlobalVarConfig $mConfig;
 	private string $mRightSidebar = '';
 	private bool $primaryPageBarPrinted = false;
 
 	public function __construct() {
-		$this->mConfig = new GlobalVarConfig();
+
+		parent::__construct( MediaWikiServices::getInstance()->getMainConfig() );
 	}
 
 	/**
@@ -40,18 +39,18 @@ class MonacoTemplate extends BaseTemplate {
 	 */
 	private function useUserMore(): bool {
 
-		return $this->mConfig->get( 'MonacoUseMoreButton' );
+		return $this->config->get( 'MonacoUseMoreButton' );
 	}
 
 	/** @inheritDoc */
 	public function execute() {
 
-		$sitename = $this->mConfig->get( 'Sitename' );
+		$sitename = $this->config->get( 'Sitename' );
 		$styleVersion =
-			$this->mConfig->has( 'wgStyleVersion' )
-			? $this->mConfig->get( 'wgStyleVersion' )
+			$this->config->has( 'wgStyleVersion' )
+			? $this->config->get( 'wgStyleVersion' )
 			: '';
-		$MonacoUseSitenoticeIsland = $this->mConfig->get( 'MonacoUseSitenoticeIsland' );
+		$MonacoUseSitenoticeIsland = $this->config->get( 'MonacoUseSitenoticeIsland' );
 
 		$this->addVariables();
 
@@ -214,28 +213,32 @@ class MonacoTemplate extends BaseTemplate {
 				} else {
 					$html .= "								";
 					$html .= Html::rawElement( 'li', [],
-						Html::rawElement( 'a',
-							[ 'id' => 'fe_edit_icon',
-							'href' => $title->getEditURL() ],
-							$this->blankimg( [
-								'id' => 'fe_edit_img',
-								'class' => 'sprite edit',
-								'alt' => ''
-							] )
-						) .
-						' ' .
-						Html::rawElement( 'div', [],
-							wfMessage( 'monaco-footer-improve' )->rawParams(
-								Html::element( 'a',
+							Html::rawElement( 'a',
+								[
+									'id' => 'fe_edit_icon',
+									'href' => $title->getEditURL()
+								],
+								$this->blankimg(
 									[
-										'id' => 'fe_edit_link',
-										'href' => $title->getEditURL()
-									],
-									wfMessage( 'monaco-footer-improve-linktext' )->text()
+										'id' => 'fe_edit_img',
+										'class' => 'sprite edit',
+										'alt' => ''
+									]
 								)
-							)->text()
-						)
-					);
+							) .
+							' ' .
+							Html::rawElement( 'div', [],
+								wfMessage( 'monaco-footer-improve' )->rawParams(
+									Html::element( 'a',
+										[
+											'id' => 'fe_edit_link',
+											'href' => $title->getEditURL()
+										],
+										wfMessage( 'monaco-footer-improve-linktext' )->text()
+									)
+								)->escaped()
+							)
+						);
 				}
 
 				$myContext = $this->getSkin()->getContext();
@@ -253,16 +256,17 @@ class MonacoTemplate extends BaseTemplate {
 						$userPageExists = $userPageTitle->exists();
 						$userOptionsManager = MediaWikiServices::getInstance()->getUserOptionsManager();
 						$userGender = $userOptionsManager->getOption( $user, 'gender' );
-						$feUserIcon = $this->blankimg( [
-							'id' => 'fe_user_img',
-							'alt' => '',
-							'class' => ( $userGender == 'female' ? 'sprite user-female' : 'sprite user' )
-						] );
+						$feUserIcon = $this->blankimg(
+								[
+									'id' => 'fe_user_img',
+									'alt' => '',
+									'class' => ( $userGender == 'female' ? 'sprite user-female' : 'sprite user' )
+								]
+							);
 						$linkRenderer = MediaWikiServices::getInstance()->getLinkRenderer();
 
 						if ( $userPageExists ) {
-							$feUserIcon = Html::rawElement(
-								'a',
+							$feUserIcon = Html::rawElement( 'a',
 								[ 'id' => 'fe_user_icon', 'href' => $userPageLink ],
 								$feUserIcon
 							);
@@ -289,19 +293,21 @@ class MonacoTemplate extends BaseTemplate {
 				}
 
 				if ( $this->data['copyright'] ) {
-					$feCopyIcon = $this->blankimg( [
-						'id' => 'fe_copyright_img',
-						'class' => 'sprite copyright',
-						'alt' => ''
-					] );
+					$feCopyIcon = $this->blankimg(
+							[
+								'id' => 'fe_copyright_img',
+								'class' => 'sprite copyright',
+								'alt' => ''
+							]
+						);
 
 					$html .= Html::rawElement( 'li', [],
-						$feCopyIcon . ' ' .
-						Html::rawElement( 'div',
-							[ 'id' => 'copyright' ],
-							$this->get( 'copyright' )
-						)
-					);
+							$feCopyIcon . ' ' .
+							Html::rawElement( 'div',
+								[ 'id' => 'copyright' ],
+								$this->get( 'copyright' )
+							)
+						);
 				}
 
 				$html .= Html::closeElement( 'ul' ) .
@@ -315,60 +321,64 @@ class MonacoTemplate extends BaseTemplate {
 
 					if ( !empty( $this->data['content_actions']['history'] ) ) {
 
-						$feHistoryIcon = $this->blankimg( [
-							'id' => 'fe_history_img',
-							'class' => 'sprite history',
-							'alt' => ''
-						] );
+						$feHistoryIcon = $this->blankimg(
+								[
+									'id' => 'fe_history_img',
+									'class' => 'sprite history',
+									'alt' => ''
+								]
+							);
 						$feHistoryIcon = Html::rawElement( 'a',
-							[
-								'id' => 'fe_history_icon',
-								'href' => $this->data['content_actions']['history']['href']
-							],
-							$feHistoryIcon
-						);
+								[
+									'id' => 'fe_history_icon',
+									'href' => $this->data['content_actions']['history']['href']
+								],
+								$feHistoryIcon
+							);
 						$feHistoryLink = Html::rawElement( 'a',
-							[
-								'id' => 'fe_history_link',
-								'href' => $this->data['content_actions']['history']['href']
-							],
-							$this->data['content_actions']['history']['text']
-						);
+								[
+									'id' => 'fe_history_link',
+									'href' => $this->data['content_actions']['history']['href']
+								],
+								$this->data['content_actions']['history']['text']
+							);
 
 						$html .= Html::rawElement( 'li',
-							[ 'id' => 'fe_history' ],
-							$feHistoryIcon . ' ' .
-							Html::rawElement( 'div', [], $feHistoryLink )
-						);
+								[ 'id' => 'fe_history' ],
+								$feHistoryIcon . ' ' .
+								Html::rawElement( 'div', [], $feHistoryLink )
+							);
 					}
 
 					if ( !empty( $nav_urls['recentchangeslinked'] ) ) {
 
-						$feRecentIcon = $this->blankimg( [
-							'id' => 'fe_recent_img',
-							'class' => 'sprite recent',
-							'alt' => ''
-						] );
+						$feRecentIcon = $this->blankimg(
+								[
+									'id' => 'fe_recent_img',
+									'class' => 'sprite recent',
+									'alt' => ''
+								]
+							);
 						$feRecentIcon = Html::rawElement( 'a',
-							[
-								'id' => 'fe_recent_icon',
-								'href' => $nav_urls['recentchangeslinked']['href']
-							],
-							$feRecentIcon
-						);
+								[
+									'id' => 'fe_recent_icon',
+									'href' => $nav_urls['recentchangeslinked']['href']
+								],
+								$feRecentIcon
+							);
 						$feRecentLink = Html::rawElement( 'a',
-							[
-								'id' => 'fe_recent_link',
-								'href' => $nav_urls['recentchangeslinked']['href']
-							],
-							wfMessage( 'recentchangeslinked' )->escaped()
-						);
+								[
+									'id' => 'fe_recent_link',
+									'href' => $nav_urls['recentchangeslinked']['href']
+								],
+								wfMessage( 'recentchangeslinked' )->escaped()
+							);
 
 						$html .= Html::rawElement( 'li',
-							[ 'id' => 'fe_recent' ],
-							$feRecentIcon . ' ' .
-							Html::rawElement( 'div', [], $feRecentLink )
-						);
+								[ 'id' => 'fe_recent' ],
+								$feRecentIcon . ' ' .
+								Html::rawElement( 'div', [], $feRecentLink )
+							);
 					}
 
 					$html .= Html::closeElement( 'ul' );
@@ -380,71 +390,79 @@ class MonacoTemplate extends BaseTemplate {
 
 					if ( !empty( $nav_urls['permalink'] ) ) {
 
-						$fePermaIcon = $this->blankimg( [
-							'id' => 'fe_permalink_img',
-							'class' => 'sprite move',
-							'alt' => ''
-						] );
+						$fePermaIcon = $this->blankimg(
+								[
+									'id' => 'fe_permalink_img',
+									'class' => 'sprite move',
+									'alt' => ''
+								]
+							);
 						$fePermaIcon = Html::rawElement( 'a',
-							[
-								'id' => 'fe_permalink_icon',
-								'href' => $nav_urls['permalink']['href']
-							],
-							$fePermaIcon
-						);
+								[
+									'id' => 'fe_permalink_icon',
+									'href' => $nav_urls['permalink']['href']
+								],
+								$fePermaIcon
+							);
 						$fePermaLink = Html::rawElement( 'a',
-							[
-								'id' => 'fe_permalink_link',
-								'href' => $nav_urls['permalink']['href']
-							],
-							$nav_urls['permalink']['text']
-						);
+								[
+									'id' => 'fe_permalink_link',
+									'href' => $nav_urls['permalink']['href']
+								],
+								$nav_urls['permalink']['text']
+							);
 
 						$html .= Html::rawElement( 'li',
-							[ 'id' => 'fe_permalink' ],
-							$fePermaIcon . ' ' .
-							Html::rawElement( 'div', [], $fePermaLink )
-						);
+								[ 'id' => 'fe_permalink' ],
+								$fePermaIcon . ' ' .
+								Html::rawElement( 'div', [],
+									$fePermaLink
+								)
+							);
 					}
 
 					if ( !empty( $nav_urls['whatlinkshere'] ) ) {
 
-						$feWhatIcon = $this->blankimg( [
-							'id' => 'fe_whatlinkshere_img',
-							'class' => 'sprite pagelink',
-							'alt' => ''
-						] );
+						$feWhatIcon = $this->blankimg(
+								[
+									'id' => 'fe_whatlinkshere_img',
+									'class' => 'sprite pagelink',
+									'alt' => ''
+								]
+							);
 						$feWhatIcon = Html::rawElement( 'a',
-							[
-								'id' => 'fe_whatlinkshere_icon',
-								'rel' => 'nofollow',
-								'href' => $nav_urls['whatlinkshere']['href']
-							],
-							$feWhatIcon
-						);
+								[
+									'id' => 'fe_whatlinkshere_icon',
+									'rel' => 'nofollow',
+									'href' => $nav_urls['whatlinkshere']['href']
+								],
+								$feWhatIcon
+							);
 						$feWhatLink = Html::rawElement( 'a',
-							[
-								'id' => 'fe_whatlinkshere_link',
-								'rel' => 'nofollow',
-								'href' => $nav_urls['whatlinkshere']['href']
-							],
-							wfMessage( 'whatlinkshere' )->escaped()
-						);
+								[
+									'id' => 'fe_whatlinkshere_link',
+									'rel' => 'nofollow',
+									'href' => $nav_urls['whatlinkshere']['href']
+								],
+								wfMessage( 'whatlinkshere' )->escaped()
+							);
 
 						$html .= Html::rawElement( 'li',
-							[ 'id' => 'fe_whatlinkshere' ],
-							$feWhatIcon . ' ' .
-							Html::rawElement( 'div', [], $feWhatLink )
-						);
+								[ 'id' => 'fe_whatlinkshere' ],
+								$feWhatIcon . ' ' .
+								Html::rawElement( 'div', [], $feWhatLink )
+							);
 					}
 					$html .= Html::closeElement( 'ul' );
 				}
 
-				$feRandIcon = $this->blankimg( [
-					'id' => 'fe_random_img',
-					'class' => 'sprite random',
-					'alt' => ''
-				] );
+				$feRandIcon = $this->blankimg(
+						[
+							'id' => 'fe_random_img',
+							'class' => 'sprite random',
+							'alt' => ''
+						]
+					);
 				$url_to_randompage =
 					method_exists( \MediaWiki\Skin\SkinComponentUtils::class, 'makeSpecialUrl' )
 					// Works with mediawiki version >= 1.40
@@ -452,47 +470,51 @@ class MonacoTemplate extends BaseTemplate {
 					// Support for MediaWiki versions < 1.40
 					: \MediaWiki\Skin\Skin::makeSpecialUrl( 'Randompage' );
 				$feRandIcon = Html::rawElement( 'a',
-					[
-						'id' => 'fe_random_icon',
-						'href' => $url_to_randompage
-					],
-					$feRandIcon
-				);
+						[
+							'id' => 'fe_random_icon',
+							'href' => $url_to_randompage
+						],
+						$feRandIcon
+					);
 				$feRandLink = Html::rawElement( 'a',
-					[
-						'id' => 'fe_random_link',
-						'href' => $url_to_randompage
-					],
-					wfMessage( 'monaco-view-random-page' )->escaped()
-				);
+						[
+							'id' => 'fe_random_link',
+							'href' => $url_to_randompage
+						],
+						wfMessage( 'monaco-view-random-page' )->escaped()
+					);
 
 				$html .= '<ul class="actions clearfix" id="articleFooterActions2">';
 				$html .= Html::rawElement( 'li',
-					[ 'id' => 'fe_randompage' ],
-					$feRandIcon . ' ' .
-					Html::rawElement( 'div', [], $feRandLink )
-				);
+						[ 'id' => 'fe_randompage' ],
+						$feRandIcon . ' ' .
+						Html::rawElement( 'div', [], $feRandLink )
+					);
 
 				if ( !empty( $this->get( 'mobileview' ) ) ) {
 
-					$feMobileIcon = $this->blankimg( [
-						'id' => 'fe_mobile_img',
-						'class' => 'sprite mobile',
-						'alt' => ''
-					] );
-					$this->set( 'mobileview', preg_replace(
-						'/(<a[^>]*?href[^>]*?)>/',
-						'$1 rel="nofollow">',
-						$this->get( 'mobileview' )
-					) );
+					$feMobileIcon = $this->blankimg(
+							[
+								'id' => 'fe_mobile_img',
+								'class' => 'sprite mobile',
+								'alt' => ''
+							]
+						);
+					$this->set( 'mobileview',
+							preg_replace(
+								'/(<a[^>]*?href[^>]*?)>/',
+								'$1 rel="nofollow">',
+								$this->get( 'mobileview' )
+							)
+						);
 
 					$html .= Html::rawElement( 'li',
-						[ 'id' => 'fe_mobile' ],
-						$feMobileIcon . ' ' .
-						Html::rawElement( 'div', [],
-							$this->get( 'mobileview' )
-						)
-					);
+							[ 'id' => 'fe_mobile' ],
+							$feMobileIcon . ' ' .
+							Html::rawElement( 'div', [],
+								$this->get( 'mobileview' )
+							)
+						);
 				}
 
 				$html .= Html::closeElement( 'ul' );
@@ -543,7 +565,7 @@ class MonacoTemplate extends BaseTemplate {
 				[ 'id' => 'navigation_widget', 'class' => 'widget sidebox navigation_box', 'role' => 'navigation' ]
 			);
 
-		$MonacoSearchDefaultFulltext = $this->mConfig->get( 'MonacoSearchDefaultFulltext' );
+		$MonacoSearchDefaultFulltext = $this->config->get( 'MonacoSearchDefaultFulltext' );
 		$msgSearchLabel = wfMessage( 'Tooltip-search' )->escaped();
 		$searchAction = SpecialPage::newSearchPage( $user )->getLocalURL();
 		$searchLabel =
@@ -595,7 +617,7 @@ class MonacoTemplate extends BaseTemplate {
 		if ( $showDynamicLinks ) {
 			$dynamicLinksInternal = [];
 
-			$MonacoDynamicCreateOverride = $this->mConfig->get( 'MonacoDynamicCreateOverride' );
+			$MonacoDynamicCreateOverride = $this->config->get( 'MonacoDynamicCreateOverride' );
 			$createPage = null;
 			if ( !wfMessage( 'dynamic-links-write-article-url' )->isDisabled() ) {
 				$createPage = Title::newFromText( wfMessage( 'dynamic-links-write-article-url' )->text() );
@@ -619,8 +641,8 @@ class MonacoTemplate extends BaseTemplate {
 						'icon' => 'edit',
 					];
 			}
-			$EnableUploads = $this->mConfig->get( 'EnableUploads' );
-			$UploadNavigationUrl = $this->mConfig->get( 'UploadNavigationUrl' );
+			$EnableUploads = $this->config->get( 'EnableUploads' );
+			$UploadNavigationUrl = $this->config->get( 'UploadNavigationUrl' );
 			if ( ( $EnableUploads || !empty( $UploadNavigationUrl ) ) && ( $user->isAllowed( 'upload' ) ||
 					$user->isAnon() || !empty( $UploadNavigationUrl ) ) ) {
 				$uploadPage = SpecialPage::getTitleFor( 'Upload' );
@@ -632,9 +654,9 @@ class MonacoTemplate extends BaseTemplate {
 						->getLocalURL( [ 'returnto' => $uploadPage->getPrefixedDBkey() ] ) : $uploadPage->getLocalURL();
 				}
 				$dynamicLinksInternal['add-image'] = [
-					'url' => $url,
-					'icon' => 'photo',
-				];
+						'url' => $url,
+						'icon' => 'photo',
+					];
 			}
 
 			$html .= $this->extendDynamicLinks( $dynamicLinksInternal );
@@ -690,11 +712,13 @@ class MonacoTemplate extends BaseTemplate {
 							'href' => $link['url'],
 							'tabIndex' => -1
 						],
-						$this->blankimg( [
-							'id' => "{$link['id']}-img",
-							'class' => "sprite {$link['icon']}",
-							'alt' => ''
-						] )
+						$this->blankimg(
+							[
+								'id' => "{$link['id']}-img",
+								'class' => "sprite {$link['icon']}",
+								'alt' => ''
+							]
+						)
 					) . ' ' .
 					Html::rawElement( 'a',
 						[
@@ -739,7 +763,7 @@ class MonacoTemplate extends BaseTemplate {
 		}
 
 		if ( is_array( $linksArray ) && ( count( $linksArray ) > 0 ) ) {
-			$MonacoSpecialPagesRequiredLogin = $this->mConfig->get( 'MonacoSpecialPagesRequiredLogin' );
+			$MonacoSpecialPagesRequiredLogin = $this->config->get( 'MonacoSpecialPagesRequiredLogin' );
 
 			if ( !is_array( $MonacoSpecialPagesRequiredLogin ) ) {
 				$MonacoSpecialPagesRequiredLogin = [];
@@ -801,10 +825,10 @@ class MonacoTemplate extends BaseTemplate {
 			$html .= Html::closeElement( 'td' );
 			$html .= Html::closeElement( 'tr' );
 
-			$MonacoEnablePaypal  = $this->mConfig->get( 'MonacoEnablePaypal' );
-			$MonacoPaypalID      = $this->mConfig->get( 'MonacoPaypalID' );
-			$MonacoEnablePatreon = $this->mConfig->get( 'MonacoEnablePatreon' );
-			$MonacoPatreonURL    = $this->mConfig->get( 'MonacoPatreonURL' );
+			$MonacoEnablePaypal  = $this->config->get( 'MonacoEnablePaypal' );
+			$MonacoPaypalID      = $this->config->get( 'MonacoPaypalID' );
+			$MonacoEnablePatreon = $this->config->get( 'MonacoEnablePatreon' );
+			$MonacoPatreonURL    = $this->config->get( 'MonacoPatreonURL' );
 
 			$lang_code = $skin->getLanguage()->getCode();
 			switch ( $lang_code ) {
@@ -1120,10 +1144,6 @@ class MonacoTemplate extends BaseTemplate {
 			];
 
 		} else {
-			/**
-			 * Use of QuickTemplate with parameter ´personal_urls´ is deprecated
-			 * Use ´content_navigation´ instead
-			 */
 			if ( !empty( $this->data['personal_urls']['userpage'] ) ) {
 				$data['userpage'] = [
 					'text' => $user->getName(),
@@ -1374,17 +1394,46 @@ class MonacoTemplate extends BaseTemplate {
 					}
 				}
 
-				if ( $this->useUserMore() ) {
-					$html .= '<span class="more hovermenu">
-					<button id="headerButtonUser" class="header-button color1" tabIndex="-1">' .
-						trim( wfMessage( 'moredotdotdot' )->escaped(), ' .' ) .
-						'<img src="' . $this->get( 'blankimg' ) . '" /></button>
-					<span class="invisibleBridge"></span>
-					<div id="headerMenuUser" class="headerMenu color1 reset">
-						<ul>';
+				$links_user_more_without_userpage = [];
+				foreach ( $links_user_more as $key => $link ) {
+					echo "$i - key: $key -- ";
+					var_dump( $link );
+					// haleyjd 20140420: Do not repeat user page here.
+					if ( $key !== 'userpage' ) {
+						$links_user_more_without_userpage[$key] = $link;
+					}
+				}
 
-					foreach ( $links_user_more as $key => $link ) {
-						if ( $key != 'userpage' ) { // haleyjd 20140420: Do not repeat user page here.
+				if ( $this->useUserMore() ) {
+
+					$count_user_more = count( $links_user_more_without_userpage );
+			
+					if ( $count_user_more === 1 ) {
+
+						foreach ( $links_user_more_without_userpage as $key => $link ) {
+							$html .= Html::rawElement( 'li',
+								[
+									'id' => "pt-header_$key",
+									'class' => 'mw-list-item'
+								],
+								Html::element( 'a',
+									[ 'href' => $link['href'] ],
+									$link['text']
+								)
+							);
+						}
+					}
+					elseif ( $count_user_more >= 2 ) {
+
+						$html .= Html::openElement( 'li', [ 'class' => 'mw-list-item more hovermenu' ] );
+						$html .= '<button id="headerButtonUser" class="header-button color1" tabIndex="-1">' .
+							trim( wfMessage( 'moredotdotdot' )->escaped(), ' .' ) .
+							'<img src="' . $this->get( 'blankimg' ) . '" /></button>
+							<span class="invisibleBridge"></span>';
+						$html .= Html::openElement( 'div', [ 'id' => 'headerMenuUser', 'class' => 'headerMenu color1 reset' ] );
+						$html .= Html::openElement( 'ul' );
+
+						foreach ( $links_user_more_without_userpage as $key => $link ) {
 							$html .= Html::rawElement( 'li',
 								[ 'id' => "header_$key" ],
 								Html::element( 'a',
@@ -1393,50 +1442,78 @@ class MonacoTemplate extends BaseTemplate {
 								)
 							) . "\n";
 						}
+						$html .= Html::closeElement( 'ul' );
+						$html .= Html::closeElement( 'div' );
+						$html .= Html::closeElement( 'span' );
 					}
-		$html .= Html::closeElement( 'ul' );
-		$html .= Html::closeElement( 'div' );
-		$html .= Html::closeElement( 'span' );
 
 				} else {
-					foreach ( $links_user_more as $key => $link ) {
-						if ( $key != 'userpage' ) { // haleyjd 20140420: Do not repeat user page here.
-							$html .= Html::rawElement( 'span',
-								[ 'id' => "header_$key" ],
-								Html::element( 'a',
-									[ 'href' => $link['href'] ],
-									$link['text']
-								)
-							) . "\n";
-						}
+
+					foreach ( $links_user_more_without_userpage as $key => $link ) {
+						$html .= Html::rawElement( 'li',
+							[
+								'id' => "header_$key",
+								'class' => 'mw-list-item'
+							],
+							Html::element( 'a',
+								[ 'href' => $link['href'] ],
+								$link['text']
+							)
+						) . "\n";
 					}
 				}
 				if ( !empty( $this->data['userlinks']['logout'] ) ) {
-					$html .= '<span>' .
-						Html::element( 'a',
-							[ 'href' => $this->data['userlinks']['logout']['href'] ] +
-								Linker::tooltipAndAccesskeyAttribs( 'pt-logout' ),
-							$this->data['userlinks']['logout']['text']
-						) . '</span>';
+					$html .= Html::rawElement( 'li',
+							[
+								'id' => 'pt-logout',
+								'class' => 'mw-list-item'
+							],
+							Html::rawElement( 'a',
+								[
+									'href' => $this->data['userlinks']['logout']['href']
+								] + Linker::tooltipAndAccesskeyAttribs( 'pt-logout' ),
+								$this->data['userlinks']['logout']['text']
+							)
+						);
 				}
 			} else {
 				if ( !empty( $this->data['userlinks']['logout'] ) ) {
-					$html .= '<span id="userLogin">
-						<a class="wikia-button" id="login" href="' .
-						htmlspecialchars( $this->data['userlinks']['login']['href'] ) . '">' .
-						htmlspecialchars( $this->data['userlinks']['login']['text'] ) . '</a>
-					</span>';
+					$html .= Html::rawElement( 'li',
+							[
+								'id' => 'pt-userLogin',
+								'class' => 'mw-list-item'
+							],
+							Html::rawElement( 'a',
+								[
+									'id' => 'login',
+									'class' => 'wikia-button',
+									'href' => htmlspecialchars( $this->data['userlinks']['login']['href'] )
+								],
+								htmlspecialchars( $this->data['userlinks']['login']['text'] )
+							)
+						);
 				}
 				if ( !empty( $this->data['userlinks']['register'] ) ) {
-					$html .= '<a class="wikia-button" id="register" href="' .
-						htmlspecialchars( $this->data['userlinks']['register']['href'] ) . '">' .
-						htmlspecialchars( $this->data['userlinks']['register']['text'] ) . '</a>';
+					$html .= Html::rawElement( 'li',
+							[
+								'id' => 'pt-register',
+								'class' => 'mw-list-item'
+							],
+							Html::rawElement( 'a',
+								[
+									'id' => 'register',
+									'class' => 'wikia-button',
+									'href' => htmlspecialchars( $this->data['userlinks']['register']['href'] )
+								],
+								htmlspecialchars( $this->data['userlinks']['register']['text'] )
+							)
+						);
 				}
 			}
 		}
-			$html .= Html::closeElement( 'div' );
+		$html .= Html::closeElement( 'div' );
 
-			return $html;
+		return $html;
 	}
 
 	// allow subskins to add pre-page islands
@@ -1528,7 +1605,7 @@ class MonacoTemplate extends BaseTemplate {
 				'id' => 'page_tabs',
 				'type' => 'tabs',
 				'class' => 'primary_tabs',
-				'links' => $this->data['articlelinks']['right'],
+				'links' => $this->data['articlelinks']['right']
 			];
 		}
 		if ( !empty( $this->data['articlelinks']['variants'] ) ) {
@@ -1546,7 +1623,7 @@ class MonacoTemplate extends BaseTemplate {
 						'class' => 'selected',
 						'text' => $contLang->getVariantname( $preferred ),
 						'href' => $this->data['skin']->getTitle()->getLocalURL( '', $preferred ),
-						'links' => $this->data['articlelinks']['variants'],
+						'links' => $this->data['articlelinks']['variants']
 					]
 				]
 			];
@@ -1557,7 +1634,7 @@ class MonacoTemplate extends BaseTemplate {
 				'type' => 'buttons',
 				'class' => 'page_controls',
 				'bad_hook' => 'MonacoAfterArticleLinks',
-				'links' => $this->data['articlelinks']['left'],
+				'links' => $this->data['articlelinks']['left']
 			];
 		}
 
@@ -1570,7 +1647,7 @@ class MonacoTemplate extends BaseTemplate {
 	 */
 	protected function printCustomPageBar( $bar ) {
 
-		$MonacoCompactSpecialPages = $this->mConfig->get( 'MonacoCompactSpecialPages' );
+		$MonacoCompactSpecialPages = $this->config->get( 'MonacoCompactSpecialPages' );
 
 		$isPrimary = !$this->primaryPageBarPrinted;
 		$this->primaryPageBarPrinted = true;

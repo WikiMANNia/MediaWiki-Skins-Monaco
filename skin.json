@@ -1,6 +1,6 @@
 {
 	"name": "Monaco",
-	"version": "2.9.0",
+	"version": "2.9.1",
 	"requires": {
 		"MediaWiki": ">= 1.39.0"
 	},
@@ -29,7 +29,12 @@
 					"associated-pages",
 					"views",
 					"actions",
-					"variants"
+					"variants",
+					"personal",
+					"user-interface-preferences",
+					"user-menu",
+					"user-page",
+					"notifications"
 				],
 				"template": "MediaWiki\\Skin\\Monaco\\MonacoTemplate",
 				"styles": [

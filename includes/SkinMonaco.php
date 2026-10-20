@@ -5,8 +5,8 @@ namespace MediaWiki\Skin\Monaco;
 use MediaWiki\Context\RequestContext;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Output\OutputPage;
-use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Registration\ExtensionRegistry;
+use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Skin\SkinTemplate;
 use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\Title\Title;
@@ -188,7 +188,6 @@ class SkinMonaco extends SkinTemplate {
 
 	/**
 	 * @param array $lines
-	 * @return array
 	 */
 	public function parseToolboxLinks( $lines ): array {
 		$nodes = [];
@@ -209,18 +208,12 @@ class SkinMonaco extends SkinTemplate {
 	}
 
 	public function getLines( string $message_key ): array {
-		$revisionStore = MediaWikiServices::getInstance()->getRevisionStore();
-		$revision = $revisionStore->getRevisionByTitle( Title::newFromText( $message_key, NS_MEDIAWIKI ) );
+		$text = self::getContentText( $message_key, NS_MEDIAWIKI );
 
-		if ( is_object( $revision ) ) {
-			$content = $revision->getContent( SlotRecord::MAIN );
-			$text = ContentHandler::getContentText( $content );
-
-			if ( trim( $text ) != '' ) {
-				$temp = MonacoSidebar::getMessageAsArray( $message_key );
-				if ( count( $temp ) > 0 ) {
-					$lines = $temp;
-				}
+		if ( trim( $text ) != '' ) {
+			$temp = MonacoSidebar::getMessageAsArray( $message_key );
+			if ( count( $temp ) > 0 ) {
+				$lines = $temp;
 			}
 		}
 
@@ -286,7 +279,6 @@ class SkinMonaco extends SkinTemplate {
 
 	/**
 	 * @param array $lines
-	 * @return array
 	 */
 	public function parseSidebarMenu( $lines ): array {
 		$nodes = [];
@@ -341,30 +333,51 @@ class SkinMonaco extends SkinTemplate {
 	}
 
 	/**
-	 * @param string $name
-	 * @param bool $asArray
 	 * @return array|string|null
 	 */
 	public function getTransformedArticle( string $name, bool $asArray = false ) {
-		$revisionStore = MediaWikiServices::getInstance()->getRevisionStore();
-		$revision = $revisionStore->getRevisionByTitle( Title::newFromText( $name ) );
-		$parser = MediaWikiServices::getInstance()->getParser();
+		$text = self::getContentText( $name );
 
-		if ( is_object( $revision ) ) {
-			$content = $revision->getContent( SlotRecord::MAIN );
-			$text = ContentHandler::getContentText( $content );
+		if ( !empty( $text ) ) {
+			$parser = MediaWikiServices::getInstance()->getParser();
+			$ret = $parser->transformMsg( $text, $parser->getOptions() );
 
-			if ( !empty( $text ) ) {
-				$ret = $parser->transformMsg( $text, $parser->getOptions() );
-
-				if ( $asArray ) {
-					$ret = explode( "\n", $ret );
-				}
-
-				return $ret;
+			if ( $asArray ) {
+				$ret = explode( "\n", $ret );
 			}
+
+			return $ret;
 		}
 
 		return null;
+	}
+
+	/**
+	 * @param string|int|null $text The link text; spaces, prefixes, and an
+	 *   initial ':' indicating the main namespace are accepted.
+	 * @param int $defaultNamespace The namespace to use if none is specified
+	 *   by a prefix.  If you want to force a specific namespace even if
+	 *   $text might begin with a namespace prefix, use makeTitle() or
+	 *   makeTitleSafe().
+	 * @return string
+	 */
+	private static function getContentText( $text, $defaultNamespace = NS_MAIN ): string {
+
+		$text = '';
+
+		$revisionStore = MediaWikiServices::getInstance()->getRevisionStore();
+		$revision = $revisionStore->getRevisionByTitle( Title::newFromText( $text, $defaultNamespace ) );
+
+		if ( is_object( $revision ) ) {
+			$content = $revision->getContent( SlotRecord::MAIN );
+			if ( $content === null ) {
+				$text = '';
+			} elseif ( $content instanceof TextContent ) {
+				$text = $content->getText();
+			} else {
+				$text = $content->serialize();
+			}
+		}
+		return $text;
 	}
 }
