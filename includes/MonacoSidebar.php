@@ -3,6 +3,7 @@
 namespace MediaWiki\Skin\Monaco;
 
 use MediaWiki\Context\RequestContext;
+use MediaWiki\Content\TextContent;
 use MediaWiki\HookContainer\HookContainer;
 use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
@@ -28,6 +29,7 @@ class MonacoSidebar {
 	 * Parse one line from MediaWiki message to array with indexes 'text' and 'href'
 	 */
 	public static function parseItem( string $line ): array {
+
 		$href = $specialCanonicalName = false;
 
 		$line_temp = explode( '|', trim( $line, '* ' ), 3 );
@@ -178,6 +180,7 @@ class MonacoSidebar {
 	}
 
 	public function getMenu( array $lines, bool $userMenu = false ): string {
+
 		$nodes = $this->parseSidebar( $lines );
 
 		if ( count( $nodes ) > 0 ) {
@@ -330,8 +333,12 @@ class MonacoSidebar {
 
 		$revid = $title->getLatestRevID();
 		$a = new Article( $title, $revid );
+		$content = $a->getPage()->getContent();
+		if ( !$content instanceof TextContent ) {
+			return '';
+		}
 
-		return explode( "\n", ContentHandler::getContentText( $a->getPage()->getContent() ) );
+		return explode( "\n", $content->getText() );
 	}
 
 	/**
@@ -364,7 +371,11 @@ class MonacoSidebar {
 
 			$revid = $title->getLatestRevID();
 			$a = new Article( $title, $revid );
-			$text .= ContentHandler::getContentText( $a->getPage()->getContent() ) . "\n";
+			$content = $a->getPage()->getContent();
+			if ( $content instanceof TextContent ) {
+				$text .= $content->getText();
+			}
+			$text .= "\n";
 		}
 
 		return explode( "\n", $text );
@@ -396,9 +407,7 @@ class MonacoSidebar {
 				// expand to user sidebar
 				if ( $node['original'] == 'USER-SIDEBAR' ) {
 					$this->processSpecialSidebar(
-							$this->doUserSidebar(
-								$context->getUser()
-							),
+							$this->doUserSidebar( $context->getUser() ),
 							$lastDepth, $nodes, $i
 						);
 
@@ -409,9 +418,7 @@ class MonacoSidebar {
 				// expand to group sidebar
 				if ( $node['original'] == 'GROUP-SIDEBAR' ) {
 					$this->processSpecialSidebar(
-							$this->doGroupSidebar(
-								$context->getUser()
-							),
+							$this->doGroupSidebar( $context->getUser() ),
 							$lastDepth, $nodes, $i
 						);
 
@@ -535,6 +542,7 @@ class MonacoSidebar {
 	 * Set the array index of the parent node to the current node
 	 */
 	public function addDepthParentToNode( string $line, array $node, array &$nodes, int &$index, int &$lastDepth ): array {
+
 		// calculate the depth of this node in the menu
 		$node['depth'] = strrpos( $line, '*' ) + 1;
 
@@ -563,6 +571,7 @@ class MonacoSidebar {
 	 * Add Node as newest Item of the Menu
 	 */
 	public function addNodeToSidebar( array $node, array &$nodes, int $index, int &$lastDepth ): int {
+
 		$nodes[$index + 1] = $node;
 		$nodes[$node['parentIndex']]['children'][] = $index + 1;
 		$lastDepth = $node['depth'];

@@ -16,13 +16,6 @@ use MediaWiki\User\UserOptionsLookup;
 class SkinMonaco extends SkinTemplate {
 
 	/**
-	 * Overwrite few SkinTemplate methods which we don't need in Monaco
-	 */
-	public function buildSidebar(): array {
-		return [];
-	}
-
-	/**
 	 * @var Config
 	 */
 	private $config;
@@ -37,6 +30,13 @@ class SkinMonaco extends SkinTemplate {
 		$this->mUserOptionsLookup = $mUserOptionsLookup ?? MediaWikiServices::getInstance()->getUserOptionsLookup();
 
 		parent::__construct( $options );
+	}
+
+	/**
+	 * Overwrite few SkinTemplate methods which we don't need in Monaco
+	 */
+	public function buildSidebar(): array {
+		return [];
 	}
 
 	/**
@@ -212,8 +212,7 @@ class SkinMonaco extends SkinTemplate {
 		$revision = $revisionStore->getRevisionByTitle( Title::newFromText( $message_key, NS_MEDIAWIKI ) );
 
 		if ( is_object( $revision ) ) {
-			$content = $revision->getContent( SlotRecord::MAIN );
-			$text = ContentHandler::getContentText( $content );
+			$text = $revision->getContent( SlotRecord::MAIN )->serialize();
 
 			if ( trim( $text ) != '' ) {
 				$temp = MonacoSidebar::getMessageAsArray( $message_key );
@@ -346,8 +345,7 @@ class SkinMonaco extends SkinTemplate {
 		$revision = $revisionStore->getRevisionByTitle( Title::newFromText( $name ) );
 
 		if ( is_object( $revision ) ) {
-			$content = $revision->getContent( SlotRecord::MAIN );
-			$text = ContentHandler::getContentText( $content );
+			$text = $revision->getContent( SlotRecord::MAIN )->serialize();
 
 			if ( !empty( $text ) ) {
 				$parser = MediaWikiServices::getInstance()->getParser();

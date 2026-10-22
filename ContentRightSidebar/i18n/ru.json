@@ -1,0 +1,8 @@
+{
+	"@metadata": {
+		"authors": [
+			"WikiForMen"
+		]
+	},
+	"monacocontentrightsidebar-desc": "Добавляет тег парсера с возможностью добавления содержимого в правую боковую панель в тему оформления Monaco."
+}
