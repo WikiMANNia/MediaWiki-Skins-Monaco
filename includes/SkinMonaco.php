@@ -6,13 +6,6 @@ use MediaWiki\Revision\SlotRecord;
 class SkinMonaco extends SkinTemplate {
 
 	/**
-	 * Overwrite few SkinTemplate methods which we don't need in Monaco
-	 */
-	public function buildSidebar() {
-		return [];
-	}
-
-	/**
 	 * @var Config
 	 */
 	private $config;
@@ -32,6 +25,13 @@ class SkinMonaco extends SkinTemplate {
 		}
 
 		parent::__construct( $options );
+	}
+
+	/**
+	 * Overwrite few SkinTemplate methods which we don't need in Monaco
+	 */
+	public function buildSidebar() {
+		return [];
 	}
 
 	/**
@@ -158,7 +158,7 @@ class SkinMonaco extends SkinTemplate {
 	 * @return bool
 	 */
 	public function showMasthead() {
-		if ( !$this->config->get( 'MonacoUseMasthead' ) ) {
+		if ( $this->config->get( 'MonacoUseMasthead' ) !== true ) {
 			return false;
 		}
 
@@ -374,12 +374,12 @@ class SkinMonaco extends SkinTemplate {
 	public function getTransformedArticle( $name, $asArray = false ) {
 		$revisionStore = MediaWikiServices::getInstance()->getRevisionStore();
 		$revision = $revisionStore->getRevisionByTitle( Title::newFromText( $name ) );
-		$parser = MediaWikiServices::getInstance()->getParser();
 
 		if ( is_object( $revision ) ) {
 			$text = $revision->getText();
 
 			if ( !empty( $text ) ) {
+				$parser = MediaWikiServices::getInstance()->getParser();
 				$ret = $parser->transformMsg( $text, $parser->getOptions() );
 
 				if ( $asArray ) {

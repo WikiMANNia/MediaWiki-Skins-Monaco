@@ -137,6 +137,9 @@ Version history
 -- Rename variable ´$wgMonacoTheme´ into ´$wgMonacoDefaultTheme´
 
 
-2.8.6 - Oct 15, 2026
+2.8.6
 
+Oct 15, 2026
 - Add ´$wgMonacoSkipThemes´ to allow system administrators to disable specific skins/themes.
+Oct 22, 2026
+- Improvements related to the menu node 'moredotdotdot'

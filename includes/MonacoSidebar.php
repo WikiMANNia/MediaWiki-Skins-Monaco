@@ -4,7 +4,7 @@ use MediaWiki\MediaWikiServices;
 
 class MonacoSidebar {
 	/** @var array */
-	public $biggestCategories;
+	public $biggestCategories = [];
 
 	/** @var string */
 	public $editUrl = '';
@@ -413,9 +413,9 @@ class MonacoSidebar {
 				// expand to user sidebar
 				if ( $node['original'] == 'USER-SIDEBAR' ) {
 					$this->processSpecialSidebar(
-						$this->doUserSidebar( $context->getUser() ),
-						$lastDepth, $nodes, $i
-					);
+							$this->doUserSidebar( $context->getUser() ),
+							$lastDepth, $nodes, $i
+						);
 
 					// we don't add the placeholder, we add the menu which is behind it
 					continue;
@@ -424,9 +424,9 @@ class MonacoSidebar {
 				// expand to group sidebar
 				if ( $node['original'] == 'GROUP-SIDEBAR' ) {
 					$this->processSpecialSidebar(
-						$this->doGroupSidebar( $context->getUser() ),
-						$lastDepth, $nodes, $i
-					);
+							$this->doGroupSidebar( $context->getUser() ),
+							$lastDepth, $nodes, $i
+						);
 
 					// we don't add the placeholder, we add the menu which is behind it
 					continue;
