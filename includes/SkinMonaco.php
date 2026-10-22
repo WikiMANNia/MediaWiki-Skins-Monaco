@@ -16,13 +16,6 @@ use MediaWiki\User\UserOptionsLookup;
 class SkinMonaco extends SkinTemplate {
 
 	/**
-	 * Overwrite few SkinTemplate methods which we don't need in Monaco
-	 */
-	public function buildSidebar(): array {
-		return [];
-	}
-
-	/**
 	 * @var Config
 	 */
 	private $config;
@@ -37,6 +30,13 @@ class SkinMonaco extends SkinTemplate {
 		$this->mUserOptionsLookup = $mUserOptionsLookup ?? MediaWikiServices::getInstance()->getUserOptionsLookup();
 
 		parent::__construct( $options );
+	}
+
+	/**
+	 * Overwrite few SkinTemplate methods which we don't need in Monaco
+	 */
+	public function buildSidebar(): array {
+		return [];
 	}
 
 	/**

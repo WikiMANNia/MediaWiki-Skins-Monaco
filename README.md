@@ -159,6 +159,7 @@ Version history
 2.9.0 - Oct 15, 2026
 
 - add compatibility with REL1_47
+- add backward compatibility with REL1_39
 
 
 2.9.1 - Oct 20, 2026

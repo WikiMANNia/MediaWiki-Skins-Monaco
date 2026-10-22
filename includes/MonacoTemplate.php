@@ -52,6 +52,7 @@ class MonacoTemplate extends BaseTemplate {
 			: '';
 		$MonacoUseSitenoticeIsland = $this->config->get( 'MonacoUseSitenoticeIsland' );
 
+		$this->data['pageLanguage'] = $this->getSkin()->getTitle()->getPageViewLanguage()->getHtmlCode();
 		$this->addVariables();
 
 		$skin = $this->data['skin'];
@@ -88,11 +89,11 @@ class MonacoTemplate extends BaseTemplate {
 	<!-- HEADER -->';
 		$html .= $this->printCustomHeader();
 		$html .= Html::rawElement( 'div', [ 'id' => 'wikia_header', 'class' => 'color2' ],
-			Html::rawElement( 'div', [ 'class' => 'monaco_shrinkwrap' ],
-				$this->printMonacoBranding() .
-				$this->printUserData()
-			)
-		);
+				Html::rawElement( 'div', [ 'class' => 'monaco_shrinkwrap' ],
+					$this->printMonacoBranding() .
+					$this->printUserData()
+				)
+			);
 
 	if ( $hookContainer->run( 'AlternateNavLinks' ) ) {
 		$html .= Html::rawElement( 'div', [ 'id' => 'background_strip', 'class' => 'reset' ],
@@ -116,10 +117,18 @@ class MonacoTemplate extends BaseTemplate {
 		$html .= $this->printBeforePage();
 		if ( $MonacoUseSitenoticeIsland && $this->data['sitenotice'] ) {
 			$html .= Html::rawElement( 'div', [ 'class' => 'page' ],
-				Html::rawElement( 'div', [ 'id' => 'siteNotice' ], $this->get( 'sitenotice' ) )
+				Html::rawElement( 'div',
+					[ 'id' => 'siteNotice' ],
+					$this->get( 'sitenotice' )
+				)
 			);
 		}
-		$html .= Html::openElement( 'div', [ 'id' => 'wikia_page', 'class' => 'page' ] ) .
+		$html .= Html::openElement( 'div',
+				[
+					'id' => 'wikia_page',
+					'class' => 'page'
+				]
+			) .
 			$this->printMasthead();
 			$hookContainer->run( 'MonacoBeforePageBar', [ $this ] );
 			$html .= $this->printPageBar() . '
@@ -133,17 +142,20 @@ class MonacoTemplate extends BaseTemplate {
 					'aria-labelledby' => 'firstHeading'
 				]
 			) .
-			Html::rawElement( 'a', [ 'id' => 'top' ] );
+			Html::element( 'a', [ 'id' => 'top' ] );
 		$hookContainer->run( 'MonacoAfterArticle', [ $this, &$html ] );
 		if ( !$MonacoUseSitenoticeIsland && $this->data['sitenotice'] ) {
-			$html .= Html::rawElement( 'div', [ 'id' => 'siteNotice' ], $this->get( 'sitenotice' ) );
+			$html .= Html::rawElement( 'div',
+					[ 'id' => 'siteNotice' ],
+					$this->get( 'sitenotice' )
+				);
 		}
 		if ( method_exists( $this, 'getIndicators' ) ) {
 			$html .= $this->getIndicators();
 		}
-			$html .= $this->printFirstHeading() .
-				Html::openElement( 'div', [ 'id' => 'bodyContent', 'class' => 'body_content' ] ) .
-				Html::rawElement( 'h2', [ 'id' => 'siteSub' ], $this->getMsg( 'tagline' )->parse() );
+		$html .= $this->printFirstHeading() .
+			Html::openElement( 'div', [ 'id' => 'bodyContent', 'class' => 'body_content' ] ) .
+			Html::rawElement( 'h2', [ 'id' => 'siteSub' ], $this->getMsg( 'tagline' )->parse() );
 
 		if ( $this->data['subtitle'] ) {
 			$html .= Html::rawElement( 'div', [ 'id' => 'contentSub' ], $this->get( 'subtitle' ) );
@@ -197,11 +209,11 @@ class MonacoTemplate extends BaseTemplate {
 			if ( ( $namespaceType != 'none' )
 				&& in_array( $action, [ 'view', 'purge', 'edit', 'history', 'delete', 'protect' ] ) ) {
 				$nav_urls = $this->data['nav_urls'];
-					$html .= Html::openElement( 'div', [ 'id' => 'articleFooter', 'class' => 'reset article_footer' ] ) .
-						Html::openElement( 'table', [ 'style' => 'border-spacing: 0' ] ) .
-						Html::openElement( 'tr' ) .
-						Html::openElement( 'td', [ 'class' => 'col1' ] ) .
-						Html::openElement( 'ul', [ 'id' => 'articleFooterActions', 'class' => 'actions' ] );
+				$html .= Html::openElement( 'div', [ 'id' => 'articleFooter', 'class' => 'reset article_footer' ] ) .
+					Html::openElement( 'table', [ 'style' => 'border-spacing: 0' ] ) .
+					Html::openElement( 'tr' ) .
+					Html::openElement( 'td', [ 'class' => 'col1' ] ) .
+					Html::openElement( 'ul', [ 'id' => 'articleFooterActions', 'class' => 'actions' ] );
 				if ( $namespaceType === 'talk' ) {
 					$custom_article_footer = '';
 					// assign $this to a temporary variable so we can pass it as a reference
@@ -239,6 +251,7 @@ class MonacoTemplate extends BaseTemplate {
 								)->escaped()
 							)
 						);
+					$html .= "\n";
 				}
 
 				$myContext = $this->getSkin()->getContext();
@@ -454,6 +467,7 @@ class MonacoTemplate extends BaseTemplate {
 							);
 					}
 					$html .= Html::closeElement( 'ul' );
+					$html .= "\n";
 				}
 
 				$feRandIcon = $this->blankimg(
@@ -520,8 +534,8 @@ class MonacoTemplate extends BaseTemplate {
 				$html .= Html::closeElement( 'ul' );
 				$html .= Html::closeElement( 'td' );
 				$html .= Html::closeElement( 'tr' );
-				$html .= Html::closeElement( 'table' );
-				$html .= Html::closeElement( 'div' );
+				$html .= Html::closeElement( 'table' ) . "\n";
+				$html .= Html::closeElement( 'div' ) . "\n";
 			} // end $namespaceType != 'none'
 		} // end else from CustomArticleFooter hook
 
@@ -537,7 +551,8 @@ class MonacoTemplate extends BaseTemplate {
 			$html .= $this->get( 'headscripts' );
 		}
 
-		$html .= Html::closeElement( 'div' ) .
+		$html .= Html::closeElement( 'div' );
+		$html .= "\n" .
 		$this->printRightSidebar() . '
 		<!-- WIDGETS -->';
 		$html .= Html::openElement( 'div',
@@ -597,7 +612,7 @@ class MonacoTemplate extends BaseTemplate {
 					<input type="image" alt="' . htmlspecialchars( wfMessage( 'search' )->escaped() ) .
 						'" src="' . $this->get( 'blankimg' ) .
 						'" id="search-button" class="sprite search" tabIndex=2 />
-				</form>'
+				</form>' . "\n"
 			);
 		$monacoSidebar = new MonacoSidebar( $hookContainer );
 		if ( isset( $this->data['content_actions']['edit'] ) ) {
@@ -605,7 +620,7 @@ class MonacoTemplate extends BaseTemplate {
 		}
 		$html .= $monacoSidebar->getCode();
 
-		$html .= '<table style="border-spacing: 0;" id="link_box_table">';
+		$html .= Html::openElement( 'table', [ 'id' => 'link_box_table', 'style' => 'border-spacing: 0' ] );
 	// BEGIN: create dynamic box
 		$showDynamicLinks = true;
 		$dynamicLinksArray = [];
@@ -702,36 +717,37 @@ class MonacoTemplate extends BaseTemplate {
 				}
 				$html .= "						";
 				$html .= Html::rawElement( 'li',
-					[
-						'id' => "{$link['id']}-row",
-						'class' => 'link_box_dynamic_item'
-					],
-					Html::rawElement( 'a',
 						[
-							'id' => "{$link['id']}-icon",
-							'href' => $link['url'],
-							'tabIndex' => -1
+							'id' => "{$link['id']}-row",
+							'class' => 'link_box_dynamic_item'
 						],
-						$this->blankimg(
+						Html::rawElement( 'a',
 							[
-								'id' => "{$link['id']}-img",
-								'class' => "sprite {$link['icon']}",
-								'alt' => ''
-							]
+								'id' => "{$link['id']}-icon",
+								'href' => $link['url'],
+								'tabIndex' => -1
+							],
+							$this->blankimg(
+								[
+									'id' => "{$link['id']}-img",
+									'class' => "sprite {$link['icon']}",
+									'alt' => ''
+								]
+							)
+						) . ' ' .
+						Html::rawElement( 'a',
+							[
+								'id' => "{$link['id']}-link",
+								'href' => $link['url'],
+								'tabIndex' => 3
+							],
+							$link['text']
 						)
-					) . ' ' .
-					Html::rawElement( 'a',
-						[
-							'id' => "{$link['id']}-link",
-							'href' => $link['url'],
-							'tabIndex' => 3
-						],
-						$link['text']
-					)
-				);
+					);
+				$html .= "\n";
 			}
 
-			$html .=  Html::closeElement( 'ul' ) .
+			$html .=  Html::closeElement( 'ul' ) . "\n" .
 			Html::closeElement( 'td' ) .
 			Html::closeElement( 'tr' ) .
 			Html::closeElement( 'tbody' );
@@ -745,21 +761,21 @@ class MonacoTemplate extends BaseTemplate {
 		// add user specific links
 		if ( !empty( $nav_urls['contributions'] ) ) {
 			$linksArray[] = [
-				'href' => $nav_urls['contributions']['href'],
-				'text' => wfMessage( 'contributions' )->text()
-			];
+					'href' => $nav_urls['contributions']['href'],
+					'text' => wfMessage( 'contributions' )->text()
+				];
 		}
 		if ( !empty( $nav_urls['blockip'] ) ) {
 			$linksArray[] = [
-				'href' => $nav_urls['blockip']['href'],
-				'text' => wfMessage( 'blockip' )->text()
-			];
+					'href' => $nav_urls['blockip']['href'],
+					'text' => wfMessage( 'blockip' )->text()
+				];
 		}
 		if ( !empty( $nav_urls['emailuser'] ) ) {
 			$linksArray[] = [
-				'href' => $nav_urls['emailuser']['href'],
-				'text' => wfMessage( 'emailuser' )->text()
-			];
+					'href' => $nav_urls['emailuser']['href'],
+					'text' => wfMessage( 'emailuser' )->text()
+				];
 		}
 
 		if ( is_array( $linksArray ) && ( count( $linksArray ) > 0 ) ) {
@@ -775,8 +791,8 @@ class MonacoTemplate extends BaseTemplate {
 				if ( ( $item !== false ) &&
 					$user->isAnon() &&
 					isset( $item['specialCanonicalName'] ) &&
-					$MonacoSpecialPagesRequiredLogin &&
-					in_array( $item['specialCanonicalName'], $MonacoSpecialPagesRequiredLogin ) )
+					in_array( $item['specialCanonicalName'],
+						$MonacoSpecialPagesRequiredLogin ) )
 				{
 					$returnto = SpecialPage::getTitleFor( $item['specialCanonicalName'] )->getPrefixedDBkey();
 					$item['href'] = SpecialPage::getTitleFor( 'Userlogin' )->getLocalURL( [ 'returnto' => $returnto ] );
@@ -872,7 +888,7 @@ class MonacoTemplate extends BaseTemplate {
 									style="border: 0; width:139px; margin:0;" />
 								<img alt="" src="https://www.paypalobjects.com/' . $lang_code . '/i/scr/pixel.gif"
 									width="1" height="1" style="border: 0;" />
-							</form>'
+							</form>' . "\n"
 						)
 					);
 			}
@@ -904,21 +920,22 @@ class MonacoTemplate extends BaseTemplate {
 			$html .= Html::closeElement( 'tbody' );
 		}
 	// END: create static box
-		$html .= Html::closeElement( 'table' );
+		$html .= Html::closeElement( 'table' ) . "\n";
 		$hookContainer->run( 'MonacoStaticboxEnd', [ $this, &$html ] );
-		$html .= Html::closeElement( 'div' ) . '
+		$html .= '</div>
 			<!-- /SEARCH/NAVIGATION -->' .
 		$this->printExtraSidebar();
 		$hookContainer->run( 'MonacoSidebarEnd', [ $this, &$html ] );
-		$html .= Html::closeElement( 'div' ) . '
-		<!-- /WIDGETS -->
-	<!--/div-->';
+		$html .= "</div>\n
+		<!-- /WIDGETS -->\n
+	<!--/div-->\n";
 
 // curse like cobranding
 		$html .= $this->printCustomFooter();
-		$html .= Html::closeElement( 'div' );
+		$html .= Html::closeElement( 'div' ) . "\n";
 		$hookContainer->run( 'SpecialFooter' );
 		$html .= Html::rawElement( 'div', [ 'id' => 'positioned_elements', 'class' => 'reset' ] );
+
 		echo $html;
 	} // end execute()
 
@@ -1387,18 +1404,13 @@ class MonacoTemplate extends BaseTemplate {
 					$html .= $this->makeListItem( $key, $item );
 				}
 
-				$links_user_more = [];
-				if ( isset( $this->data['userlinks']['more'] ) ) {
-					if ( is_array( $this->data['userlinks']['more'] ) ) {
-						$links_user_more = $this->data['userlinks']['more'];
-					}
-				}
-
 				$links_user_more_without_userpage = [];
-				foreach ( $links_user_more as $key => $link ) {
-					// haleyjd 20140420: Do not repeat user page here.
-					if ( $key !== 'userpage' ) {
-						$links_user_more_without_userpage[$key] = $link;
+				if ( isset( $this->data['userlinks']['more'] ) ) {
+					foreach ( $this->data['userlinks']['more'] as $key => $link ) {
+						// haleyjd 20140420: Do not repeat user page here.
+						if ( $key !== 'userpage' ) {
+							$links_user_more_without_userpage[$key] = $link;
+						}
 					}
 				}
 
@@ -1410,15 +1422,15 @@ class MonacoTemplate extends BaseTemplate {
 
 						foreach ( $links_user_more_without_userpage as $key => $link ) {
 							$html .= Html::rawElement( 'li',
-								[
-									'id' => "pt-header_$key",
-									'class' => 'mw-list-item'
-								],
-								Html::element( 'a',
-									[ 'href' => $link['href'] ],
-									$link['text']
-								)
-							);
+									[
+										'id' => "pt-header_$key",
+										'class' => 'mw-list-item'
+									],
+									Html::element( 'a',
+										[ 'href' => $link['href'] ],
+										$link['text']
+									)
+								);
 						}
 					}
 					elseif ( $count_user_more >= 2 ) {
@@ -1433,12 +1445,12 @@ class MonacoTemplate extends BaseTemplate {
 
 						foreach ( $links_user_more_without_userpage as $key => $link ) {
 							$html .= Html::rawElement( 'li',
-								[ 'id' => "header_$key" ],
-								Html::element( 'a',
-									[ 'href' => $link['href'] ],
-									$link['text']
-								)
-							) . "\n";
+									[ 'id' => "header_$key" ],
+									Html::element( 'a',
+										[ 'href' => $link['href'] ],
+										$link['text']
+									)
+								) . "\n";
 						}
 						$html .= Html::closeElement( 'ul' );
 						$html .= Html::closeElement( 'div' );
@@ -1449,15 +1461,15 @@ class MonacoTemplate extends BaseTemplate {
 
 					foreach ( $links_user_more_without_userpage as $key => $link ) {
 						$html .= Html::rawElement( 'li',
-							[
-								'id' => "header_$key",
-								'class' => 'mw-list-item'
-							],
-							Html::element( 'a',
-								[ 'href' => $link['href'] ],
-								$link['text']
-							)
-						) . "\n";
+								[
+									'id' => "header_$key",
+									'class' => 'mw-list-item'
+								],
+								Html::element( 'a',
+									[ 'href' => $link['href'] ],
+									$link['text']
+								)
+							) . "\n";
 					}
 				}
 				if ( !empty( $this->data['userlinks']['logout'] ) ) {
@@ -1539,12 +1551,15 @@ class MonacoTemplate extends BaseTemplate {
 		if ( !$skin->showMasthead() ) {
 			return '';
 		}
-		$language = $this->getSkin()->getLanguage();
+		$lang = $this->getSkin()->getLanguage();
 		$user = $skin->getMastheadUser();
 		$username = $user->isAnon() ? wfMessage( 'monaco-masthead-anonymous-user' )->text() : $user->getName();
-		$editcount = $language->formatNum( $user->isAnon() ? 0 : $user->getEditcount() );
+		$editcount = $lang->formatNum( $user->isAnon() ? 0 : $user->getEditcount() );
 		$html = Html::openElement( 'div',
-				[ 'id' => 'user_masthead', 'class' => 'accent reset clearfix' ]
+				[
+					'id' => 'user_masthead',
+					'class' => 'accent reset clearfix'
+				]
 			);
 		$h2_element = htmlspecialchars( $username );
 		$h2_element .=
@@ -1552,8 +1567,11 @@ class MonacoTemplate extends BaseTemplate {
 			? '<small id="user_masthead_anon">' . $user->getName() . '</small>'
 			: '<div id="user_masthead_scorecard" class="dark_text_1">' .
 				htmlspecialchars( $editcount ) . '</div>';
-		$html .= Html::element( 'div',
-				[ 'id' => 'user_masthead_head', 'class' => 'clearfix' ],
+		$html .= Html::rawElement( 'div',
+				[
+					'id' => 'user_masthead_head',
+					'class' => 'clearfix'
+				],
 				Html::element( 'h2', [], $h2_element )
 			);
 		$html .= Html::openElement( 'ul', [ 'id' => 'user_masthead_tabs', 'class' => 'nav_links' ] );
@@ -1564,12 +1582,12 @@ class MonacoTemplate extends BaseTemplate {
 				$class .= " {$navLink['class']}";
 			}
 			$html .= Html::rawElement( 'li',
-				[ 'class' => $class ],
-				Html::element( 'a',
-					[ 'href' => $navLink['href'] ],
-					$navLink['text']
-				)
-			);
+					[ 'class' => $class ],
+					Html::element( 'a',
+						[ 'href' => $navLink['href'] ],
+						$navLink['text']
+					)
+				);
 		}
 		$html .= Html::closeElement( 'ul' );
 		$html .= Html::closeElement( 'div' );
@@ -1679,6 +1697,7 @@ class MonacoTemplate extends BaseTemplate {
 					'class' => $divClass
 				]
 			);
+		$html .= "\n";
 		if ( !$useCompactBar || !isset( $deferredList ) ) {
 			foreach ( $bar as $list ) {
 				$html .= $this->printCustomPageBarList( $list );
@@ -1752,6 +1771,7 @@ class MonacoTemplate extends BaseTemplate {
 			}
 
 			$html .= Html::closeElement( 'li' );
+			$html .= "\n";
 		}
 		$hookContainer = $this->getHookContainer();
 		if ( $hook ) {
