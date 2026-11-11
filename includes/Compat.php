@@ -129,6 +129,13 @@ class Compat {
 				'MediaWiki\\Skin\\Skin'
 			);
 		}
+		if ( class_exists( \SkinTemplate::class ) && /* < 1.44 */
+			!class_exists( 'MediaWiki\\Skin\\SkinTemplate', false ) ) {
+			class_alias(
+				\SkinTemplate::class,
+				'MediaWiki\\Skin\\SkinTemplate'
+			);
+		}
 		if ( class_exists( \WikiPage::class ) && /* < 1.44 */
 			!class_exists( 'MediaWiki\\Page\\WikiPage', false ) ) {
 			class_alias(
