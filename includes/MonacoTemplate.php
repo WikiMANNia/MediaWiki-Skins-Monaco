@@ -52,7 +52,6 @@ class MonacoTemplate extends BaseTemplate {
 			: '';
 		$MonacoUseSitenoticeIsland = $this->config->get( 'MonacoUseSitenoticeIsland' );
 
-		$this->data['pageLanguage'] = $this->getSkin()->getTitle()->getPageViewLanguage()->getHtmlCode();
 		$this->addVariables();
 
 		$skin = $this->data['skin'];
