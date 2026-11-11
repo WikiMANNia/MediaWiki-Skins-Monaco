@@ -1,145 +1,100 @@
-Monaco Skin for MediaWiki
-=========================
+# Theme
 
-About
------
+Die Pflege dieses Forks der MediaWiki-Erweiterung [Theme](https://www.mediawiki.org/wiki/Extension:Theme/de) wird von WikiMANNia verwaltet.
 
-This is an unbranded fork of the Monaco skin originally developed by [Fandom](https://en.wikipedia.org/wiki/Fandom_(website)) (formerly known as Wikicities and Wikia).
+The maintenance of this fork of the MediaWiki extension [Theme](https://www.mediawiki.org/wiki/Extension:Theme) is managed by WikiMANNia.
 
-Compared to the original version of the skin, this fork now supports MediaWiki
-version 1.35+ officially.
-This codebase will usually remain up-to-date against MediaWiki, and will drop
-support for older versions unconditionally once it becomes impractical to
-continue to support them.
+El mantenimiento de esta bifurcación de la extensión de MediaWiki [Theme](https://www.mediawiki.org/wiki/Extension:Theme/es) está gestionado por WikiMANNia.
 
-Installation
-------------
+## Description
 
-To install, install Monaco into a Monaco/ folder in your skins/ folder.
-From the command line you can do this by cd'ing to your skins/ folder inside
-your MediaWiki installation and running:
+Die Erweiterung unterstützt Themen, sie wird von themen-unterstützenden Skins verwendet.
 
-`git clone git://github.com/Universal-Omega/Monaco.git Monaco`
+- Das Skin ´cologneblue´ stellt das Thema ´partybook´ bereit.
+- Das Skin ´monobook´ stellt die Themen ´dark´, ´pink´, ´stellarbook´ und ´wipi´ bereit.
+- Das Skin ´vector´ stellt die Themen ´dark´, ´deepsea´ und ´dark-grey´ bereit.
 
-After you have placed the skin into that folder add:
+The extension supports themes and is used by theme-supporting skins.
 
-`wfLoadSkin( 'Monaco' );`
+- The skin ´cologneblue´ will be provided with the theme ´partybook´.
+- The skin ´monobook´ will be provided with the themes ´dark´, ´pink´, ´stellarbook´, and ´wipi´.
+- The skin ´vector´ will be provided with the themes ´dark´, ´deepsea´ and ´dark-grey´.
 
-near the end of your LocalSettings.php to finish installation of the skin.
+La extensión admite temas y es utilizada por las apariencias que los admiten.
 
-Additionally you can install the Monaco/ContentRightSidebar extension using:
+- El tema visual ´cologneblue´ incluirá el tema ´partybook´.
+- El tema visual ´monobook´ incluirá los temas ´dark´, ´pink´, ´stellarbook´ y ´wipi´.
+- El tema visual ´vector´ incluirá los temas ´dark´, ´deepsea´ y ´dark-grey´.
 
-`wfLoadSkin( 'Monaco/ContentRightSidebar' );`
+## Configuration
 
-Doing so will provide you with a `<right-sidebar>...</right-sidebar>` tag which 
-will create right floated content in the page that will be moved into the right
-sidebar in monaco based skins. You can also use it with the args 
+Definiere das voreingestellte Thema:
 
-`<right-sidebar with-box="true" title="My Title">...</right-sidebar>`
+Define the default theme:
 
-to include that sidebar in a sidebar box. Note that a value is required for 
-the `with-box` attribute when this extension is used with MediaWiki 1.25 or
-later. For consistency, it is suggested that you provide this value anyway,
-since it also works with earlier versions of MediaWiki.
+Definir el tema predeterminado:
 
-Configuration
--------------
+: "DefaultTheme": "default",
 
-Set the default theme:
-- $wgMonacoDefaultTheme = "sapphire";
+Schließe folgende Themen aus:
 
 Exclude the following themes:
-- $wgMonacoSkipThemes = [];
 
-Enable Paypal:
-- $wgMonacoEnablePaypal = true;
+Excluir los siguientes temas:
 
-Set the Paypal ID:
-- $wgMonacoPaypalID = "yourID";
+: "SkipThemes": []
 
-Enable Patreon:
-- $wgMonacoEnablePatreon = true;
+## Compatibility
 
-Set the Patreon URL:
-- $wgMonacoPatreonURL = "yourURL";
+This extension has been tested with MediaWiki versions `1.35.14`, `1.39.17`, `1.43.9`, `1.45.4`, and `1.47.0-alpha`.
 
-License
--------
-All of the code released by Fandom was made available under GPL v2.0 or later.
-This license can be found in the LICENSE file.
+## Version history
 
-Legacy
-------
-A fork [maintained by haleyjd](https://github.com/haleyjd/monaco-port) supports MediaWiki versions 1.24 to 1.29 officially, with verified support for 1.30+ in the works.
+Version 2.3 - Jan 29, 2023
+- Remove DeepSea Vector theme
+- It's broken in MW 1.39(+) and needs significantly more love than the other themes.
+- Should someone be willing to volunteer to fix and maintain this theme, patches are more than welcome and restoring it will be easy.
+- But for now, it unfortunately has to go.
 
-This is an unbranded fork of the Monaco skin originally developed by Wikia (now [Fandom](https://en.wikipedia.org/wiki/Fandom_(website))) which is being maintained for use at [DoomWiki.org](http://doomwiki.org/). It was also previously deployed at the Orain non-profit wiki farm before it went offline.
+Version 2.4 - May 9, 2024
+- Use namespaced PHP class ResourceLoader
+- This change requires MediaWiki 1.39+.
 
-Development
------------
+Version 2.5 - Jul 5, 2024
+- Add $wgSkipThemes to allow sysadmins to disable certain skins' certain themes
+- Bug: T220121
+- Does not currently work with ShoutWiki's forks of the old Wikia Quartz and Monaco skins.
+- $wgSkipThemes is an array that looks like this: ´
+$wgSkipThemes = [
+	'monobook' => [
+		'stellarbook' => true
+	],
+	'vector' => [
+		'dark' => true
+	]
+];´
+- If you wanted to disable the StellarBook MonoBook and dark Vector themes, for example.
 
-* https://github.com/Universal-Omega/Monaco
-* https://github.com/wikimedia/mediawiki-skins-Monaco
+Version 2.5.1 - Oct 29, 2024
+- Future-proofing
+- Bug: T377521
 
-Version history
----------------
+Version (2.5.2) - Apr 24, 2025
+- Use namespaced PHP classes
 
-2.7.0 - Apr 25, 2024
+Version 3.0 - Oct 8, 2026
+- Add namespace
+- Add file ´Compat.php´
+- Add backward compatibility to REL1_35
 
-- add new hook MonacoStaticboxEnd (for inserting Donation button)
-- add support for Paypal and Patreon
-- add &$html parameter to hooks
+Version 3.1 - Oct 13, 2026
+- Add theme ´wipi´
 
-2.7.1 - Apr 25, 2024
+Version 3.2 - Oct 15, 2026
+- Add theme ´deepsea´
 
-- add compatibility with REL1_41
+Version 3.3 - Oct 29, 2026
+- Add theme ´partybook´
 
-2.8.0 - May 11, 2024
-
-- Themes activated
-- add hook GetPreferences
-- add UserOptionsLookup
-- add i18n - Translations of the themes
-- Compatibility with ´Theme´ extension
-
-
-2.8.1 - Jul 21, 2024
-
-- Fix issue with Global Variables:
--- ´MonacoSearchDefaultFulltext´
--- ´MonacoSpecialPagesRequiredLogin´
-- add i18n files
-
-
-2.8.2 - Sep 29, 2024
-
-- Fix ´Call to undefined method MonacoTemplate::getContext()´ [Universal-Omega#33](https://github.com/Universal-Omega/Monaco/pull/33)
--- Replace ´wfUrlProtocols()´ with ´wfUrlProtocolsWithoutProtRel()´
--- Substituted deprecated function ´Skin::makeSpecialUrl()´ into ´SkinComponentUtils::makeSpecialUrl()´
-- Add i18n files
-
-
-2.8.3 - Mar 4, 2025
-
-- Fix - Nov 9, 2024: ´Call to undefined method MonacoTemplate::getContext()´ - [Universal-Omega#34](https://github.com/Universal-Omega/Monaco/pull/34)
-- Fix - Jan 28, 2025: ´Call to undefined method LanguageZh::getPreferredVariant()´ - [Universal-Omega#35](https://github.com/Universal-Omega/Monaco/pull/35)
-
-
-2.8.4 - Oct 25, 2025
-
-- Improve logic regarding settings of $wgMonacoAllowUseTheme and $wgMonacoTheme
-- Localisation updates from https://translatewiki.net/.
-
-
-2.8.5 - Oct 27, 2025
-
-- Fix - Oct 26, 2025: Fix search bar not redirecting to Special:Search [Universal-Omega#38](https://github.com/Universal-Omega/Monaco/issues/38)
-- Code refinement:
--- Rename variable ´$wgMonacoTheme´ into ´$wgMonacoDefaultTheme´
-
-
-2.8.6
-
-Oct 15, 2026
-- Add ´$wgMonacoSkipThemes´ to allow system administrators to disable specific skins/themes.
-Oct 22, 2026
-- Improvements related to the menu node 'moredotdotdot'
+Version 3.3.1 - Oct 30, 2026
+- Upgrade ´extension.json´ to manifest version 2
