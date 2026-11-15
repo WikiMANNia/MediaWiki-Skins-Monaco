@@ -39,10 +39,10 @@ class Compat {
 			);
 		}
 		if ( class_exists( \OutputPage::class ) && /* < 1.41 */
-			!class_exists( \MediaWiki\Output\OutputPage::class, false ) ) {
+			!class_exists( 'MediaWiki\\Output\\OutputPage', false ) ) {
 			class_alias(
 				\OutputPage::class,
-				\MediaWiki\Output\OutputPage::class
+				'MediaWiki\\Output\\OutputPage'
 			);
 		}
 		if ( class_exists( \QueryPage::class ) && /* < 1.41 */

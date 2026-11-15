@@ -1,6 +1,6 @@
 {
 	"name": "Monaco",
-	"version": "2.9.1",
+	"version": "2.9.2",
 	"requires": {
 		"MediaWiki": ">= 1.39.0"
 	},
@@ -159,10 +159,6 @@
 		"MonacoAllowUseTheme": {
 			"type": "boolean",
 			"value": true
-		},
-		"MonacoDefaultTheme": {
-			"type": "string",
-			"value": "sapphire"
 		},
 		"MonacoSkipThemes": {
 			"type": "array",

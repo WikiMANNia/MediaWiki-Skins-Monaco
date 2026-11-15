@@ -55,23 +55,67 @@ class SkinMonaco extends SkinTemplate {
 		// Filter out the themes defined in $wgSkipThemes for a skin, if any
 		$skipThemes = MediaWikiServices::getInstance()->getMainConfig()->get( 'MonacoSkipThemes' );
 
-		if ( is_array( $skipThemes ) ) {
+		if ( !is_array( $skipThemes ) ) {
+			wfLogWarning(
+				"SkinMonaco: Invalid configuration: 'MonacoSkipThemes' must be an array. Ignoring configuration."
+			);
+			$skipThemes = [];
+		}
 
-			if ( count( $skipThemes ) > 0 ) {
-				foreach ( $skipThemes as $skippable ) {
+		foreach ( $skipThemes as $skippable ) {
 
-					$key = array_search( $skippable, $themes[$ourSkin], true );
+			$key = array_search( $skippable, $themes[$ourSkin], true );
 
-					if ( $key !== false ) {
-						unset( $themes[$ourSkin][$key] );
-					}
-				}
+			if ( $key !== false ) {
+				unset( $themes[$ourSkin][$key] );
 			}
-		} else {
-			throw new InvalidArgumentException( "SkinMonaco skin has a configuration error: 'MonacoSkipThemes' is not an array." );
 		}
 
 		return !empty( $themes[$ourSkin] ) ? $themes[$ourSkin] : [ 'default' => 'default' ];
+	}
+
+	/**
+	 * Gets the default theme.
+	 */
+	public static function getDefaultTheme(): string {
+
+		$config = MediaWikiServices::getInstance()->getMainConfig();
+
+		$availableThemes = self::getAvailableThemes();
+		$hardcodedFallback = self::getSkinMonacoFallbackTheme();
+
+		$fallbackTheme = $config->has( 'FallbackTheme' )
+				? $config->get( 'FallbackTheme' )
+				: $hardcodedFallback;
+		$defaultTheme = $config->has( 'DefaultTheme' )
+				? $config->get( 'DefaultTheme' )
+				: $fallbackTheme;
+
+		// Validate default theme
+		if (
+			!is_string( $defaultTheme ) ||
+			!in_array( $defaultTheme, $availableThemes, true )
+		) {
+			$defaultTheme = $fallbackTheme;
+		}
+
+		// Validate fallback theme
+		if (
+			!is_string( $defaultTheme ) ||
+			!in_array( $defaultTheme, $availableThemes, true )
+		) {
+  			$defaultTheme = $hardcodedFallback;
+		}
+
+		// Last resort: use the first available theme
+		if (
+  			!is_string( $defaultTheme ) ||
+  			!in_array( $defaultTheme, $availableThemes, true )
+		) {
+  			$defaultTheme = reset( $availableThemes );
+		}
+
+		return $defaultTheme;
 	}
 
 	/**
@@ -107,12 +151,7 @@ class SkinMonaco extends SkinTemplate {
 		// 1) value of $wgMonacoDefaultTheme (set in site configuration)
 		// 2) user's personal preference/override
 		// 3) per-page usetheme URL parameter
-		$theme_fallback = self::getSkinMonacoFallbackTheme();
-		$theme_default = $this->config->get( 'MonacoDefaultTheme', $theme_fallback );
-		if ( !in_array( $theme_default, $themes ) ) {
-			// May be $wgMonacoDefaultTheme is not in the list (i.e. because a misspelling)
-			$theme_default = $theme_fallback;
-		}
+		$theme_default = self::getDefaultTheme();
 		$theme = $theme_default;
 		if ( $this->config->get( 'MonacoAllowUseTheme' ) ) {
 			$theme_user = $this->mUserOptionsLookup->getOption( $user, $theme_key, $theme_default );

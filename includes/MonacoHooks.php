@@ -34,8 +34,8 @@ class MonacoHooks implements
 		UserOptionsLookup $userOptionsLookup
 	) {
 		$this->userOptionsLookup = $userOptionsLookup;
-		$this->allowedThemes = $config->get( "MonacoAllowUseTheme" );
-		$this->defaultTheme = $config->get( "MonacoDefaultTheme" );
+		$this->allowedThemes = $config->get( 'MonacoAllowUseTheme' );
+		$this->defaultTheme = SkinMonaco::getDefaultTheme();
 	}
 
     public static function onRegistration() {
@@ -93,6 +93,12 @@ class MonacoHooks implements
 		}
 
 		$usersTheme = $this->userOptionsLookup->getOption( $user, $theme_key, $this->defaultTheme );
+		if ( !in_array( $usersTheme, $themes ) ) {
+			// the configuration of $wgMonacoSkipThemes
+			// may have changed after last users selection and
+			// users theme may not be longer allowed
+			$usersTheme = $this->defaultTheme;
+		}
 		$showIf = [ '!==', 'skin', 'monaco' ];
 
 		// The entry 'theme' conflicts with Extension:Theme.

@@ -45,8 +45,11 @@ since it also works with earlier versions of MediaWiki.
 Configuration
 -------------
 
-Set the default theme:
-- $wgMonacoDefaultTheme = "sapphire";
+Set the default theme (default is $wgFallbackTheme):
+- $wgDefaultTheme = "sapphire";
+
+May be set a fallback theme (default is `sapphire`):
+- $wgFallbackTheme = "sapphire";
 
 Exclude the following themes:
 - $wgMonacoSkipThemes = [];
@@ -164,4 +167,12 @@ Version history
 
 2.9.1 - Oct 20, 2026
 
-- Improvements related to the menu node 'moredotdotdot'
+- Improvements related to the menu node ´moredotdotdot´
+
+
+2.9.2 - Nov 13, 2026
+
+- Code refinement:
+-- Rename variable ´$wgMonacoDefaultTheme´ into ´$wgDefaultTheme´
+-- Use variable ´$wgFallbackTheme´ als a fallback for ´$wgDefaultTheme´
+-- prove proper setting of these variables if they are in the list of allowed themes
