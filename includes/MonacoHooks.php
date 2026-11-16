@@ -70,7 +70,7 @@ class MonacoHooks implements
 		// Get translated theme names
 		$themeArray_for_sort = [];
 		foreach ( $themes as $theme ) {
-			$themeDisplayNameMsg = $ctx->msg( "$skinName-theme-name-$theme" );
+			$themeDisplayNameMsg = $ctx->msg( "theme-name-$skinName-$theme" );
 			if ( $themeDisplayNameMsg->isDisabled() ) {
 				// No i18n available for this -> use the key as-is
 				$themeDisplayName = ucfirst( $theme );
@@ -85,7 +85,7 @@ class MonacoHooks implements
 		// Sort this list and add a default element.
 		asort( $themeArray_for_sort );
 		$theme = 'default';
-		$themeDisplayNameMsg = $ctx->msg( "$skinName-theme-name-$theme" );
+		$themeDisplayNameMsg = $ctx->msg( "theme-name-$skinName-$theme" );
 		$themeDisplayName =
 			$themeDisplayNameMsg->isDisabled()
 			? $theme

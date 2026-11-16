@@ -6,7 +6,7 @@
 	},
 	"dynamic-links-write-article": "Направи нови чланак",
 	"monaco-theme-prefs-label": "Тема:",
-	"monaco-theme-name-beach": "Плажа",
-	"monaco-theme-name-default": "подразумевано",
-	"monaco-theme-name-sky": "Небо"
+	"theme-name-monaco-beach": "Плажа",
+	"theme-name-monaco-default": "подразумевано",
+	"theme-name-monaco-sky": "Небо"
 }

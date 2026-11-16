@@ -1,6 +1,6 @@
 {
 	"name": "Monaco",
-	"version": "2.9.3",
+	"version": "3.0",
 	"requires": {
 		"MediaWiki": ">= 1.39.0"
 	},
@@ -11,7 +11,7 @@
 		"Daniel Friesen",
 		"James Haley",
 		"Roger Meier",
-		"WikiForMen"
+		"WikiMANNia"
 	],
 	"url": "https://www.mediawiki.org/wiki/Skin:Monaco",
 	"descriptionmsg": "monaco-desc",

@@ -181,3 +181,9 @@ Version history
 2.9.3 - Nov 15, 2026
 
 - Code refinement
+
+
+3.0 - Nov 17, 2026
+
+- Partial reversion of [commit 906b28d](https://github.com/wikimedia/mediawiki-skins-Monaco/commit/906b28d061bce7f4c7e0e299a5e96bd95d489f2c) from November 10, 2025. The developer thereby broke the key naming scheme established in the ´Theme´ extension. The scheme ´"theme-name-$skinName-$theme"´ is used by all skins that implement themes. The keys that denote the translations of the themes are reverted to the general scheme.
+- The keys ´"monaco-theme-name-$theme"´ are renamed to ´"theme-name-monaco-$theme"´

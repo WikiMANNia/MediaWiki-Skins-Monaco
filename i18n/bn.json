@@ -3,7 +3,7 @@
 		"authors": []
 	},
 	"monaco-theme-prefs-label": "থিম:",
-	"monaco-theme-name-carbon": "কার্বন",
-	"monaco-theme-name-default": "পূর্বনির্ধারিত",
-	"monaco-theme-name-sky": "আকাশ"
+	"theme-name-monaco-carbon": "কার্বন",
+	"theme-name-monaco-default": "পূর্বনির্ধারিত",
+	"theme-name-monaco-sky": "আকাশ"
 }

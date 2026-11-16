@@ -14,9 +14,9 @@
 	"monaco-masthead-anonymous-user": "Анонимный участник",
 	"monaco-tab-addsection": "Оставить сообщение",
 	"monaco-theme-prefs-label": "Оформление:",
-	"monaco-theme-name-beach": "Пляж",
-	"monaco-theme-name-default": "по умолчанию",
-	"monaco-theme-name-forest": "Лес",
-	"monaco-theme-name-sky": "Небо",
-	"monaco-theme-name-spring": "Весна"
+	"theme-name-monaco-beach": "Пляж",
+	"theme-name-monaco-default": "по умолчанию",
+	"theme-name-monaco-forest": "Лес",
+	"theme-name-monaco-sky": "Небо",
+	"theme-name-monaco-spring": "Весна"
 }

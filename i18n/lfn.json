@@ -2,11 +2,11 @@
 	"@metadata": {
 		"authors": []
 	},
-	"monaco-theme-name-forest": "Foresta",
-	"monaco-theme-name-jade": "Jada",
-	"monaco-theme-name-ruby": "Rubi",
-	"monaco-theme-name-sapphire": "Safir",
-	"monaco-theme-name-sky": "Sielo",
-	"monaco-theme-name-slate": "Ardosia",
-	"monaco-theme-name-smoke": "Fuma"
+	"theme-name-monaco-forest": "Foresta",
+	"theme-name-monaco-jade": "Jada",
+	"theme-name-monaco-ruby": "Rubi",
+	"theme-name-monaco-sapphire": "Safir",
+	"theme-name-monaco-sky": "Sielo",
+	"theme-name-monaco-slate": "Ardosia",
+	"theme-name-monaco-smoke": "Fuma"
 }
