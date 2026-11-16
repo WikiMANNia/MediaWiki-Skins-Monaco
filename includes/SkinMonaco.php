@@ -42,9 +42,7 @@ class SkinMonaco extends SkinTemplate {
 	/**
 	 * Gets all enabled themes and skips the specified ones.
 	 */
-	public static function getAvailableThemes(): array {
-
-		$ourSkin = 'monaco';
+	public static function getAvailableThemes( string $ourSkin ): array {
 
 		$themes = ExtensionRegistry::getInstance()->getAttribute( 'ThemeModules' );
 
@@ -77,12 +75,11 @@ class SkinMonaco extends SkinTemplate {
 	/**
 	 * Gets the default theme.
 	 */
-	public static function getDefaultTheme(): string {
+	public static function getDefaultTheme( string $ourSkin, string $hardcodedFallback ): string {
 
 		$config = MediaWikiServices::getInstance()->getMainConfig();
 
-		$availableThemes = self::getAvailableThemes();
-		$hardcodedFallback = self::getSkinMonacoFallbackTheme();
+		$availableThemes = self::getAvailableThemes( $ourSkin );
 
 		$fallbackTheme = $config->has( 'FallbackTheme' )
 				? $config->get( 'FallbackTheme' )
@@ -119,9 +116,9 @@ class SkinMonaco extends SkinTemplate {
 	}
 
 	/**
-	 * Fallback, if ´$wgMonacoDefaultTheme´ is not valid
+	 * Fallback, if ´$wgDefaultTheme´ is not valid
 	 */
-	private static function getSkinMonacoFallbackTheme(): string {
+	public static function getSkinFallbackTheme(): string {
 		return 'sapphire';
 	}
 
@@ -143,15 +140,18 @@ class SkinMonaco extends SkinTemplate {
 			$out->addStyle( 'Monaco/style/css/masthead.css', 'screen' );
 		}
 
+		$context = RequestContext::getMain();
 		$request = $this->getRequest();
+		$skinName = $context->getSkin()->getSkinName();
+		$user = $context->getUser();
 		$theme_key = self::getThemeKey();
-		$themes = self::getAvailableThemes();
-		$user = RequestContext::getMain()->getUser();
+		$themes = self::getAvailableThemes( $skinName );
+		$fallbackTheme = self::getSkinFallbackTheme();
 		// Check the following things in this order:
 		// 1) value of $wgMonacoDefaultTheme (set in site configuration)
 		// 2) user's personal preference/override
 		// 3) per-page usetheme URL parameter
-		$theme_default = self::getDefaultTheme();
+		$theme_default = self::getDefaultTheme( $skinName, $fallbackTheme );
 		$theme = $theme_default;
 		if ( $this->config->get( 'MonacoAllowUseTheme' ) ) {
 			$theme_user = $this->mUserOptionsLookup->getOption( $user, $theme_key, $theme_default );

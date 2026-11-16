@@ -24,6 +24,7 @@ class MonacoHooks implements
 	private UserOptionsLookup $userOptionsLookup;
 	private bool $allowedThemes;
 	private string $defaultTheme;
+	private string $skinName;
 
 	/**
 	 * @param GlobalVarConfig $config
@@ -33,9 +34,14 @@ class MonacoHooks implements
 		GlobalVarConfig $config,
 		UserOptionsLookup $userOptionsLookup
 	) {
+		$ctx = RequestContext::getMain();
+		$this->skinName = $ctx->getSkin()->getSkinName();
 		$this->userOptionsLookup = $userOptionsLookup;
 		$this->allowedThemes = $config->get( 'MonacoAllowUseTheme' );
-		$this->defaultTheme = SkinMonaco::getDefaultTheme();
+		$this->defaultTheme = SkinMonaco::getDefaultTheme(
+				$this->skinName,
+				SkinMonaco::getSkinFallbackTheme()
+			);
 	}
 
     public static function onRegistration() {
@@ -54,7 +60,7 @@ class MonacoHooks implements
 		$ctx = RequestContext::getMain();
 		$skin = $ctx->getSkin();
 		$skinName = $skin->getSkinName();
-		$themes = SkinMonaco::getAvailableThemes();
+		$themes = SkinMonaco::getAvailableThemes( $skinName );
 		$theme_key = SkinMonaco::getThemeKey();
 
 		// Braindead code needed to make the theme *names* show up
@@ -76,7 +82,7 @@ class MonacoHooks implements
 			$themeArray_for_sort[$theme] = $themeDisplayName;
 		}
 
-		// Sort this list and and a default element.
+		// Sort this list and add a default element.
 		asort( $themeArray_for_sort );
 		$theme = 'default';
 		$themeDisplayNameMsg = $ctx->msg( "$skinName-theme-name-$theme" );

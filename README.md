@@ -176,3 +176,8 @@ Version history
 -- Rename variable ´$wgMonacoDefaultTheme´ into ´$wgDefaultTheme´
 -- Use variable ´$wgFallbackTheme´ als a fallback for ´$wgDefaultTheme´
 -- prove proper setting of these variables if they are in the list of allowed themes
+
+
+2.9.3 - Nov 15, 2026
+
+- Code refinement

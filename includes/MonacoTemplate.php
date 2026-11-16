@@ -47,8 +47,8 @@ class MonacoTemplate extends BaseTemplate {
 
 		$sitename = $this->config->get( 'Sitename' );
 		$styleVersion =
-			$this->config->has( 'wgStyleVersion' )
-			? $this->config->get( 'wgStyleVersion' )
+			$this->config->has( 'StyleVersion' )
+			? $this->config->get( 'StyleVersion' )
 			: '';
 		$MonacoUseSitenoticeIsland = $this->config->get( 'MonacoUseSitenoticeIsland' );
 
