@@ -51,9 +51,6 @@ Set the default theme (default is $wgFallbackTheme):
 May be set a fallback theme (default is `sapphire`):
 - $wgFallbackTheme = "sapphire";
 
-Exclude the following themes:
-- $wgMonacoSkipThemes = [];
-
 Enable Paypal:
 - $wgMonacoEnablePaypal = true;
 
@@ -65,6 +62,15 @@ Enable Patreon:
 
 Set the Patreon URL:
 - $wgMonacoPatreonURL = "yourURL";
+
+Disable the selection of themes in user's preferences:
+- $wgDisableSelectThemes['monaco'] = true;
+
+Exclude individual themes from the theme selection in user's preferences:
+´$wgSkipThemes['monaco'] = [
+		'carbon' => true,
+		'forest' => true
+	];´
 
 License
 -------
@@ -187,3 +193,9 @@ Version history
 
 - Partial reversion of [commit 906b28d](https://github.com/wikimedia/mediawiki-skins-Monaco/commit/906b28d061bce7f4c7e0e299a5e96bd95d489f2c) from November 10, 2025. The developer thereby broke the key naming scheme established in the ´Theme´ extension. The scheme ´"theme-name-$skinName-$theme"´ is used by all skins that implement themes. The keys that denote the translations of the themes are reverted to the general scheme.
 - The keys ´"monaco-theme-name-$theme"´ are renamed to ´"theme-name-monaco-$theme"´
+
+
+3.1 - Nov 18, 2026
+
+- Add global variables ´$wgDisableSelectThemes´ and ´$wgSkipThemes´.
+- Remove global variables ´$wgMonacoAllowUseTheme´ and ´$wgMonacoSkipThemes´.

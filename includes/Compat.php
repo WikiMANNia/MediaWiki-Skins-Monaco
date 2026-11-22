@@ -4,11 +4,51 @@ namespace MediaWiki\Skin\Monaco;
 
 class Compat {
 
-    public static function init(): void {
-        self::aliasCoreClasses();
-    }
+	public static function init(): void {
+		self::aliasCoreClasses();
+		self::backwardCompatibilityGlobalVariables();
+	}
 
-    private static function aliasCoreClasses(): void {
+	private static function backwardCompatibilityGlobalVariables(): void {
+
+		$ourSkin = 'monaco';
+
+		$key_old = 'MonacoAllowUseTheme';
+		$key_new = 'DisableSelectThemes';
+
+		if ( array_key_exists( $key_old, $GLOBALS ) ) {
+			wfDeprecatedMsg( __METHOD__ . ': Global variable $wpMonacoAllowUseTheme is deprecated. Use "$wgDisableSelectThemes[\'monaco\'] = true;" instead of "$wpMonacoAllowUseTheme = false;".' );
+			$value = $GLOBALS[$key_new] ?? [];
+			if ( !is_array( $value ) ) {
+				$value = [];
+			}
+			$value[$ourSkin] = !$GLOBALS[$key_old];
+
+			$GLOBALS[$key_new] = $value;
+		}
+
+		$key_old = 'MonacoSkipThemes';
+		$key_new = 'SkipThemes';
+
+		if ( array_key_exists( $key_old, $GLOBALS ) ) {
+			wfDeprecatedMsg( __METHOD__ . ': Global variable $wpMonacoSkipThemes is deprecated. Use "$wgSkipThemes[\'monaco\'] = [ \'theme1\' => true, \'theme2\' => true ];" instead of "$wpMonacoSkipThemes = [ \'theme1\', \'theme2\' ];".' );
+			$value = $GLOBALS[$key_new] ?? [];
+			if ( !is_array( $value ) ) {
+				$value = [];
+			}
+			foreach ( $value as $skippable ) {
+
+				$key = array_search( $skippable, $value[$ourSkin], true );
+
+				if ( $key !== false ) {
+					$value[$ourSkin] = [ $key => true ];
+				}
+			}
+
+		}
+	}
+
+	private static function aliasCoreClasses(): void {
 
 		if ( class_exists( \Html::class ) && /* < 1.40 */
 			!class_exists( 'MediaWiki\\Html\\Html', false ) ) {

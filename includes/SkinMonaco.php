@@ -51,20 +51,24 @@ class SkinMonaco extends SkinTemplate {
 		}
 
 		// Filter out the themes defined in $wgSkipThemes for a skin, if any
-		$skipThemes = MediaWikiServices::getInstance()->getMainConfig()->get( 'MonacoSkipThemes' );
+		$skipThemes = MediaWikiServices::getInstance()->getMainConfig()->get( 'SkipThemes' );
 
 		if ( !is_array( $skipThemes ) ) {
 			wfLogWarning(
-				"SkinMonaco: Invalid configuration: 'MonacoSkipThemes' must be an array. Ignoring configuration."
+				"SkinMonaco: Invalid configuration: 'SkipThemes' must be an array. Ignoring configuration."
 			);
 			$skipThemes = [];
 		}
 
-		foreach ( $skipThemes as $skippable ) {
+		if ( !isset( $skipThemes[$ourSkin] ) || !is_array( $skipThemes[$ourSkin] ) ) {
+			$skipThemes[$ourSkin] = [];
+		}
+
+		foreach ( $skipThemes[$ourSkin] as $skippable => $value ) {
 
 			$key = array_search( $skippable, $themes[$ourSkin], true );
 
-			if ( $key !== false ) {
+			if ( ( $value === true ) AND ( $key !== false ) ) {
 				unset( $themes[$ourSkin][$key] );
 			}
 		}
@@ -140,9 +144,19 @@ class SkinMonaco extends SkinTemplate {
 			$out->addStyle( 'Monaco/style/css/masthead.css', 'screen' );
 		}
 
+		$services = MediaWikiServices::getInstance();
+		$config = $services->getMainConfig();
 		$context = RequestContext::getMain();
 		$request = $this->getRequest();
 		$skinName = $context->getSkin()->getSkinName();
+		$disableSelectThemes = false;
+		if ( $config->has( 'DisableSelectThemes' ) ) {
+			$disableSelectThemes_array = $config->get( 'DisableSelectThemes' );
+			if ( isset( $disableSelectThemes_array[$skinName] ) ) {
+				$disableSelectThemes = $disableSelectThemes_array[$skinName];
+			}
+		}
+
 		$user = $context->getUser();
 		$theme_key = self::getThemeKey();
 		$themes = self::getAvailableThemes( $skinName );
@@ -153,7 +167,7 @@ class SkinMonaco extends SkinTemplate {
 		// 3) per-page usetheme URL parameter
 		$theme_default = self::getDefaultTheme( $skinName, $fallbackTheme );
 		$theme = $theme_default;
-		if ( $this->config->get( 'MonacoAllowUseTheme' ) ) {
+		if ( !$disableSelectThemes ) {
 			$theme_user = $this->mUserOptionsLookup->getOption( $user, $theme_key, $theme_default );
 			if ( !in_array( $theme_user, $themes ) ) {
 				$theme_user = $theme_default;

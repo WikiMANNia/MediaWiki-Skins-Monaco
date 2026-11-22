@@ -21,10 +21,8 @@ class MonacoHooks implements
 	GetPreferencesHook,
 	OutputPageBodyAttributesHook
 {
+	private GlobalVarConfig $config;
 	private UserOptionsLookup $userOptionsLookup;
-	private bool $allowedThemes;
-	private string $defaultTheme;
-	private string $skinName;
 
 	/**
 	 * @param GlobalVarConfig $config
@@ -34,14 +32,8 @@ class MonacoHooks implements
 		GlobalVarConfig $config,
 		UserOptionsLookup $userOptionsLookup
 	) {
-		$ctx = RequestContext::getMain();
-		$this->skinName = $ctx->getSkin()->getSkinName();
+		$this->config = $config;
 		$this->userOptionsLookup = $userOptionsLookup;
-		$this->allowedThemes = $config->get( 'MonacoAllowUseTheme' );
-		$this->defaultTheme = SkinMonaco::getDefaultTheme(
-				$this->skinName,
-				SkinMonaco::getSkinFallbackTheme()
-			);
 	}
 
     public static function onRegistration() {
@@ -62,6 +54,17 @@ class MonacoHooks implements
 		$skinName = $skin->getSkinName();
 		$themes = SkinMonaco::getAvailableThemes( $skinName );
 		$theme_key = SkinMonaco::getThemeKey();
+		$disableSelectThemes = false;
+		if ( $this->config->has( 'DisableSelectThemes' ) ) {
+			$disableSelectThemes_array = $this->config->get( 'DisableSelectThemes' );
+			if ( isset( $disableSelectThemes_array[$skinName] ) ) {
+				$disableSelectThemes = $disableSelectThemes_array[$skinName];
+			}
+		}
+		$defaultTheme = SkinMonaco::getDefaultTheme(
+				$skinName,
+				SkinMonaco::getSkinFallbackTheme()
+			);
 
 		// Braindead code needed to make the theme *names* show up
 		// Without this they show up as "0", "1", etc. in the UI
@@ -98,12 +101,12 @@ class MonacoHooks implements
 			$themeArray[$themeDisplayName] = $theme;
 		}
 
-		$usersTheme = $this->userOptionsLookup->getOption( $user, $theme_key, $this->defaultTheme );
+		$usersTheme = $this->userOptionsLookup->getOption( $user, $theme_key, $defaultTheme );
 		if ( !in_array( $usersTheme, $themes ) ) {
 			// the configuration of $wgMonacoSkipThemes
 			// may have changed after last users selection and
 			// users theme may not be longer allowed
-			$usersTheme = $this->defaultTheme;
+			$usersTheme = $defaultTheme;
 		}
 		$showIf = [ '!==', 'skin', 'monaco' ];
 
@@ -111,7 +114,7 @@ class MonacoHooks implements
 		$preferences['theme'][ 'hide-if' ] = [ '===', 'skin', 'monaco' ];
 
 		$preferences[$theme_key] =
-			$this->allowedThemes
+			!$disableSelectThemes
 			?	[
 					'type' => 'select',
 					'options' => $themeArray,

@@ -1,9 +1,6 @@
 {
 	"name": "Monaco",
-	"version": "3.0",
-	"requires": {
-		"MediaWiki": ">= 1.39.0"
-	},
+	"version": "3.1",
 	"author": [
 		"'''Universal Omega'''",
 		"Inez Korczyński",
@@ -11,12 +8,15 @@
 		"Daniel Friesen",
 		"James Haley",
 		"Roger Meier",
-		"WikiMANNia"
+		"[https://github.com/WikiMANNia/MediaWiki-Skins-Monaco WikiMANNia]"
 	],
 	"url": "https://www.mediawiki.org/wiki/Skin:Monaco",
 	"descriptionmsg": "monaco-desc",
 	"license-name": "GPL-2.0-or-later",
 	"type": "skin",
+	"requires": {
+		"MediaWiki": ">= 1.39.0"
+	},
 	"callback": "MediaWiki\\Skin\\Monaco\\MonacoHooks::onRegistration",
 	"ValidSkinNames": {
 		"monaco": {
@@ -156,14 +156,6 @@
 		"remoteSkinPath": "Monaco"
 	},
 	"config": {
-		"MonacoAllowUseTheme": {
-			"type": "boolean",
-			"value": true
-		},
-		"MonacoSkipThemes": {
-			"type": "array",
-			"value": [ "theme1", "theme2" ]
-		},
 		"MonacoDynamicCreateOverride": {
 			"type": "boolean",
 			"value": false
