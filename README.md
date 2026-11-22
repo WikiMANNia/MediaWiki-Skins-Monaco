@@ -199,3 +199,8 @@ Version history
 
 - Add global variables ´$wgDisableSelectThemes´ and ´$wgSkipThemes´.
 - Remove global variables ´$wgMonacoAllowUseTheme´ and ´$wgMonacoSkipThemes´.
+
+
+3.2 - Nov 21, 2026
+
+- Use hook ´GetPreferences´ and functions ´getAvailableThemes()´, ´getDefaultTheme()´, and ´isDisabledSelectThemes()´ from extension ´Theme´ version 3.5.

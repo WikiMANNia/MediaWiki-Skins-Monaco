@@ -3,136 +3,14 @@
 namespace MediaWiki\Skin\Monaco;
 
 use MediaWiki\Hook\OutputPageBodyAttributesHook;
-use MediaWiki\Preferences\Hook\GetPreferencesHook;
-
-if ( class_exists( \GlobalVarConfig::class ) && /* < 1.41 */
-	!class_exists( 'MediaWiki\\Config\\GlobalVarConfig', false ) ) {
-	class_alias(
-		\GlobalVarConfig::class,
-		'MediaWiki\\Config\\GlobalVarConfig'
-	);
-}
-
-use MediaWiki\Config\GlobalVarConfig;
-use MediaWiki\Context\RequestContext;
-use MediaWiki\User\UserOptionsLookup;
 
 class MonacoHooks implements
-	GetPreferencesHook,
 	OutputPageBodyAttributesHook
 {
-	private GlobalVarConfig $config;
-	private UserOptionsLookup $userOptionsLookup;
-
-	/**
-	 * @param GlobalVarConfig $config
-	 * @param UserOptionsLookup $userOptionsLookup
-	 */
-	public function __construct(
-		GlobalVarConfig $config,
-		UserOptionsLookup $userOptionsLookup
-	) {
-		$this->config = $config;
-		$this->userOptionsLookup = $userOptionsLookup;
-	}
 
     public static function onRegistration() {
         Compat::init();
     }
-
-	/**
-	 * Add the theme selector to user preferences.
-	 *
-	 * @param User $user
-	 * @param array &$preferences
-	 * @return bool|void True or no return value to continue or false to abort
-	 */
-	public function onGetPreferences( $user, &$preferences ) {
-
-		$ctx = RequestContext::getMain();
-		$skin = $ctx->getSkin();
-		$skinName = $skin->getSkinName();
-		$themes = SkinMonaco::getAvailableThemes( $skinName );
-		$theme_key = SkinMonaco::getThemeKey();
-		$disableSelectThemes = false;
-		if ( $this->config->has( 'DisableSelectThemes' ) ) {
-			$disableSelectThemes_array = $this->config->get( 'DisableSelectThemes' );
-			if ( isset( $disableSelectThemes_array[$skinName] ) ) {
-				$disableSelectThemes = $disableSelectThemes_array[$skinName];
-			}
-		}
-		$defaultTheme = SkinMonaco::getDefaultTheme(
-				$skinName,
-				SkinMonaco::getSkinFallbackTheme()
-			);
-
-		// Braindead code needed to make the theme *names* show up
-		// Without this they show up as "0", "1", etc. in the UI
-		// First themes will be translated in i18n and then sorted.
-
-		// Get translated theme names
-		$themeArray_for_sort = [];
-		foreach ( $themes as $theme ) {
-			$themeDisplayNameMsg = $ctx->msg( "theme-name-$skinName-$theme" );
-			if ( $themeDisplayNameMsg->isDisabled() ) {
-				// No i18n available for this -> use the key as-is
-				$themeDisplayName = ucfirst( $theme );
-			} else {
-				// Use i18n; it's much nicer to display formatted theme names if and when
-				// a theme name contains spaces, uppercase characters, etc.
-				$themeDisplayName = $themeDisplayNameMsg->text();
-			}
-			$themeArray_for_sort[$theme] = $themeDisplayName;
-		}
-
-		// Sort this list and add a default element.
-		asort( $themeArray_for_sort );
-		$theme = 'default';
-		$themeDisplayNameMsg = $ctx->msg( "theme-name-$skinName-$theme" );
-		$themeDisplayName =
-			$themeDisplayNameMsg->isDisabled()
-			? $theme
-			: $themeDisplayName = $themeDisplayNameMsg->text();
-		// Ensure that 'default' is always the 1st array item
-		$themeArray = [ $themeDisplayName => $theme ];
-
-		// Add the rest of the items.
-		foreach ( $themeArray_for_sort as $theme => $themeDisplayName ) {
-			$themeArray[$themeDisplayName] = $theme;
-		}
-
-		$usersTheme = $this->userOptionsLookup->getOption( $user, $theme_key, $defaultTheme );
-		if ( !in_array( $usersTheme, $themes ) ) {
-			// the configuration of $wgMonacoSkipThemes
-			// may have changed after last users selection and
-			// users theme may not be longer allowed
-			$usersTheme = $defaultTheme;
-		}
-		$showIf = [ '!==', 'skin', 'monaco' ];
-
-		// The entry 'theme' conflicts with Extension:Theme.
-		$preferences['theme'][ 'hide-if' ] = [ '===', 'skin', 'monaco' ];
-
-		$preferences[$theme_key] =
-			!$disableSelectThemes
-			?	[
-					'type' => 'select',
-					'options' => $themeArray,
-					'default' => $usersTheme,
-					'label-message' => 'monaco-theme-prefs-label',
-					'section' => 'rendering/skin',
-					'hide-if' => $showIf
-				]
-			// If the selection of themes is deactiveted,
-			// show only an informative message instead
-			:	[
-					'type' => 'info',
-					'label-message' => 'monaco-theme-prefs-label',
-					'default' => $ctx->msg( 'monaco-theme-selection-deactivated' )->text(),
-					'section' => 'rendering/skin',
-					'hide-if' => $showIf
-				];
-	}
 
 	/**
 	 * @param OutputPage $out OutputPage which called the hook, can be used to get the real title

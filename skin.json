@@ -1,6 +1,6 @@
 {
 	"name": "Monaco",
-	"version": "3.1",
+	"version": "3.2",
 	"author": [
 		"'''Universal Omega'''",
 		"Inez Korczyński",
@@ -15,7 +15,10 @@
 	"license-name": "GPL-2.0-or-later",
 	"type": "skin",
 	"requires": {
-		"MediaWiki": ">= 1.39.0"
+		"MediaWiki": ">= 1.39.0",
+        "extensions": {
+            "Theme": ">= 3.5"
+        }
 	},
 	"callback": "MediaWiki\\Skin\\Monaco\\MonacoHooks::onRegistration",
 	"ValidSkinNames": {
@@ -149,6 +152,101 @@
 					"media": "screen"
 				}
 			}
+		},
+		"themeloader.skins.monaco.beach": {
+			"styles": {
+				"style/beach/css/main.css": {
+					"media": "screen"
+				}
+			}
+		},
+		"themeloader.skins.monaco.brick": {
+			"styles": {
+				"style/brick/css/main.css": {
+					"media": "screen"
+				}
+			}
+		},
+		"themeloader.skins.monaco.carbon": {
+			"styles": {
+				"style/carbon/css/main.css": {
+					"media": "screen"
+				}
+			}
+		},
+		"themeloader.skins.monaco.forest": {
+			"styles": {
+				"style/forest/css/main.css": {
+					"media": "screen"
+				}
+			}
+		},
+		"themeloader.skins.monaco.gaming": {
+			"styles": {
+				"style/gaming/css/main.css": {
+					"media": "screen"
+				}
+			}
+		},
+		"themeloader.skins.monaco.jade": {
+			"styles": {
+				"style/jade/css/main.css": {
+					"media": "screen"
+				}
+			}
+		},
+		"themeloader.skins.monaco.moonlight": {
+			"styles": {
+				"style/moonlight/css/main.css": {
+					"media": "screen"
+				}
+			}
+		},
+		"themeloader.skins.monaco.obsession": {
+			"styles": {
+				"style/obsession/css/main.css": {
+					"media": "screen"
+				}
+			}
+		},
+		"themeloader.skins.monaco.ruby": {
+			"styles": {
+				"style/ruby/css/main.css": {
+					"media": "screen"
+				}
+			}
+		},
+		"themeloader.skins.monaco.sapphire": {
+			"styles": {
+			}
+		},
+		"themeloader.skins.monaco.sky": {
+			"styles": {
+				"style/sky/css/main.css": {
+					"media": "screen"
+				}
+			}
+		},
+		"themeloader.skins.monaco.slate": {
+			"styles": {
+				"style/slate/css/main.css": {
+					"media": "screen"
+				}
+			}
+		},
+		"themeloader.skins.monaco.smoke": {
+			"styles": {
+				"style/smoke/css/main.css": {
+					"media": "screen"
+				}
+			}
+		},
+		"themeloader.skins.monaco.spring": {
+			"styles": {
+				"style/spring/css/main.css": {
+					"media": "screen"
+				}
+			}
 		}
 	},
 	"ResourceFileModulePaths": {
@@ -210,15 +308,10 @@
 	},
 	"HookHandlers": {
 		"main": {
-			"class": "MediaWiki\\Skin\\Monaco\\MonacoHooks",
-			"services": [
-				"MainConfig",
-				"UserOptionsLookup"
-			]
+			"class": "MediaWiki\\Skin\\Monaco\\MonacoHooks"
 		}
 	},
 	"Hooks": {
-		"GetPreferences": "main",
 		"MessageCacheReplace": [
 			"MonacoSidebar::invalidateCache"
 		],

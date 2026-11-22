@@ -2,6 +2,8 @@
 
 namespace MediaWiki\Skin\Monaco;
 
+use MediaWiki\Extension\Theme\Theme;
+
 use MediaWiki\Context\RequestContext;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Output\OutputPage;
@@ -40,94 +42,10 @@ class SkinMonaco extends SkinTemplate {
 	}
 
 	/**
-	 * Gets all enabled themes and skips the specified ones.
-	 */
-	public static function getAvailableThemes( string $ourSkin ): array {
-
-		$themes = ExtensionRegistry::getInstance()->getAttribute( 'ThemeModules' );
-
-		if ( !isset( $themes[$ourSkin] ) ) {
-			$themes[$ourSkin] = [];
-		}
-
-		// Filter out the themes defined in $wgSkipThemes for a skin, if any
-		$skipThemes = MediaWikiServices::getInstance()->getMainConfig()->get( 'SkipThemes' );
-
-		if ( !is_array( $skipThemes ) ) {
-			wfLogWarning(
-				"SkinMonaco: Invalid configuration: 'SkipThemes' must be an array. Ignoring configuration."
-			);
-			$skipThemes = [];
-		}
-
-		if ( !isset( $skipThemes[$ourSkin] ) || !is_array( $skipThemes[$ourSkin] ) ) {
-			$skipThemes[$ourSkin] = [];
-		}
-
-		foreach ( $skipThemes[$ourSkin] as $skippable => $value ) {
-
-			$key = array_search( $skippable, $themes[$ourSkin], true );
-
-			if ( ( $value === true ) AND ( $key !== false ) ) {
-				unset( $themes[$ourSkin][$key] );
-			}
-		}
-
-		return !empty( $themes[$ourSkin] ) ? $themes[$ourSkin] : [ 'default' => 'default' ];
-	}
-
-	/**
-	 * Gets the default theme.
-	 */
-	public static function getDefaultTheme( string $ourSkin, string $hardcodedFallback ): string {
-
-		$config = MediaWikiServices::getInstance()->getMainConfig();
-
-		$availableThemes = self::getAvailableThemes( $ourSkin );
-
-		$fallbackTheme = $config->has( 'FallbackTheme' )
-				? $config->get( 'FallbackTheme' )
-				: $hardcodedFallback;
-		$defaultTheme = $config->has( 'DefaultTheme' )
-				? $config->get( 'DefaultTheme' )
-				: $fallbackTheme;
-
-		// Validate default theme
-		if (
-			!is_string( $defaultTheme ) ||
-			!in_array( $defaultTheme, $availableThemes, true )
-		) {
-			$defaultTheme = $fallbackTheme;
-		}
-
-		// Validate fallback theme
-		if (
-			!is_string( $defaultTheme ) ||
-			!in_array( $defaultTheme, $availableThemes, true )
-		) {
-  			$defaultTheme = $hardcodedFallback;
-		}
-
-		// Last resort: use the first available theme
-		if (
-  			!is_string( $defaultTheme ) ||
-  			!in_array( $defaultTheme, $availableThemes, true )
-		) {
-  			$defaultTheme = reset( $availableThemes );
-		}
-
-		return $defaultTheme;
-	}
-
-	/**
 	 * Fallback, if ´$wgDefaultTheme´ is not valid
 	 */
 	public static function getSkinFallbackTheme(): string {
 		return 'sapphire';
-	}
-
-	public static function getThemeKey(): string {
-		return 'theme_monaco';
 	}
 
 	public function initPage( OutputPage $out ) {
@@ -144,28 +62,19 @@ class SkinMonaco extends SkinTemplate {
 			$out->addStyle( 'Monaco/style/css/masthead.css', 'screen' );
 		}
 
-		$services = MediaWikiServices::getInstance();
-		$config = $services->getMainConfig();
 		$context = RequestContext::getMain();
 		$request = $this->getRequest();
 		$skinName = $context->getSkin()->getSkinName();
-		$disableSelectThemes = false;
-		if ( $config->has( 'DisableSelectThemes' ) ) {
-			$disableSelectThemes_array = $config->get( 'DisableSelectThemes' );
-			if ( isset( $disableSelectThemes_array[$skinName] ) ) {
-				$disableSelectThemes = $disableSelectThemes_array[$skinName];
-			}
-		}
-
+		$disableSelectThemes = Theme::isDisabledSelectThemes( $skinName );
 		$user = $context->getUser();
-		$theme_key = self::getThemeKey();
-		$themes = self::getAvailableThemes( $skinName );
+		$theme_key = 'theme_monaco';
+		$themes = Theme::getAvailableThemes( $skinName );
 		$fallbackTheme = self::getSkinFallbackTheme();
 		// Check the following things in this order:
 		// 1) value of $wgMonacoDefaultTheme (set in site configuration)
 		// 2) user's personal preference/override
 		// 3) per-page usetheme URL parameter
-		$theme_default = self::getDefaultTheme( $skinName, $fallbackTheme );
+		$theme_default = Theme::getDefaultTheme( $skinName, $fallbackTheme );
 		$theme = $theme_default;
 		if ( !$disableSelectThemes ) {
 			$theme_user = $this->mUserOptionsLookup->getOption( $user, $theme_key, $theme_default );
@@ -178,8 +87,8 @@ class SkinMonaco extends SkinTemplate {
 			}
 		}
 
-		// Theme is another conditional feature, we can't really resource load this
-		$out->addStyle( "Monaco/style/{$theme}/css/main.css", 'screen' );
+		// This resources are loaded by extension Theme
+#		$out->addStyle( "Monaco/style/{$theme}/css/main.css", 'screen' );
 
 		// TODO: explicit RTL style sheets are supposed to be obsolete w/ResourceLoader
 		// I have no way to test this currently, however. -haleyjd
