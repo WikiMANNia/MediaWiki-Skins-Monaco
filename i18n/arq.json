@@ -14,11 +14,9 @@
 	"monaco-view-random-page": "عرض صفحة على الزهر",
 	"monaco-masthead-anonymous-user": "مستخدم مجهول",
 	"monaco-tab-addsection": "خلي رسائل",
-	"monaco-theme-prefs-label": "المظهر:",
 	"theme-name-monaco-beach": "شاطئ",
 	"theme-name-monaco-brick": "الطوب",
 	"theme-name-monaco-carbon": "الكربون",
-	"theme-name-monaco-default": "افتراضي",
 	"theme-name-monaco-forest": "غابة",
 	"theme-name-monaco-gaming": "ألعاب الفيديو",
 	"theme-name-monaco-jade": "يشب (Jade)",
@@ -29,6 +27,5 @@
 	"theme-name-monaco-sky": "سماء",
 	"theme-name-monaco-slate": "لوح",
 	"theme-name-monaco-smoke": "دخان",
-	"theme-name-monaco-spring": "ربيع",
-	"monaco-theme-selection-deactivated": "اختيار الثيمات معطل."
+	"theme-name-monaco-spring": "ربيع"
 }

@@ -7,7 +7,19 @@
 	},
 	"dynamic-links-write-article": "Crea una nuova voce",
 	"dynamic-links-add-image": "Carica una nuova immagine",
-	"monaco-theme-prefs-label": "Tema:",
-	"theme-name-monaco-default": "predefinito",
-	"monaco-theme-selection-deactivated": "La selezione dei temi è disattivata."
+	"monaco-tab-edit": "Modifica questa pagina",
+	"theme-name-monaco-beach": "Spiaggia",
+	"theme-name-monaco-brick": "Mattone",
+	"theme-name-monaco-carbon": "Carbonio",
+	"theme-name-monaco-forest": "Foresta",
+	"theme-name-monaco-gaming": "Giochi",
+	"theme-name-monaco-jade": "Giada",
+	"theme-name-monaco-moonlight": "Chiaro di luna",
+	"theme-name-monaco-obsession": "Ossessione",
+	"theme-name-monaco-ruby": "Rubino",
+	"theme-name-monaco-sapphire": "Zaffiro",
+	"theme-name-monaco-sky": "Cielo",
+	"theme-name-monaco-slate": "Ardesia",
+	"theme-name-monaco-smoke": "Fumo",
+	"theme-name-monaco-spring": "Primavera"
 }

@@ -15,11 +15,9 @@
 	"monaco-masthead-anonymous-user": "Anonym bruker",
 	"skinname-monaco": "Monaco",
 	"monaco-tab-addsection": "Legg igjen en beskjed",
-	"monaco-theme-prefs-label": "Tema:",
 	"theme-name-monaco-beach": "Strand",
 	"theme-name-monaco-brick": "Murstein",
 	"theme-name-monaco-carbon": "Karbon",
-	"theme-name-monaco-default": "standard",
 	"theme-name-monaco-forest": "Skog",
 	"theme-name-monaco-gaming": "Gaming",
 	"theme-name-monaco-jade": "Jade",
@@ -30,6 +28,5 @@
 	"theme-name-monaco-sky": "Himmel",
 	"theme-name-monaco-slate": "Skifer",
 	"theme-name-monaco-smoke": "Røyk",
-	"theme-name-monaco-spring": "Vår",
-	"monaco-theme-selection-deactivated": "Valg av temaer er deaktivert."
+	"theme-name-monaco-spring": "Vår"
 }

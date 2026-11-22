@@ -19,11 +19,9 @@
 	"monaco-masthead-anonymous-user": "Monaco anonymous user text in masthead.",
 	"skinname-monaco": "{{name}}",
 	"monaco-tab-addsection": "Monaco add section tab message.",
-	"monaco-theme-prefs-label": "Label shown on Special:Preferences\n{{Identical|Theme}}",
 	"theme-name-monaco-beach": "Name of the Beach theme",
 	"theme-name-monaco-brick": "Name of the Brick theme",
 	"theme-name-monaco-carbon": "Name of the Carbon theme",
-	"theme-name-monaco-default": "Name of the default theme",
 	"theme-name-monaco-forest": "Name of the Forest theme",
 	"theme-name-monaco-gaming": "Name of the Gaming theme",
 	"theme-name-monaco-jade": "Name of the Jade theme",
@@ -34,6 +32,5 @@
 	"theme-name-monaco-sky": "Name of the Sky theme",
 	"theme-name-monaco-slate": "Name of the Slate theme",
 	"theme-name-monaco-smoke": "Name of the Smoke theme",
-	"theme-name-monaco-spring": "Name of the Spring theme",
-	"monaco-theme-selection-deactivated": "Text shown at Special:Preferences when theme selection is deactivated."
+	"theme-name-monaco-spring": "Name of the Spring theme"
 }

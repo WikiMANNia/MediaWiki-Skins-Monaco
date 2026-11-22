@@ -13,11 +13,9 @@
 	"monaco-view-random-page": "यादृच्छिक पृष्ठ देखें",
 	"monaco-masthead-anonymous-user": "गुमनाम सदस्य",
 	"monaco-tab-addsection": "संदेश छोड़ें",
-	"monaco-theme-prefs-label": "थीम:",
 	"theme-name-monaco-beach": "समुद्र तट",
 	"theme-name-monaco-brick": "ईंट",
 	"theme-name-monaco-carbon": "कार्बन",
-	"theme-name-monaco-default": "डिफ़ॉल्ट",
 	"theme-name-monaco-forest": "जंगल",
 	"theme-name-monaco-gaming": "गेमिंग",
 	"theme-name-monaco-jade": "हरिताश्म",
@@ -28,6 +26,5 @@
 	"theme-name-monaco-sky": "आसमान",
 	"theme-name-monaco-slate": "स्लेट",
 	"theme-name-monaco-smoke": "धुआँ",
-	"theme-name-monaco-spring": "वसंत",
-	"monaco-theme-selection-deactivated": "थीम चुनने का विकल्प निष्क्रिय कर दिया गया है।"
+	"theme-name-monaco-spring": "वसंत"
 }

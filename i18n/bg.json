@@ -14,11 +14,9 @@
 	"monaco-view-random-page": "Преглед на произволна страница",
 	"monaco-masthead-anonymous-user": "Анонимен потребител",
 	"monaco-tab-addsection": "Оставете съобщение",
-	"monaco-theme-prefs-label": "Облик:",
 	"theme-name-monaco-beach": "Плаж",
 	"theme-name-monaco-brick": "Тухла",
 	"theme-name-monaco-carbon": "Въглерод",
-	"theme-name-monaco-default": "по подразбиране",
 	"theme-name-monaco-forest": "Гора",
 	"theme-name-monaco-gaming": "Игри",
 	"theme-name-monaco-jade": "Нефрит",
@@ -29,6 +27,5 @@
 	"theme-name-monaco-sky": "Небе",
 	"theme-name-monaco-slate": "Шисти",
 	"theme-name-monaco-smoke": "Дим",
-	"theme-name-monaco-spring": "Пролет",
-	"monaco-theme-selection-deactivated": "Изборът на теми е деактивиран."
+	"theme-name-monaco-spring": "Пролет"
 }

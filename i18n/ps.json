@@ -15,11 +15,9 @@
 	"monaco-masthead-anonymous-user": "ورکنومی کارن",
 	"skinname-monaco": "موناکو",
 	"monaco-tab-addsection": "پيغام پرېښودل",
-	"monaco-theme-prefs-label": "شاليد:",
 	"theme-name-monaco-beach": "سيندغاړه",
 	"theme-name-monaco-brick": "خښته",
 	"theme-name-monaco-carbon": "کاربن",
-	"theme-name-monaco-default": "تلواليز",
 	"theme-name-monaco-forest": "ځنگل",
 	"theme-name-monaco-gaming": "لوبې",
 	"theme-name-monaco-jade": "شين‌کاڼی",
@@ -30,6 +28,5 @@
 	"theme-name-monaco-sky": "اسمان",
 	"theme-name-monaco-slate": "شوکاڼی",
 	"theme-name-monaco-smoke": "لوگی",
-	"theme-name-monaco-spring": "پسرلی",
-	"monaco-theme-selection-deactivated": "د شاليد ټاکنه ناچارن شوې ده."
+	"theme-name-monaco-spring": "پسرلی"
 }

@@ -15,11 +15,9 @@
 	"monaco-masthead-anonymous-user": "Anonymný používateľ",
 	"skinname-monaco": "Monaco",
 	"monaco-tab-addsection": "Zanechať správu",
-	"monaco-theme-prefs-label": "Téma:",
 	"theme-name-monaco-beach": "Pláž",
 	"theme-name-monaco-brick": "Tehla",
 	"theme-name-monaco-carbon": "Karbón",
-	"theme-name-monaco-default": "predvolená",
 	"theme-name-monaco-forest": "Les",
 	"theme-name-monaco-gaming": "Gaming",
 	"theme-name-monaco-jade": "Nefrit",
@@ -30,6 +28,5 @@
 	"theme-name-monaco-sky": "Obloha",
 	"theme-name-monaco-slate": "Bridlica",
 	"theme-name-monaco-smoke": "Dym",
-	"theme-name-monaco-spring": "Jar",
-	"monaco-theme-selection-deactivated": "Výber tém je deaktivovaný."
+	"theme-name-monaco-spring": "Jar"
 }

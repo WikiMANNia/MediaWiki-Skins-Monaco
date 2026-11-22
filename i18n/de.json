@@ -22,11 +22,9 @@
 	"skinname-monaco": "Monaco",
 	"monaco-tab-addsection": "Nachricht hinterlassen",
 	"monaco-tab-edit": "Diese Seite bearbeiten",
-	"monaco-theme-prefs-label": "Thema:",
 	"theme-name-monaco-beach": "Strand",
 	"theme-name-monaco-brick": "Ziegelstein",
 	"theme-name-monaco-carbon": "Kohle",
-	"theme-name-monaco-default": "voreingestellt",
 	"theme-name-monaco-forest": "Wald",
 	"theme-name-monaco-gaming": "Spiel",
 	"theme-name-monaco-jade": "Jade",
@@ -37,6 +35,5 @@
 	"theme-name-monaco-sky": "Himmel",
 	"theme-name-monaco-slate": "Schiefer",
 	"theme-name-monaco-smoke": "Rauch",
-	"theme-name-monaco-spring": "Frühling",
-	"monaco-theme-selection-deactivated": "Die Auswahl der Themen ist deaktiviert."
+	"theme-name-monaco-spring": "Frühling"
 }

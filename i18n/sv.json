@@ -15,11 +15,9 @@
 	"monaco-view-random-page": "Visa slumpmässig sida",
 	"monaco-masthead-anonymous-user": "Anonym användare",
 	"monaco-tab-addsection": "Lämna meddelande",
-	"monaco-theme-prefs-label": "Tema:",
 	"theme-name-monaco-beach": "Strand",
 	"theme-name-monaco-brick": "Tegel",
 	"theme-name-monaco-carbon": "Kol",
-	"theme-name-monaco-default": "standard",
 	"theme-name-monaco-forest": "Skog",
 	"theme-name-monaco-gaming": "Spel",
 	"theme-name-monaco-jade": "Jade",
@@ -30,6 +28,5 @@
 	"theme-name-monaco-sky": "Himmel",
 	"theme-name-monaco-slate": "Skiffer",
 	"theme-name-monaco-smoke": "Rök",
-	"theme-name-monaco-spring": "Vår",
-	"monaco-theme-selection-deactivated": "Valet av teman är inaktiverat."
+	"theme-name-monaco-spring": "Vår"
 }

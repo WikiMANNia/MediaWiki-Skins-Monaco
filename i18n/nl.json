@@ -17,11 +17,10 @@
 	"monaco-masthead-anonymous-user": "Anonieme gebruiker",
 	"skinname-monaco": "Monaco",
 	"monaco-tab-addsection": "Een bericht achterlaten",
-	"monaco-theme-prefs-label": "Thema:",
+	"monaco-tab-edit": "Deze pagina bewerken",
 	"theme-name-monaco-beach": "Strand",
 	"theme-name-monaco-brick": "Steen",
 	"theme-name-monaco-carbon": "Carbon",
-	"theme-name-monaco-default": "standaard",
 	"theme-name-monaco-forest": "Bos",
 	"theme-name-monaco-gaming": "Gamen",
 	"theme-name-monaco-jade": "Jade",
@@ -32,6 +31,5 @@
 	"theme-name-monaco-sky": "Lucht",
 	"theme-name-monaco-slate": "Leisteen",
 	"theme-name-monaco-smoke": "Rook",
-	"theme-name-monaco-spring": "Lente",
-	"monaco-theme-selection-deactivated": "De selectie van thema's is gedeactiveerd."
+	"theme-name-monaco-spring": "Lente"
 }

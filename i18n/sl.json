@@ -15,11 +15,9 @@
 	"monaco-masthead-anonymous-user": "Anonimni uporabnik",
 	"skinname-monaco": "Monaco",
 	"monaco-tab-addsection": "Pusti sporočilo",
-	"monaco-theme-prefs-label": "Tema:",
 	"theme-name-monaco-beach": "Plaža",
 	"theme-name-monaco-brick": "Opeka",
 	"theme-name-monaco-carbon": "Oglje",
-	"theme-name-monaco-default": "privzeto",
 	"theme-name-monaco-forest": "Gozd",
 	"theme-name-monaco-gaming": "Igra",
 	"theme-name-monaco-jade": "Žad",
@@ -30,6 +28,5 @@
 	"theme-name-monaco-sky": "Nebo",
 	"theme-name-monaco-slate": "Skrilavec",
 	"theme-name-monaco-smoke": "Dim",
-	"theme-name-monaco-spring": "Pomlad",
-	"monaco-theme-selection-deactivated": "Izbira tem je deaktivirana."
+	"theme-name-monaco-spring": "Pomlad"
 }

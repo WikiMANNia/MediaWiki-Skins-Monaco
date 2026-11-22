@@ -15,11 +15,9 @@
 	"monaco-masthead-anonymous-user": "Usuario anónimo",
 	"skinname-monaco": "Mónaco",
 	"monaco-tab-addsection": "Deixar unha mensaxe",
-	"monaco-theme-prefs-label": "Tema:",
 	"theme-name-monaco-beach": "Praia",
 	"theme-name-monaco-brick": "Ladrillo",
 	"theme-name-monaco-carbon": "Carbono",
-	"theme-name-monaco-default": "predeterminado",
 	"theme-name-monaco-forest": "Bosque",
 	"theme-name-monaco-gaming": "Xogo",
 	"theme-name-monaco-jade": "Xade",
@@ -30,6 +28,5 @@
 	"theme-name-monaco-sky": "Ceo",
 	"theme-name-monaco-slate": "Lousa",
 	"theme-name-monaco-smoke": "Fume",
-	"theme-name-monaco-spring": "Primavera",
-	"monaco-theme-selection-deactivated": "A selección de temas está desactivada."
+	"theme-name-monaco-spring": "Primavera"
 }

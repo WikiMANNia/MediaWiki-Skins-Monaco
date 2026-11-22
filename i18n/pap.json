@@ -12,11 +12,9 @@
 	"monaco-view-random-page": "Wak kalke página",
 	"monaco-masthead-anonymous-user": "Usadó anónimo",
 	"monaco-tab-addsection": "Laga un mensahe",
-	"monaco-theme-prefs-label": "Tema:",
 	"theme-name-monaco-beach": "Playa",
 	"theme-name-monaco-brick": "Klenku",
 	"theme-name-monaco-carbon": "Karbon",
-	"theme-name-monaco-default": "standart",
 	"theme-name-monaco-forest": "Boske",
 	"theme-name-monaco-gaming": "Wega",
 	"theme-name-monaco-jade": "Djeit",
@@ -27,6 +25,5 @@
 	"theme-name-monaco-sky": "Shelu",
 	"theme-name-monaco-slate": "Lèi",
 	"theme-name-monaco-smoke": "Huma",
-	"theme-name-monaco-spring": "Primavera",
-	"monaco-theme-selection-deactivated": "E selekshon di tema ta desaktivá."
+	"theme-name-monaco-spring": "Primavera"
 }

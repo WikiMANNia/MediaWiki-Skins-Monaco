@@ -14,11 +14,9 @@
 	"monaco-masthead-anonymous-user": "Анониман декъашхо",
 	"skinname-monaco": "Монако",
 	"monaco-tab-addsection": "Хаам бита",
-	"monaco-theme-prefs-label": "Кечйар:",
 	"theme-name-monaco-beach": "Пляж",
 	"theme-name-monaco-brick": "Кибарчиг",
 	"theme-name-monaco-carbon": "Углерод",
-	"theme-name-monaco-default": "Ӏадйитаран кеп",
 	"theme-name-monaco-forest": "Хьун",
 	"theme-name-monaco-gaming": "Ловзарш",
 	"theme-name-monaco-jade": "Джейд",
@@ -29,6 +27,5 @@
 	"theme-name-monaco-sky": "Стигал",
 	"theme-name-monaco-slate": "Шифер",
 	"theme-name-monaco-smoke": "КӀур",
-	"theme-name-monaco-spring": "БӀаьсте",
-	"monaco-theme-selection-deactivated": "Теманаш къастор дӀадаьккхина."
+	"theme-name-monaco-spring": "БӀаьсте"
 }

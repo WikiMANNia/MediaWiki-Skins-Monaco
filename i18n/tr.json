@@ -14,11 +14,10 @@
 	"monaco-masthead-anonymous-user": "Anonim kullanıcı",
 	"skinname-monaco": "Monaco",
 	"monaco-tab-addsection": "Mesaj bırak",
-	"monaco-theme-prefs-label": "Tema:",
+	"monaco-tab-edit": "Bu sayfayı düzenle",
 	"theme-name-monaco-beach": "Kumsal",
 	"theme-name-monaco-brick": "Tuğla",
 	"theme-name-monaco-carbon": "Karbon",
-	"theme-name-monaco-default": "varsayılan",
 	"theme-name-monaco-forest": "Orman",
 	"theme-name-monaco-gaming": "Oyun",
 	"theme-name-monaco-jade": "Yeşim",
@@ -29,6 +28,5 @@
 	"theme-name-monaco-sky": "Gökyüzü",
 	"theme-name-monaco-slate": "Arduvaz",
 	"theme-name-monaco-smoke": "Duman",
-	"theme-name-monaco-spring": "Bahar",
-	"monaco-theme-selection-deactivated": "Tema seçimi devre dışı bırakıldı."
+	"theme-name-monaco-spring": "Bahar"
 }
